@@ -25,7 +25,7 @@ The Wails window is a control panel. It is not the on-stream chat renderer.
 ## Window panes
 
 <p align="center">
-  <img src="docs/screenshots/window.gif" alt="Home, Configuration, Commands, and Test panes" width="760">
+  <img src="https://github.com/HardDie/ytmemchat_wails/releases/latest/download/window.gif" alt="Home, Configuration, Commands, and Test panes" width="760">
 </p>
 
 The operator window cycles through four panes: **Home** (Start/Stop, interrupt speech, OBS URLs), **Configuration** (stream, API key, alerts, TTS, shortcut), **Commands** (`commands.yaml`), and **Test** (inject a fake chat line).

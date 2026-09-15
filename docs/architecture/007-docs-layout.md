@@ -36,4 +36,4 @@ Write a use-case file **only after** that module exists in this repo. Until then
 ### Neutral
 
 * Use-case prose follows the template in `docs/use-cases/_TEMPLATE.md` (actors, goal, preconditions, happy path, alternatives, postconditions).
-* README window showcase is `docs/screenshots/window.gif`, regenerated with `make screenshots` (Vite + Playwright + gifenc, not a Wails window).
+* README window showcase is `window.gif`, generated on release CI (and locally with `make screenshots`) via Playwright + gifenc and displayed from `https://github.com/HardDie/ytmemchat_wails/releases/latest/download/window.gif`.
