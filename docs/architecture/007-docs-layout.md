@@ -1,0 +1,38 @@
+# 7. Documentation layout: README, CURSOR.md, and `docs/`
+
+* **Status:** Accepted
+* **Date:** 2026-09-15
+* **Authors:** @oleg
+
+---
+
+## Context
+
+The project needs a user README ([Make a README](https://www.makeareadme.com/)), agent/implementation rules, architecture decisions, and use cases for ported modules. Dumping everything into `CURSOR.md` or the README makes both unusable.
+
+## Considered options
+
+1. **Only README** — not enough for agents or ADRs.
+2. **README + root ARCHITECTURE.md + CLAUDE/CURSOR.md** — splits docs across the repo root.
+3. **README (users) + CURSOR.md (agents) + `docs/architecture` (ADRs) + `docs/use-cases` (after each module is ported).**
+
+## Decision
+
+Use option 3. All long-form product/architecture docs besides README and CURSOR.md live under `docs/`.
+
+Write a use-case file **only after** that module exists in this repo. Until then, list the scenario in `docs/use-cases/INDEX.md` as Planned. When a module is ported, add `uc-NN-….md` and set the index status to Ported.
+
+## Consequences
+
+### Positive
+
+* Users start at README; agents start at CURSOR.md; decisions are numbered ADRs.
+* Use cases stay honest (no fiction about unported code).
+
+### Negative and risks
+
+* Three places to update when a user-visible contract changes (README + CURSOR.md + ADR if the decision changed).
+
+### Neutral
+
+* Use-case prose follows the template in `docs/use-cases/_TEMPLATE.md` (actors, goal, preconditions, happy path, alternatives, postconditions).
