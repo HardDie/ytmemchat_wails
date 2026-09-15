@@ -135,13 +135,7 @@ The settings UI should make the optional key obvious: empty = no-key client; fil
 | YouTube | Data API v3 when an API key is set; otherwise `youtube/nokey`. Same `youtube.Client` interface. |
 | Config | JSON file under the OS user config dir (Go `os.UserConfigDir`); settings UI; no committed `.env` |
 
-Bootstrap (when the tree is still empty):
-
-```bash
-wails init -n ytmemchat -t svelte-ts
-```
-
-This workspace is already named `ytmemchat_wails`. Scaffold **into this directory** so git history stays here. Do not nest a second project folder unless asked.
+The tree already has `wails.json`, `main.go`, `app.go`, and `frontend/` from `wails init -t svelte-ts`. Do not run init again (it would nest a second project). After changing exported `App` methods: `make generate`.
 
 ---
 
@@ -151,7 +145,7 @@ Prerequisites: Go, Node/npm, Wails CLI (`go install github.com/wailsapp/wails/v2
 
 ```bash
 make help   # all developer targets
-make dev    # wails dev (needs wails.json)
+make dev    # wails dev
 make build  # wails build for this OS
 make test
 make test-integration

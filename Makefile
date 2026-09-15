@@ -1,5 +1,4 @@
 # Common developer commands. Run `make help` for the list.
-# Wails targets need a scaffolded project (wails.json). Go test targets work today.
 
 APP_NAME     := ytmemchat
 INTERNAL     := ./internal/...

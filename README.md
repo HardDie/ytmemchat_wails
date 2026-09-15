@@ -2,9 +2,9 @@
 
 ytmemchat is a desktop companion for [YouTube](https://www.youtube.com/) Live. It reads live chat and drives an [OBS](https://obsproject.com/) overlay: on-stream messages, meme alerts, and text-to-speech.
 
-This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev). You configure and start the pipeline in a native window. OBS Browser Sources load local HTTP pages that update over WebSocket.
+This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) desktop app. You configure and start the pipeline in a native window. OBS Browser Sources load local HTTP pages that update over WebSocket.
 
-**Project status:** early development. The Wails app is not scaffolded yet; behavior below is the intended product. Until binaries exist, use the [console app](https://github.com/HardDie/ytmemchat) on stream.
+**Project status:** early development. The Wails window is scaffolded (`make dev`); settings, OBS HTTP on launch, and YouTube Start are not wired yet. Until those land, use the [console app](https://github.com/HardDie/ytmemchat) on stream.
 
 ## Features
 
@@ -29,10 +29,9 @@ The Wails window is a control panel. It is not the on-stream chat renderer.
 
 ## Installation
 
-From source (after the Wails project exists in this directory):
+From source:
 
 ```bash
-# From source (after Wails scaffold)
 git clone <this-repo>
 cd ytmemchat_wails
 make build
@@ -109,8 +108,8 @@ curl -X POST http://127.0.0.1:8080/api/interrupt
 
 ## Roadmap
 
-- Scaffold Wails v2 + Svelte and persist settings in the OS config directory
-- Port YouTube clients, HTTP/WebSocket OBS routes, alerts, and TTS
+- Scaffold Wails v2 + Svelte window (done); persist settings and start OBS HTTP on launch
+- Wire YouTube Start/Stop into the already-open OBS sockets
 - Copy OBS URLs from the settings window
 - GitHub Actions: tests on push; tagged releases with Linux (amd64, arm64), Windows, and macOS binaries
 - Later: OS keychain for the API key; code-signed installers
@@ -128,7 +127,7 @@ See [CURSOR.md](CURSOR.md) for layout, routes, and implementation rules. Archite
 
 ## Contributing
 
-The Wails app is not runnable yet. When you change **user-facing** behavior (features, install steps, OBS URLs, settings location, status, CI, releases), update this README in the same change. When you **port a module**, add a use-case file under `docs/use-cases/<module>/`, set its row to Ported in [docs/use-cases/INDEX.md](docs/use-cases/INDEX.md), give the package complete [Go documentation](https://go.dev/doc/comment), add a `go doc` command for it in the table below, and add unit tests (plus integration tests when the package hits HTTP, disk, or the OS). New architecture choices get an ADR in [docs/architecture](docs/architecture/INDEX.md).
+The Wails window is scaffolded. Settings save, OBS listen-on-launch, and Start/Stop are not wired yet. When you change **user-facing** behavior (features, install steps, OBS URLs, settings location, status, CI, releases), update this README in the same change. When you **port a module**, add a use-case file under `docs/use-cases/<module>/`, set its row to Ported in [docs/use-cases/INDEX.md](docs/use-cases/INDEX.md), give the package complete [Go documentation](https://go.dev/doc/comment), add a `go doc` command for it in the table below, and add unit tests (plus integration tests when the package hits HTTP, disk, or the OS). New architecture choices get an ADR in [docs/architecture](docs/architecture/INDEX.md).
 
 Developer-oriented contracts live in [CURSOR.md](CURSOR.md). Match Go style in [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat). Day-to-day commands:
 
@@ -166,7 +165,7 @@ git push origin v0.1.0
 | `ytmemchat-darwin-universal.zip` | macOS Intel + Apple Silicon |
 | `SHA256SUMS.txt` | checksums |
 
-Requires `wails.json` (project already scaffolded). Binaries are not code-signed yet.
+Requires `wails.json`. Binaries are not code-signed yet.
 
 ### Package documentation
 
@@ -193,7 +192,7 @@ Then open `http://localhost:8081` and select this module.
 | `internal/obs` | Ported | `go doc -all ./internal/obs` |
 | `internal/alerts` | Ported | `go doc -all ./internal/alerts` |
 | `internal/tts` | Ported | `go doc -all ./internal/tts` |
-| `package main` (bindings façade) | Not ported | `go doc -all .` |
+| `package main` (bindings façade) | Scaffolded | `go doc -all .` |
 
 Set **Status** to Ported in this table when `go doc -all` prints a real package comment and every export is described.
 
