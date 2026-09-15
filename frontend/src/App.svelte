@@ -252,7 +252,7 @@
       {:else if page === 'test'}
         <TestPane bind:testMessage {obs} onSend={sendTest} />
       {:else}
-        <HomePane {run} {obs} {starting} onStart={start} onStop={stop} onInterrupt={interruptTTS} />
+        <HomePane {run} {obs} {streamId} {starting} onStart={start} onStop={stop} onInterrupt={interruptTTS} />
       {/if}
     </div>
 

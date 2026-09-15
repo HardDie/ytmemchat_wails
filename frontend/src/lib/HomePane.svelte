@@ -3,6 +3,7 @@
 
   export let run: main.RunStatus | null
   export let obs: main.OBSStatus | null
+  export let streamId: string
   export let starting: boolean
   export let onStart: () => Promise<void>
   export let onStop: () => Promise<void>
@@ -32,7 +33,10 @@
 <section class="card">
   <header class="card-head">
     <h2>YouTube live chat</h2>
-    <span class="badge {youtubeBadge}">{youtubeLabel}</span>
+    <div class="status-cluster">
+      <code class="stream-id" title={streamId || 'Set a stream ID in Configuration'}>{streamId || 'No stream ID'}</code>
+      <span class="badge {youtubeBadge}">{youtubeLabel}</span>
+    </div>
   </header>
   <p class="hint">{youtubeDetail}</p>
   {#if run && run.error}

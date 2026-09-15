@@ -230,6 +230,23 @@ textarea:focus {
     margin-bottom: 12px;
 }
 
+.status-cluster {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.stream-id {
+    max-width: 11rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+}
+
 .card-compact {
     padding-top: 10px;
     padding-bottom: 10px;
