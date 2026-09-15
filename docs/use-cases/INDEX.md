@@ -8,9 +8,9 @@ Copy [\_TEMPLATE.md](_TEMPLATE.md) when a module is ported.
 
 | ID | Name | Module | Status | File |
 |---|---|---|---|---|
-| UC-01 | Start chat without an API key | `internal/youtube/nokey` | Planned | — |
-| UC-02 | Start chat with a valid API key | `internal/youtube` | Planned | — |
-| UC-03 | Invalid API key does not fall back | `internal/youtube` | Planned | — |
+| UC-01 | Start chat without an API key | `internal/youtube/nokey` | Ported | [youtube/uc-01-start-chat-without-api-key.md](youtube/uc-01-start-chat-without-api-key.md) |
+| UC-02 | Start chat with a valid API key | `internal/youtube` | Ported | [youtube/uc-02-start-chat-with-api-key.md](youtube/uc-02-start-chat-with-api-key.md) |
+| UC-03 | Invalid API key does not fall back | `internal/youtube` | Ported | [youtube/uc-03-invalid-api-key.md](youtube/uc-03-invalid-api-key.md) |
 | UC-04 | Save and reload settings | `internal/config` | Ported | [config/uc-04-save-settings.md](config/uc-04-save-settings.md) |
 | UC-05 | Show live chat in OBS | `internal/obs` | Planned | — |
 | UC-06 | Play alert / TTS on overlay | `internal/obs` | Planned | — |
