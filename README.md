@@ -4,7 +4,7 @@ ytmemchat is a desktop companion for [YouTube](https://www.youtube.com/) Live. I
 
 This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) desktop app. You configure and start the pipeline in a native window. OBS Browser Sources load local HTTP pages that update over WebSocket.
 
-**Project status:** early development. The app serves OBS pages while open, Start/Stop YouTube chat, and fans alert commands or TTS onto the overlay. Enable modules on the home page; set command YAML, media folder, and TTS voice on inner pages.
+**Project status:** early development. The Wails window is setup only (Home / Config / Test). OBS shows chat and overlay. Start/Stop YouTube chat from Home; alerts and TTS go to the overlay.
 
 ## Features
 
@@ -55,7 +55,7 @@ Settings are stored in a local JSON file (mode `0600`), not in the repo:
 
 ## Usage
 
-1. Open the app. OBS URLs are already served (default port `8080`). Set the **stream/video ID**. Optionally set a YouTube API key. Use the **Alerts** / **TTS** toggles and **Configure** pages for command YAML, media folder, and voice.
+1. Open the app. This window is setup only; OBS shows chat and overlay. On **Config**, set the **stream/video ID**, optional API key, alerts, TTS, and copy the OBS URLs (default port `8080`).
 2. In OBS, add two **Browser Sources**:
 
 | Source | URL (port `8080`) |
@@ -65,8 +65,8 @@ Settings are stored in a local JSON file (mode `0600`), not in the repo:
 
 3. Size each source to your canvas (for example `1920x1080`).
 4. On the overlay source, click **Interact** once and allow audio so TTS and alert sounds can autoplay.
-5. Click **Start** to pull live chat onto `/obs/chat`. Matching `@command` lines (when alerts are enabled and `commandsFilePath` is set in config) play on `/obs/overlay`; other lines are spoken when TTS is enabled. **Stop** ends YouTube polling; OBS sources stay connected.
-6. Use **Test overlay** in the window to send a fake chat line or **Stop TTS** without waiting for speech to finish. **Test HTTP API** is optional, for curl/automation.
+5. On **Home**, click **Start** to pull live chat onto `/obs/chat`. Matching `@command` lines play on `/obs/overlay`; other lines are spoken when TTS is enabled. **Stop** ends YouTube polling; OBS sources stay connected. **Interrupt** cuts current overlay audio.
+6. Use **Test** to send a fake chat line without going live. **HTTP API** on Config is optional, for curl/automation.
 
 Chat with a transparent background: `http://127.0.0.1:8080/obs/chat?transparent=1`.
 
@@ -74,7 +74,7 @@ The config window can copy these URLs for the current port. Opening `http://127.
 
 ### Alert commands
 
-Point the app at a media folder and a YAML file from **Alerts → Configure** (or the same fields in `config.json`):
+Point the app at a media folder and a YAML file from **Config** (or the same fields in `config.json`):
 
 ```yaml
 commands:
@@ -90,7 +90,7 @@ Chat messages that contain the command token (default `@`) plus a command name p
 
 ### Test API
 
-With the app open and **Test HTTP API** enabled (YouTube Start is not required):
+With the app open and **HTTP API** enabled on Config (YouTube Start is not required):
 
 ```bash
 curl -X POST http://127.0.0.1:8080/api/webhook \
@@ -111,7 +111,7 @@ curl -X POST http://127.0.0.1:8080/api/interrupt
 
 - Scaffold Wails v2 + Svelte, persist settings, serve OBS HTTP, Start/Stop chat overlay (done)
 - Wire alert commands and TTS onto the overlay (done)
-- Settings window: module toggles and inner pages for paths/voice (done)
+- Settings window panes: Home (status, interrupt), Config, Test (done)
 - Wire `POST /api/webhook` into the same overlay path (done)
 - GitHub Actions: tests on push; tagged releases with Linux (amd64, arm64), Windows, and macOS binaries
 - Later: OS keychain for the API key; code-signed installers

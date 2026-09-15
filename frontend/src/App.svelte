@@ -15,10 +15,11 @@
   } from '../wailsjs/go/main/App.js'
   import { main } from '../wailsjs/go/models'
   import { ClipboardSetText, EventsOn } from '../wailsjs/runtime/runtime'
-  import AlertsPage from './lib/AlertsPage.svelte'
-  import TTSPage from './lib/TTSPage.svelte'
+  import HomePane from './lib/HomePane.svelte'
+  import ConfigPane from './lib/ConfigPane.svelte'
+  import TestPane from './lib/TestPane.svelte'
 
-  type Page = 'home' | 'alerts' | 'tts'
+  type Page = 'home' | 'config' | 'test'
 
   let page: Page = 'home'
   let streamId = ''
@@ -168,7 +169,6 @@
     status = ''
     try {
       await InterruptTTS()
-      status = 'TTS interrupted.'
     } catch (e) {
       error = String(e)
     }
@@ -202,134 +202,37 @@
 </script>
 
 <main>
-  {#if page === 'alerts'}
-    <AlertsPage
-      bind:token={alertsToken}
-      bind:commandsPath={alertsCommandsFilePath}
-      bind:mediaPath={alertsMediaPath}
+  <nav class="panes" aria-label="Window panes">
+    <button class="pane-btn" class:active={page === 'home'} type="button" on:click={() => { page = 'home' }}>Home</button>
+    <button class="pane-btn" class:active={page === 'config'} type="button" on:click={() => { page = 'config' }}>Config</button>
+    <button class="pane-btn" class:active={page === 'test'} type="button" on:click={() => { page = 'test' }}>Test</button>
+  </nav>
+
+  {#if page === 'config'}
+    <ConfigPane
+      bind:streamId
+      bind:apiKey
+      bind:port
+      bind:ttsEnabled
+      bind:ttsVoiceName
+      bind:alertsEnabled
+      bind:alertsToken
+      bind:alertsMediaPath
+      bind:alertsCommandsFilePath
+      bind:webhookEnabled
       {saving}
-      onBack={() => { page = 'home' }}
+      {configPath}
+      {obs}
       onSave={save}
       onPickYaml={pickYaml}
       onPickMedia={pickMedia}
+      onCopyChat={copyChat}
+      onCopyOverlay={copyOverlay}
     />
-  {:else if page === 'tts'}
-    <TTSPage
-      bind:voiceName={ttsVoiceName}
-      {saving}
-      onBack={() => { page = 'home' }}
-      onSave={save}
-    />
+  {:else if page === 'test'}
+    <TestPane bind:testMessage {obs} onSend={sendTest} />
   {:else}
-    <h1>ytmemchat</h1>
-    <p class="lead">Settings for this machine. OBS pages are served while this window is open. Start pulls live chat into the chat overlay and fans matching commands or TTS onto the overlay.</p>
-
-    <label>
-      Stream / video ID
-      <input autocomplete="off" bind:value={streamId} spellcheck="false" type="text" />
-    </label>
-    <p class="hint">The <code>v=</code> value from the YouTube watch URL. Required to Start.</p>
-
-    <label>
-      YouTube API key (optional)
-      <input autocomplete="off" bind:value={apiKey} spellcheck="false" type="password" />
-    </label>
-    <p class="hint">Leave empty to use the no-key live chat client. A wrong key does not fall back.</p>
-
-    <label>
-      HTTP port
-      <input autocomplete="off" bind:value={port} spellcheck="false" type="text" />
-    </label>
-    <p class="hint">Changing the port restarts the OBS listener after a successful save.</p>
-
-    <h2>Modules</h2>
-    <div class="module-row">
-      <label class="toggle">
-        <input bind:checked={alertsEnabled} type="checkbox" on:change={save} />
-        Alerts
-      </label>
-      <button class="btn btn-small" type="button" on:click={() => { page = 'alerts' }}>Configure</button>
-    </div>
-    <p class="hint">Play media when chat contains the command token. Set YAML and media paths on the alerts page.</p>
-
-    <div class="module-row">
-      <label class="toggle">
-        <input bind:checked={ttsEnabled} type="checkbox" on:change={save} />
-        Text to speech
-      </label>
-      <button class="btn btn-small" type="button" on:click={() => { page = 'tts' }}>Configure</button>
-    </div>
-    <p class="hint">Speak chat lines that did not match an alert command.</p>
-
-    <div class="module-row">
-      <label class="toggle">
-        <input bind:checked={webhookEnabled} type="checkbox" on:change={save} />
-        Test HTTP API
-      </label>
-    </div>
-    <p class="hint">Serves <code>/api/webhook</code> and <code>/api/interrupt</code> for external automation. The test controls below do not need this toggle.</p>
-
-    <div class="actions">
-      <button class="btn" disabled={saving} type="button" on:click={save}>
-        {saving ? 'Saving…' : 'Save'}
-      </button>
-      <button class="btn" disabled={starting || (run && (run.running || run.connecting))} type="button" on:click={start}>
-        {run && run.connecting ? 'Connecting…' : 'Start'}
-      </button>
-      <button class="btn" disabled={!run || (!run.running && !run.connecting)} type="button" on:click={stop}>
-        Stop
-      </button>
-    </div>
-  {/if}
-
-  {#if run && page === 'home'}
-    {#if run.running}
-      <p class="ok">Chat running{run.usingApiKey ? ' (YouTube API key)' : ' (no API key)'}.</p>
-    {:else if run.connecting}
-      <p class="ok">Connecting to YouTube chat…</p>
-    {/if}
-    {#if run.error}
-      <p class="err">{run.error}</p>
-    {/if}
-  {/if}
-
-  {#if obs && page === 'home'}
-    <section class="obs">
-      <h2>OBS Browser Sources</h2>
-      {#if obs.listening}
-        <p class="ok">HTTP listening</p>
-      {:else}
-        <p class="err">HTTP not listening{obs.error ? ': ' + obs.error : ''}</p>
-      {/if}
-      <p class="url-row">
-        <span>Chat</span>
-        <code>{obs.chatUrl}</code>
-        <button class="btn btn-small" type="button" on:click={copyChat}>Copy</button>
-      </p>
-      <p class="url-row">
-        <span>Overlay</span>
-        <code>{obs.overlayUrl}</code>
-        <button class="btn btn-small" type="button" on:click={copyOverlay}>Copy</button>
-      </p>
-      <p class="hint">Index (not for OBS): <code>{obs.indexUrl}</code></p>
-    </section>
-  {/if}
-
-  {#if page === 'home'}
-    <section class="obs">
-      <h2>Test overlay</h2>
-      <p class="hint">Send a fake chat line (alerts/TTS apply) or stop the current speech. OBS HTTP must be listening. YouTube Start is not required.</p>
-      <label>
-        Test message
-        <span class="path-row">
-          <input autocomplete="off" bind:value={testMessage} placeholder="@jump or hello" spellcheck="false" type="text" />
-          <button class="btn btn-small" disabled={!obs || !obs.listening || !testMessage.trim()} type="button" on:click={sendTest}>Send</button>
-        </span>
-      </label>
-      <div class="actions">
-        <button class="btn" disabled={!obs || !obs.listening} type="button" on:click={interruptTTS}>Stop TTS</button>
-      </div>
-    </section>
+    <HomePane {run} {obs} {starting} onStart={start} onStop={stop} onInterrupt={interruptTTS} />
   {/if}
 
   {#if status}
@@ -337,8 +240,5 @@
   {/if}
   {#if error}
     <p class="err">{error}</p>
-  {/if}
-  {#if configPath && page === 'home'}
-    <p class="path">File: <code>{configPath}</code></p>
   {/if}
 </main>

@@ -22,7 +22,7 @@ func main() {
 	err := wails.Run(&options.App{
 		Title:  "ytmemchat",
 		Width:  560,
-		Height: 920,
+		Height: 640,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
