@@ -88,6 +88,14 @@ func (s *Server) PublishOverlay(msg OverlayEvent) {
 	s.overlay.publish(msg)
 }
 
+// NotifyAppClosed writes an app_closed event to chat and overlay sockets
+// before the connections are torn down. Callers should wait briefly so the
+// browser can handle the message, then [Server.Shutdown].
+func (s *Server) NotifyAppClosed() {
+	s.chat.broadcast(AppClosedChat())
+	s.overlay.broadcast(AppClosedOverlay())
+}
+
 // Injected is fake chat lines from POST /api/webhook. Receive from app.go.
 func (s *Server) Injected() <-chan InjectedMessage {
 	return s.injected

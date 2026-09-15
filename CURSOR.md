@@ -75,7 +75,7 @@ Optional query on chat: `?transparent=1` to drop the opaque background (map onto
 
 **Chat WS payload** (same as `ytmemchat/internal/chat/contract.go`): `authorName`, `authorPicture`, `messageText`, `publishedAt`, `isModerator`, `isOwner`.
 
-**Overlay WS payload** (same as `ytmemchat/internal/server/contract.go`): `type` (`alert` \| `tts` \| `tts_interrupt`), `payload`, `filename`, `volume`, `scale`. Overlay media URLs must use `/obs/media/<file>`, not `/media/`.
+**Overlay WS payload** (same as `ytmemchat/internal/server/contract.go`, plus `app_closed`): `type` (`alert` \| `tts` \| `tts_interrupt` \| `app_closed`), `payload`, `filename`, `volume`, `scale`. Overlay media URLs must use `/obs/media/<file>`, not `/media/`. On Wails graceful exit, both sockets get `type: app_closed` before close so OBS pages can show that the app quit; they keep retrying so a later launch reconnects. Unexpected drops still use the generic “disconnected” banner. Chat JSON may include optional `type` (`app_closed` only).
 
 Do not invent a parallel Wails Events protocol for OBS. If the config UI needs a status line, use bound Go methods (and optional Wails events **only** for window status — never as the OBS transport).
 

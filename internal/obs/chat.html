@@ -108,6 +108,10 @@
             z-index: 10001;
             pointer-events: none; /* Don't interfere with clicks */
         }
+
+        #connection-status.app-closed {
+            background-color: rgba(180, 110, 0, 0.85);
+        }
     </style>
 </head>
 <body>
@@ -132,7 +136,16 @@
         const wsProto = (window.location.protocol === 'https:') ? 'wss://' : 'ws://';
         const wsUri = wsProto + window.location.host + window.location.pathname.replace(/\/$/, '') + '/ws';
         const statusEl = document.getElementById('connection-status');
+        const STATUS_LOST = '⚠️ WEB SOCKET DISCONNECTED - RETRYING...';
+        const STATUS_CLOSED = 'ytmemchat is closed — reconnecting when it starts…';
         const RETRY_INTERVAL = 500; // 0.5 seconds
+        let appClosed = false;
+
+        function showConnectionStatus() {
+            statusEl.textContent = appClosed ? STATUS_CLOSED : STATUS_LOST;
+            statusEl.classList.toggle('app-closed', appClosed);
+            statusEl.style.display = 'block';
+        }
 
         const params = new URLSearchParams(window.location.search);
         if (params.get('fontSize')) {
@@ -163,12 +176,19 @@
 
             websocket.onopen = function() {
                 console.log("WebSocket Connected! Ready for media alerts.");
-                statusEl.style.display = 'none'; // Hide error
+                appClosed = false;
+                statusEl.classList.remove('app-closed');
+                statusEl.style.display = 'none';
             };
             websocket.onmessage = function(event) {
+                const msg = JSON.parse(event.data);
+                if (msg.type === 'app_closed') {
+                    appClosed = true;
+                    showConnectionStatus();
+                    return;
+                }
                 const container = document.getElementById('chat-container');
 
-                const msg = JSON.parse(event.data);
                 const div = document.createElement('div');
                 div.className = 'message-row';
 
@@ -182,7 +202,7 @@
             }
 
             websocket.onclose = function() {
-                statusEl.style.display = 'block'; // Show error immediately
+                showConnectionStatus();
                 console.log(`Connection lost. Retrying in ${RETRY_INTERVAL}ms...`);
 
                 // Nullify the reference so the next call knows to clean up

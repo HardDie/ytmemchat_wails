@@ -25,11 +25,14 @@ const (
 	PayloadTypeTTS PayloadType = "tts"
 	// PayloadTypeTTSInterrupt stops the current TTS utterance.
 	PayloadTypeTTSInterrupt PayloadType = "tts_interrupt"
+	// PayloadTypeAppClosed is sent on graceful process exit so OBS pages can
+	// show that ytmemchat closed instead of a generic socket drop.
+	PayloadTypeAppClosed PayloadType = "app_closed"
 )
 
 // OverlayEvent is JSON sent to /obs/overlay/ws (same fields as the console overlay).
 type OverlayEvent struct {
-	// Type is alert, tts, or tts_interrupt.
+	// Type is alert, tts, tts_interrupt, or app_closed.
 	Type PayloadType `json:"type"`
 	// Payload is raw WAV bytes for TTS (JSON base64). Unused for alerts.
 	Payload []byte `json:"payload"`
@@ -56,8 +59,15 @@ func InterruptOverlay() OverlayEvent {
 	return OverlayEvent{Type: PayloadTypeTTSInterrupt}
 }
 
+// AppClosedOverlay tells overlay clients the Wails process is exiting.
+func AppClosedOverlay() OverlayEvent {
+	return OverlayEvent{Type: PayloadTypeAppClosed}
+}
+
 // ChatEvent is JSON sent to /obs/chat/ws (same fields as the console chat overlay).
 type ChatEvent struct {
+	// Type is empty for chat lines. "app_closed" is a graceful process exit.
+	Type string `json:"type,omitempty"`
 	// AuthorName is the sender display name.
 	AuthorName string `json:"authorName"`
 	// AuthorPicture is the sender avatar URL.
@@ -83,6 +93,11 @@ func NewChatEvent(author, picture, text string, published time.Time) ChatEvent {
 		MessageText:   text,
 		PublishedAt:   published.UTC().Format(time.RFC3339),
 	}
+}
+
+// AppClosedChat tells chat clients the Wails process is exiting.
+func AppClosedChat() ChatEvent {
+	return ChatEvent{Type: string(PayloadTypeAppClosed)}
 }
 
 // InjectedMessage is a fake chat line from POST /api/webhook.

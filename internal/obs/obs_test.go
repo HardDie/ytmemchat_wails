@@ -56,6 +56,9 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if strings.Contains(string(cb), "/ws_chat") {
 		t.Fatal("console chat socket path leaked")
 	}
+	if !strings.Contains(string(cb), "app_closed") {
+		t.Fatal("chat html must handle graceful app_closed")
+	}
 
 	ov, err := http.Get(ts.URL + PathOverlay)
 	if err != nil {
@@ -68,6 +71,9 @@ func TestIndexAndOBSPages(t *testing.T) {
 	}
 	if strings.Contains(string(ob), `'/media/`) || strings.Contains(string(ob), `"/media/`) {
 		t.Fatal("console media path leaked")
+	}
+	if !strings.Contains(string(ob), "app_closed") {
+		t.Fatal("overlay html must handle graceful app_closed")
 	}
 }
 
@@ -180,6 +186,40 @@ func TestChatWebSocket(t *testing.T) {
 	}
 	if got.PublishedAt != "2026-01-02T03:04:05Z" {
 		t.Fatalf("published %q", got.PublishedAt)
+	}
+}
+
+func TestNotifyAppClosed(t *testing.T) {
+	s, ts := startTest(t, Config{})
+	chatURL := "ws" + strings.TrimPrefix(ts.URL, "http") + PathChatWS
+	overURL := "ws" + strings.TrimPrefix(ts.URL, "http") + PathOverlayWS
+	chat, _, err := websocket.DefaultDialer.Dial(chatURL, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer chat.Close()
+	over, _, err := websocket.DefaultDialer.Dial(overURL, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer over.Close()
+	time.Sleep(30 * time.Millisecond)
+	s.NotifyAppClosed()
+	_ = chat.SetReadDeadline(time.Now().Add(2 * time.Second))
+	_ = over.SetReadDeadline(time.Now().Add(2 * time.Second))
+	var ce ChatEvent
+	if err := chat.ReadJSON(&ce); err != nil {
+		t.Fatal(err)
+	}
+	if ce.Type != string(PayloadTypeAppClosed) {
+		t.Fatalf("chat %+v", ce)
+	}
+	var oe OverlayEvent
+	if err := over.ReadJSON(&oe); err != nil {
+		t.Fatal(err)
+	}
+	if oe.Type != PayloadTypeAppClosed {
+		t.Fatalf("overlay %+v", oe)
 	}
 }
 

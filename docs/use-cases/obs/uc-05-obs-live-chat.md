@@ -18,6 +18,7 @@
 * **1a. Trailing slash `/obs/chat/`:** 404 (HTML routes have no trailing slash).
 * **1b. `?transparent=1` (or `true`):** the page adds `body.transparent`.
 * **GET `/`:** index lists the two OBS URLs; it is not an OBS source.
+* **Process exit:** `NotifyAppClosed` then close. Pages show that ytmemchat closed and keep retrying the socket.
 
 ## Postconditions
 

@@ -13,6 +13,7 @@ import (
 )
 
 const httpShutdownTimeout = 5 * time.Second
+const appClosedFlush = 200 * time.Millisecond
 
 // OBSStatus is the live HTTP listener state for the settings window.
 type OBSStatus struct {
@@ -29,6 +30,13 @@ type OBSStatus struct {
 }
 
 func (a *App) shutdown(_ context.Context) {
+	a.mu.Lock()
+	srv := a.httpSrv
+	a.mu.Unlock()
+	if srv != nil {
+		srv.NotifyAppClosed()
+		time.Sleep(appClosedFlush)
+	}
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.stopHTTPLocked()

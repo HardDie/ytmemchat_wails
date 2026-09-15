@@ -17,6 +17,7 @@
 
 * **4a. Empty MediaPath:** `/obs/media/` is not registered (404).
 * **TTS audio:** `payload` is WAVE bytes (JSON base64), same as the console overlay.
+* **Process exit:** overlay receives `type: app_closed` (not an alert clip). Retry continues.
 
 ## Postconditions
 
