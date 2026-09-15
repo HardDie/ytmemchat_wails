@@ -225,6 +225,34 @@ Official Wails layout is a **Vite Svelte app in `frontend/`** plus **`package ma
 - OBS pages (`overlay.html`, `chat.html`) live in `internal/obs` next to the handlers (`//go:embed`), not under `frontend/`.
 - Tests sit beside the Go package they cover (`internal/alerts/find_token_test.go` style).
 
+### Go package documentation (godoc)
+
+Every Go package in this repo must have documentation that `go doc` can print. Treat that as part of the port, not a follow-up.
+
+**Required**
+
+- Package comment on one file in the package (prefer `doc.go` if the comment would be buried): `// Package youtube …` as a full paragraph. Say what the package is for, not how files are named.
+- Every **exported** type, func, method, const, and var has a comment. Start with the name (`// Client is …`, `// GetMessageIterator returns …`).
+- Document error behavior that callers must handle (invalid API key vs not live vs network).
+- Interfaces document each method’s contract on the interface or on a nearby type comment.
+
+**Do not**
+
+- Leave `TODO` or empty `// Foo …` on exports.
+- Duplicate the console app’s undocumented exports — add comments while porting.
+- Put user install steps in godoc; that belongs in README.
+
+**How to check** (from the repo root, after the package exists):
+
+```bash
+go doc ./internal/youtube
+go doc -all ./internal/youtube
+```
+
+`-all` must show the package comment and every export. If `go doc` prints `no Go files` or only a name with no prose, the port is incomplete.
+
+After porting a package, add (or mark Ported) its `go doc` command in [README.md](README.md) under Contributing → Package documentation.
+
 ### Internal packages (optimized vs console)
 
 The console tree splits HTTP into `server` + `chat`, YouTube into `clients/youtube` + `clients/youtubev1`, and a one-handler `webhook` package. That is more packages than behaviors. Collapse by **surface**, not by file count.
@@ -260,6 +288,7 @@ The console tree splits HTTP into `server` + `chat`, YouTube into `clients/youtu
 - **YouTube client is chosen by API key presence**, not by a hardcoded flag. Empty key → `youtube/nokey`. Non-empty key → API v3 only. Invalid key → error in the config window, never fall back to the no-key client.
 - **Svelte has no overlay business rules.** No YouTube calls, no WS servers, no alert matching in the frontend.
 - **Wails bindings (`frontend/wailsjs`) are generated.** After changing exported methods on `App`, regenerate via `wails dev` / `wails generate module`. Never hand-edit `wailsjs`.
+- **Every Go package has godoc** (`go doc` / `go doc -all`). Missing package or export comments are incomplete ports.
 - **Secrets and media paths** stay local. Do not log API keys. Alert media files are user-configured paths (`ALERTS_MEDIA_PATH` in the console app).
 
 ---
@@ -268,8 +297,9 @@ The console tree splits HTTP into `server` + `chat`, YouTube into `clients/youtu
 
 - Match existing Go style in the console repo (`slog`, small `internal/` packages, interfaces at the package boundary).
 - Keep this file updated when routes, payloads, stack, or directory layout change.
-- **Keep [README.md](README.md) up to date in the same change** whenever user-visible facts move: features, project status, requirements, install/run, config path, OBS URLs, webhook examples, TTS OS notes, license, or contributing commands. README follows [Make a README](https://www.makeareadme.com/): name, description, install, usage, contributing, license, and honest **project status**. Do not dump this file into the README; deep contracts stay here.
+- **Keep [README.md](README.md) up to date in the same change** whenever user-visible facts move: features, project status, requirements, install/run, config path, OBS URLs, webhook examples, TTS OS notes, license, contributing commands, or the package `go doc` table. README follows [Make a README](https://www.makeareadme.com/): name, description, install, usage, contributing, license, and honest **project status**. Do not dump this file into the README; deep contracts stay here.
 - **Use cases only after porting.** When a module is first added under `internal/` (or `app.go` for UC-11), write `docs/use-cases/<module>/uc-NN-….md` from `docs/use-cases/_TEMPLATE.md` and set the row to Ported in `docs/use-cases/INDEX.md`. Do not invent UC files for code that is not in this repo.
+- **Godoc on every Go package.** Package comment plus comments on all exports. After porting, add a `go doc ./…` row for that package in README (Package documentation). Verify with `go doc -all` before considering the port done.
 - **New core decisions get an ADR** in `docs/architecture/` (next number, update `docs/architecture/INDEX.md`). Do not leave accepted decisions only in chat.
 - Prefer the smallest change that ports one behavior correctly over a large rewrite.
 - Treat HTTP + WebSocket overlay/chat as core, not a follow-up. Do not “simplify” by moving chat into the Wails window.

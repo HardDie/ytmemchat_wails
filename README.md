@@ -124,7 +124,7 @@ See [CURSOR.md](CURSOR.md) for layout, routes, and implementation rules. Archite
 
 ## Contributing
 
-The Wails app is not runnable yet. When you change **user-facing** behavior (features, install steps, OBS URLs, settings location, status), update this README in the same change. When you **port a module**, add a use-case file under `docs/use-cases/<module>/` and set its row to Ported in [docs/use-cases/INDEX.md](docs/use-cases/INDEX.md). New architecture choices get an ADR in [docs/architecture](docs/architecture/INDEX.md).
+The Wails app is not runnable yet. When you change **user-facing** behavior (features, install steps, OBS URLs, settings location, status), update this README in the same change. When you **port a module**, add a use-case file under `docs/use-cases/<module>/`, set its row to Ported in [docs/use-cases/INDEX.md](docs/use-cases/INDEX.md), give the package complete [Go documentation](https://go.dev/doc/comment), and add a `go doc` command for it in the table below. New architecture choices get an ADR in [docs/architecture](docs/architecture/INDEX.md).
 
 Developer-oriented contracts live in [CURSOR.md](CURSOR.md). Match Go style in [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat).
 
@@ -132,6 +132,35 @@ Developer-oriented contracts live in [CURSOR.md](CURSOR.md). Match Go style in [
 wails dev    # after scaffold
 go test ./...
 ```
+
+### Package documentation
+
+Each Go package must have a package comment and comments on all exported names. After a package is ported, check it from the **repository root**:
+
+```bash
+go doc ./internal/<package>       # package summary
+go doc -all ./internal/<package>  # package + all exports
+```
+
+Optional HTML browse of the whole module:
+
+```bash
+go run golang.org/x/pkgsite/cmd/pkgsite@latest -http localhost:8081
+```
+
+Then open `http://localhost:8081` and select this module.
+
+| Package | Status | Check docs |
+|---|---|---|
+| `internal/config` | Not ported | `go doc -all ./internal/config` |
+| `internal/youtube` | Not ported | `go doc -all ./internal/youtube` |
+| `internal/youtube/nokey` | Not ported | `go doc -all ./internal/youtube/nokey` |
+| `internal/obs` | Not ported | `go doc -all ./internal/obs` |
+| `internal/alerts` | Not ported | `go doc -all ./internal/alerts` |
+| `internal/tts` | Not ported | `go doc -all ./internal/tts` |
+| `package main` (bindings façade) | Not ported | `go doc -all .` |
+
+Set **Status** to Ported in this table when `go doc -all` prints a real package comment and every export is described.
 
 Pull requests are welcome once the project is public. For large changes, open an issue first.
 
