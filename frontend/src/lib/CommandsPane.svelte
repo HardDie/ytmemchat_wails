@@ -18,13 +18,29 @@
   $: hasMedia = mediaPath.trim() !== ''
 
   let menu = -1
+  let confirmDelete = -1
 
   function closeMenu(): void {
     menu = -1
+    confirmDelete = -1
   }
 
   function toggleMenu(i: number): void {
-    menu = menu === i ? -1 : i
+    if (menu === i) {
+      closeMenu()
+      return
+    }
+    menu = i
+    confirmDelete = -1
+  }
+
+  function requestDelete(i: number): void {
+    confirmDelete = i
+  }
+
+  function confirmRemove(i: number): void {
+    closeMenu()
+    onRemove(i)
   }
 
   onMount(() => {
@@ -205,13 +221,19 @@
                 </button>
                 {#if menu === i}
                   <div class="command-menu">
-                    <button
-                      disabled={!canTest || !row.file.trim()}
-                      type="button"
-                      title={canTest ? 'Play this command on the OBS overlay' : 'OBS overlay is offline'}
-                      on:click={() => { closeMenu(); onTest(i) }}
-                    >Test on overlay</button>
-                    <button class="menu-danger" type="button" on:click={() => { closeMenu(); onRemove(i) }}>Delete</button>
+                    {#if confirmDelete === i}
+                      <p class="menu-note">Delete {row.name.trim() ? `“${row.name.trim()}”` : 'this command'}?</p>
+                      <button type="button" on:click={() => { confirmDelete = -1 }}>Cancel</button>
+                      <button class="menu-danger" type="button" on:click={() => confirmRemove(i)}>Delete</button>
+                    {:else}
+                      <button
+                        disabled={!canTest || !row.file.trim()}
+                        type="button"
+                        title={canTest ? 'Play this command on the OBS overlay' : 'OBS overlay is offline'}
+                        on:click={() => { closeMenu(); onTest(i) }}
+                      >Test on overlay</button>
+                      <button class="menu-danger" type="button" on:click={() => requestDelete(i)}>Delete</button>
+                    {/if}
                   </div>
                 {/if}
               </div>
