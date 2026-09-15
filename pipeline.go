@@ -93,9 +93,9 @@ func (a *App) GetRunStatus() RunStatus {
 	return a.runStatusLocked()
 }
 
-// Start begins YouTube chat ingest into the OBS chat socket. Alerts and TTS
-// are not started in this slice. Uses last saved settings (save the form first).
-// Connect work runs in a goroutine so the UI is not blocked.
+// Start begins YouTube chat ingest into the OBS chat socket, then fans each
+// line to alerts or TTS on the overlay. Uses last saved settings (save the
+// form first). Connect work runs in a goroutine so the UI is not blocked.
 func (a *App) Start() error {
 	a.Stop()
 
@@ -115,6 +115,13 @@ func (a *App) Start() error {
 	}
 	settings := a.settings
 	srv := a.httpSrv
+	match, speak, err := a.overlayFor(settings, srv)
+	if err != nil {
+		a.runError = publicPipelineError(err)
+		a.emitRunLocked()
+		a.mu.Unlock()
+		return err
+	}
 	newClient := a.factory()
 	ctx, cancel := context.WithCancel(context.Background())
 	a.runCancel = cancel
@@ -130,7 +137,7 @@ func (a *App) Start() error {
 	a.emitRunLocked()
 	a.mu.Unlock()
 
-	go a.ingestChat(ctx, gen, wg, settings, srv, newClient)
+	go a.ingestChat(ctx, gen, wg, settings, srv, newClient, match, speak)
 	return nil
 }
 
@@ -149,7 +156,7 @@ func (a *App) Stop() {
 	}
 }
 
-func (a *App) ingestChat(ctx context.Context, gen int, wg *sync.WaitGroup, settings config.Settings, srv *obs.Server, newClient clientFactory) {
+func (a *App) ingestChat(ctx context.Context, gen int, wg *sync.WaitGroup, settings config.Settings, srv *obs.Server, newClient clientFactory, match alertMatcher, speak synthesizer) {
 	defer wg.Done()
 	client, err := newClient(settings)
 	if err != nil {
@@ -189,10 +196,7 @@ func (a *App) ingestChat(ctx context.Context, gen int, wg *sync.WaitGroup, setti
 				a.finishRun(gen)
 				return
 			}
-			if msg == nil {
-				continue
-			}
-			srv.PublishChat(obs.NewChatEvent(msg.Author, msg.ImgURL, msg.Message, msg.Timestamp))
+			dispatchChat(srv, match, speak, msg)
 		}
 	}
 }

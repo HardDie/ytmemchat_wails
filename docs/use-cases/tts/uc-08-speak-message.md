@@ -12,7 +12,7 @@
 2. The package strips emoji and extra whitespace.
 3. The OS engine (`say` / `espeak` / PowerShell) writes a WAV file.
 4. A [Speech](../../internal/tts/tts.go) value (WAV bytes + volume) is sent on `Out`.
-5. Overlay code (not yet ported) will wrap that as WebSocket type `tts`.
+5. Overlay code maps that to WebSocket type `tts`.
 
 ## Alternative scenarios and errors
 

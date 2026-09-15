@@ -101,6 +101,7 @@ func TestStart_publishesChatAndStop(t *testing.T) {
 	if err := a.SaveSettings(SettingsForm{StreamID: "live1", Port: "8080"}); err != nil {
 		t.Fatal(err)
 	}
+	overlayOff(a)
 	ch := make(chan *youtube.ChatMessage, 1)
 	fc := &fakeClient{it: &fakeIterator{ch: ch}}
 	a.clientFn = func(s config.Settings) (youtube.Client, error) {
@@ -159,6 +160,7 @@ func TestStart_invalidAPIKeyNoNokey(t *testing.T) {
 	if err := a.SaveSettings(SettingsForm{StreamID: "vid", APIKey: "bad", Port: "8080"}); err != nil {
 		t.Fatal(err)
 	}
+	overlayOff(a)
 	calls := 0
 	a.clientFn = func(s config.Settings) (youtube.Client, error) {
 		calls++

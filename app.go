@@ -23,6 +23,8 @@ type App struct {
 	listenOverride string
 	skipHTTP       bool
 	clientFn       clientFactory
+	newMatcher     matcherFactory
+	newSynth       synthFactory
 	runCancel      context.CancelFunc
 	runWG          *sync.WaitGroup
 	runGen         int

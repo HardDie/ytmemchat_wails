@@ -107,7 +107,7 @@
 
 <main>
   <h1>ytmemchat</h1>
-  <p class="lead">Settings for this machine. OBS pages are served while this window is open. Start pulls live chat into the chat overlay (alerts/TTS later).</p>
+  <p class="lead">Settings for this machine. OBS pages are served while this window is open. Start pulls live chat into the chat overlay and fans matching commands or TTS onto the overlay.</p>
 
   <label>
     Stream / video ID
