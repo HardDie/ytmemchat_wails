@@ -80,7 +80,21 @@ func TestParseEspeakVoiceList(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("len = %d, want 1: %+v", len(got), got)
 	}
-	if got[0].Name != "en-gb" || got[0].Language != "M" || got[0].Gender != "english" {
+	if got[0].Name != "en-gb" || got[0].Language != "en-gb, en-uk, en" || got[0].Gender != "Male" {
 		t.Fatalf("parsed row: %+v", got[0])
+	}
+	if got[0].Details != "english" {
+		t.Fatalf("details %+v", got[0])
+	}
+}
+
+func TestFormatLanguages(t *testing.T) {
+	got := FormatLanguages("ru_RU")
+	if !strings.Contains(got, "Russian") || !strings.Contains(got, "ru_RU") {
+		t.Fatalf("got %q", got)
+	}
+	got = FormatLanguages("en-gb, en")
+	if !strings.Contains(got, "English") {
+		t.Fatalf("got %q", got)
 	}
 }

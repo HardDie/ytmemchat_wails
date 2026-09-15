@@ -96,8 +96,8 @@ Wails has **no built-in settings store** in v2 (maintainers point at XDG / the O
 3. **Never write next to the binary** (macOS `.app` / Program Files are not writable after install).
 4. **Format**: one JSON document with defaults in code. Missing file = first launch, use defaults. Unknown fields ignored (`json` unmarshal). Include a `version` field if we need migrations later.
 5. **Lifecycle**: load in `OnStartup`. **Save on every successful settings change** from `SaveSettings` — do not rely on `OnShutdown` alone (force-quit / crash skips it). Atomic write: temp file in the same dir, `fsync`, then `Rename`. File mode `0600` because the file holds `YOUTUBE_API_KEY`.
-6. **Bindings**: `GetSettings` / `SaveSettings`, `GetOBSStatus`, `Start` / `Stop` / `GetRunStatus`. Start uses saved settings (window saves the form first). Empty API key → `nokey`; non-empty → v3 only. Never fall back on invalid key. Connect runs in a goroutine. After each chat line: overlay `alert` on a command match, else TTS when enabled. Empty `commandsFilePath` skips the matcher; a bad file fails Start.
-7. **What belongs here**: stream ID (required to Start), optional YouTube API key, listen port, TTS on/off + voice, alerts on/off + command token + media/commands paths, webhook on/off, optional window size. **What does not**: chat history, live iterator state.
+6. **Bindings**: `GetSettings` / `SaveSettings`, `GetOBSStatus`, `Start` / `Stop` / `GetRunStatus`, `GetTTSVoices`, file/folder pickers. Start uses saved settings (window saves the form first). Empty API key → `nokey`; non-empty → v3 only. Never fall back on invalid key. Connect runs in a goroutine. After each chat line: overlay `alert` on a command match, else TTS when enabled. Empty `commandsFilePath` skips the matcher; a bad file fails Start.
+7. **What belongs here**: stream ID (required to Start), optional YouTube API key, listen port, TTS on/off + voice, alerts on/off + command token + media/commands paths, webhook on/off, optional window size. Module details (paths, voice) live on inner pages; home shows enable toggles. **What does not**: chat history, live iterator state.
 8. **API key**: optional. Empty means use `youtube/nokey`. When set, store in this `0600` JSON. OS keychain is a later hardening step. Never log the key.
 
 Do not panic if config is missing (unlike console `config.Get()`). Start is allowed without an API key if a stream ID is set. Show a clear “not configured” state when the stream ID is empty.
@@ -201,9 +201,9 @@ Official Wails layout is a **Vite Svelte app in `frontend/`** plus **`package ma
 │   ├── svelte.config.js
 │   ├── src/
 │   │   ├── main.ts           # mount App (Svelte 5: mount(), not new App())
-│   │   ├── App.svelte        # settings + start/stop + status
-│   │   ├── app.css
-│   │   ├── lib/              # small Svelte pieces (SettingsForm, StatusBar, CopyUrl)
+│   │   ├── App.svelte        # home (toggles, start/stop) + inner pages
+│   │   ├── style.css
+│   │   ├── lib/              # AlertsPage, TTSPage
 │   │   └── assets/
 │   ├── wailsjs/              # generated bindings — do not edit
 │   │   ├── go/main/          # App.ts / App.js from package main

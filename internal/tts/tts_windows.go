@@ -98,7 +98,7 @@ func parseWindowsVoiceJSON(output []byte) ([]VoiceInfo, error) {
 		voices = append(voices, VoiceInfo{
 			Name:     pv.Name,
 			Language: pv.Culture,
-			Gender:   pv.Gender,
+			Gender:   normalizeGender(pv.Gender),
 			Details:  pv.Description,
 		})
 	}

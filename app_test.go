@@ -9,7 +9,20 @@ import (
 	"testing"
 
 	"github.com/HardDie/ytmemchat_wails/internal/config"
+	"github.com/HardDie/ytmemchat_wails/internal/obs"
+	"github.com/HardDie/ytmemchat_wails/internal/tts"
 )
+
+func savePatched(t *testing.T, a *App, patch func(*SettingsForm)) {
+	t.Helper()
+	f := a.GetSettings()
+	if patch != nil {
+		patch(&f)
+	}
+	if err := a.SaveSettings(f); err != nil {
+		t.Fatal(err)
+	}
+}
 
 func TestGetSaveSettings_roundTrip(t *testing.T) {
 	st := config.NewStore(filepath.Join(t.TempDir(), "config.json"))
@@ -18,16 +31,33 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 	if got.Port != "8080" || got.StreamID != "" || got.APIKey != "" {
 		t.Fatalf("%+v", got)
 	}
-	if err := a.SaveSettings(SettingsForm{
-		StreamID: "  liveid  ",
-		APIKey:   " secret ",
-		Port:     ":9090",
-	}); err != nil {
-		t.Fatal(err)
+	if !got.TTSEnabled || !got.AlertsEnabled || got.AlertsToken != "@" || got.WebhookEnabled {
+		t.Fatalf("defaults %+v", got)
 	}
+	savePatched(t, a, func(f *SettingsForm) {
+		f.StreamID = "  liveid  "
+		f.APIKey = " secret "
+		f.Port = ":9090"
+		f.TTSEnabled = false
+		f.TTSVoiceName = " Milena "
+		f.AlertsEnabled = true
+		f.AlertsToken = "#"
+		f.AlertsMediaPath = " /tmp/media "
+		f.AlertsCommandsFilePath = " /tmp/commands.yaml "
+		f.WebhookEnabled = true
+	})
 	got = a.GetSettings()
 	if got.StreamID != "liveid" || got.APIKey != "secret" || got.Port != ":9090" {
 		t.Fatalf("after save %+v", got)
+	}
+	if got.TTSEnabled || got.TTSVoiceName != "Milena" {
+		t.Fatalf("tts %+v", got)
+	}
+	if !got.AlertsEnabled || got.AlertsToken != "#" || got.AlertsMediaPath != "/tmp/media" || got.AlertsCommandsFilePath != "/tmp/commands.yaml" {
+		t.Fatalf("alerts %+v", got)
+	}
+	if !got.WebhookEnabled {
+		t.Fatal("webhook")
 	}
 	if a.ConfigPath() != st.Path() {
 		t.Fatalf("path %q", a.ConfigPath())
@@ -37,10 +67,13 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 func TestSaveSettings_invalidPortLeavesMemory(t *testing.T) {
 	st := config.NewStore(filepath.Join(t.TempDir(), "config.json"))
 	a := newAppWithStore(st)
-	if err := a.SaveSettings(SettingsForm{StreamID: "vid", Port: "8080"}); err != nil {
-		t.Fatal(err)
-	}
-	err := a.SaveSettings(SettingsForm{StreamID: "vid", Port: "nope"})
+	savePatched(t, a, func(f *SettingsForm) {
+		f.StreamID = "vid"
+		f.Port = "8080"
+	})
+	f := a.GetSettings()
+	f.Port = "nope"
+	err := a.SaveSettings(f)
 	if !errors.Is(err, config.ErrInvalidPort) {
 		t.Fatalf("err = %v", err)
 	}
@@ -50,11 +83,80 @@ func TestSaveSettings_invalidPortLeavesMemory(t *testing.T) {
 	}
 }
 
+func TestSaveSettings_alertToken(t *testing.T) {
+	st := config.NewStore(filepath.Join(t.TempDir(), "config.json"))
+	a := newAppWithStore(st)
+	f := a.GetSettings()
+	f.AlertsEnabled = true
+	f.AlertsToken = ""
+	f.Port = "8080"
+	if err := a.SaveSettings(f); !errors.Is(err, config.ErrAlertToken) {
+		t.Fatalf("err = %v", err)
+	}
+}
+
 func TestSaveSettings_emptyStreamIDAllowed(t *testing.T) {
 	st := config.NewStore(filepath.Join(t.TempDir(), "config.json"))
 	a := newAppWithStore(st)
-	if err := a.SaveSettings(SettingsForm{Port: "8080"}); err != nil {
+	savePatched(t, a, func(f *SettingsForm) {
+		f.StreamID = ""
+		f.Port = "8080"
+	})
+}
+
+func TestSaveSettings_webhookRestartsHTTP(t *testing.T) {
+	st := config.NewStore(filepath.Join(t.TempDir(), "config.json"))
+	a := newAppWithStore(st)
+	a.listenOverride = "127.0.0.1:0"
+	a.skipHTTP = false
+	a.mu.Lock()
+	if err := a.startHTTPLocked(); err != nil {
+		a.mu.Unlock()
 		t.Fatal(err)
+	}
+	a.mu.Unlock()
+	t.Cleanup(func() {
+		a.mu.Lock()
+		a.stopHTTPLocked()
+		a.mu.Unlock()
+	})
+	base := strings.TrimSuffix(a.GetOBSStatus().ChatURL, obs.PathChat)
+	res, err := http.Post(base+obs.PathWebhook, "application/json", strings.NewReader(`{"message":"x"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	if res.StatusCode != http.StatusNotFound {
+		t.Fatalf("webhook off status %d", res.StatusCode)
+	}
+	savePatched(t, a, func(f *SettingsForm) {
+		f.WebhookEnabled = true
+	})
+	base = strings.TrimSuffix(a.GetOBSStatus().ChatURL, obs.PathChat)
+	res, err = http.Post(base+obs.PathWebhook, "application/json", strings.NewReader(`{"message":"x"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	if res.StatusCode != http.StatusNoContent {
+		t.Fatalf("webhook on status %d", res.StatusCode)
+	}
+}
+
+func TestTTSVoicesFrom_mergesLanguages(t *testing.T) {
+	got := ttsVoicesFrom([]tts.VoiceInfo{
+		{Name: "Alex", Language: "en_US", Gender: "Male", Details: "hi"},
+		{Name: "Alex", Language: "en_GB"},
+		{Name: "", Language: "xx"},
+	})
+	if len(got) != 1 {
+		t.Fatalf("%+v", got)
+	}
+	if got[0].Name != "Alex" || got[0].Gender != "Male" {
+		t.Fatalf("%+v", got[0])
+	}
+	if !strings.Contains(got[0].Languages, "en_US") || !strings.Contains(got[0].Languages, "en_GB") {
+		t.Fatalf("languages %q", got[0].Languages)
 	}
 }
 

@@ -1,7 +1,6 @@
 package tts
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
@@ -27,12 +26,14 @@ func parseSayVoiceList(output string) []VoiceInfo {
 		voices = append(voices, VoiceInfo{
 			Name:     matches[1],
 			Language: matches[2],
-			Gender:   gender,
+			Gender:   normalizeGender(gender),
 			Details:  details,
 		})
 	}
 	return voices
 }
+
+var espeakOtherLang = regexp.MustCompile(`\(([^\s)]+)`)
 
 func parseEspeakVoiceList(output string) []VoiceInfo {
 	lines := strings.Split(strings.TrimSpace(output), "\n")
@@ -45,12 +46,34 @@ func parseEspeakVoiceList(output string) []VoiceInfo {
 		if len(fields) < 5 {
 			continue
 		}
+		langs := []string{fields[1]}
+		if len(fields) >= 6 {
+			rest := strings.Join(fields[5:], " ")
+			for _, m := range espeakOtherLang.FindAllStringSubmatch(rest, -1) {
+				if m[1] != "" && m[1] != fields[1] {
+					langs = append(langs, m[1])
+				}
+			}
+		}
 		voices = append(voices, VoiceInfo{
 			Name:     fields[1],
-			Language: fields[2],
-			Gender:   fields[3],
-			Details:  fmt.Sprintf("Age: %s", fields[4]),
+			Language: strings.Join(uniqueStrings(langs), ", "),
+			Gender:   normalizeGender(fields[2]),
+			Details:  fields[3],
 		})
 	}
 	return voices
+}
+
+func uniqueStrings(in []string) []string {
+	seen := make(map[string]struct{}, len(in))
+	out := make([]string, 0, len(in))
+	for _, s := range in {
+		if _, ok := seen[s]; ok {
+			continue
+		}
+		seen[s] = struct{}{}
+		out = append(out, s)
+	}
+	return out
 }

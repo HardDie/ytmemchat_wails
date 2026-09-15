@@ -18,6 +18,18 @@ export function GetSettings() {
   return window['go']['main']['App']['GetSettings']();
 }
 
+export function GetTTSVoices() {
+  return window['go']['main']['App']['GetTTSVoices']();
+}
+
+export function PickCommandsFile() {
+  return window['go']['main']['App']['PickCommandsFile']();
+}
+
+export function PickMediaDirectory() {
+  return window['go']['main']['App']['PickMediaDirectory']();
+}
+
 export function SaveSettings(arg1) {
   return window['go']['main']['App']['SaveSettings'](arg1);
 }

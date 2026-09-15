@@ -72,9 +72,10 @@ func TestStart_requiresStreamID(t *testing.T) {
 func TestStart_requiresHTTP(t *testing.T) {
 	st := config.NewStore(t.TempDir() + "/c.json")
 	a := newAppWithStore(st)
-	if err := a.SaveSettings(SettingsForm{StreamID: "vid", Port: "8080"}); err != nil {
-		t.Fatal(err)
-	}
+	savePatched(t, a, func(f *SettingsForm) {
+		f.StreamID = "vid"
+		f.Port = "8080"
+	})
 	err := a.Start()
 	if err == nil || !strings.Contains(err.Error(), "HTTP") {
 		t.Fatalf("err = %v", err)
@@ -98,9 +99,10 @@ func TestStart_publishesChatAndStop(t *testing.T) {
 		a.stopHTTPLocked()
 		a.mu.Unlock()
 	})
-	if err := a.SaveSettings(SettingsForm{StreamID: "live1", Port: "8080"}); err != nil {
-		t.Fatal(err)
-	}
+	savePatched(t, a, func(f *SettingsForm) {
+		f.StreamID = "live1"
+		f.Port = "8080"
+	})
 	overlayOff(a)
 	ch := make(chan *youtube.ChatMessage, 1)
 	fc := &fakeClient{it: &fakeIterator{ch: ch}}
@@ -157,9 +159,11 @@ func TestStart_invalidAPIKeyNoNokey(t *testing.T) {
 		a.stopHTTPLocked()
 		a.mu.Unlock()
 	})
-	if err := a.SaveSettings(SettingsForm{StreamID: "vid", APIKey: "bad", Port: "8080"}); err != nil {
-		t.Fatal(err)
-	}
+	savePatched(t, a, func(f *SettingsForm) {
+		f.StreamID = "vid"
+		f.APIKey = "bad"
+		f.Port = "8080"
+	})
 	overlayOff(a)
 	calls := 0
 	a.clientFn = func(s config.Settings) (youtube.Client, error) {

@@ -4,13 +4,13 @@ ytmemchat is a desktop companion for [YouTube](https://www.youtube.com/) Live. I
 
 This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) desktop app. You configure and start the pipeline in a native window. OBS Browser Sources load local HTTP pages that update over WebSocket.
 
-**Project status:** early development. The app serves OBS pages while open, Start/Stop YouTube chat on the chat overlay, and fans alert commands or TTS onto the overlay. Alert/TTS toggles and paths are still edited in `config.json` (not yet in the window).
+**Project status:** early development. The app serves OBS pages while open, Start/Stop YouTube chat, and fans alert commands or TTS onto the overlay. Enable modules on the home page; set command YAML, media folder, and TTS voice on inner pages.
 
 ## Features
 
 - Live YouTube chat with history skipped on connect
 - Optional [YouTube Data API v3](https://developers.google.com/youtube/v3) key; empty key uses the no-key live chat client
-- Desktop settings window (API key, stream ID, port, start/stop, status)
+- Desktop settings window (API key, stream ID, port, start/stop, alerts/TTS/webhook)
 - OBS chat page and alert/TTS overlay over HTTP + WebSocket
 - Alert commands from `commands.yaml` (for example `@jump`)
 - TTS on macOS (`say`), Windows (PowerShell), and Linux (`espeak`)
@@ -55,7 +55,7 @@ Settings are stored in a local JSON file (mode `0600`), not in the repo:
 
 ## Usage
 
-1. Open the app. OBS URLs are already served (default port `8080`). Set the **stream/video ID**. Optionally set a YouTube API key.
+1. Open the app. OBS URLs are already served (default port `8080`). Set the **stream/video ID**. Optionally set a YouTube API key. Use the **Alerts** / **TTS** toggles and **Configure** pages for command YAML, media folder, and voice.
 2. In OBS, add two **Browser Sources**:
 
 | Source | URL (port `8080`) |
@@ -73,7 +73,7 @@ The config window can copy these URLs for the current port. Opening `http://127.
 
 ### Alert commands
 
-Point the app at a media folder and a YAML file in `config.json` (`alerts.commandsFilePath`, `alerts.mediaPath`; token defaults to `@`):
+Point the app at a media folder and a YAML file from **Alerts → Configure** (or the same fields in `config.json`):
 
 ```yaml
 commands:
@@ -109,7 +109,8 @@ curl -X POST http://127.0.0.1:8080/api/interrupt
 ## Roadmap
 
 - Scaffold Wails v2 + Svelte, persist settings, serve OBS HTTP, Start/Stop chat overlay (done)
-- Wire alert commands and TTS onto the overlay (done; settings window fields later)
+- Wire alert commands and TTS onto the overlay (done)
+- Settings window: module toggles and inner pages for paths/voice (done)
 - Copy OBS URLs from the settings window
 - GitHub Actions: tests on push; tagged releases with Linux (amd64, arm64), Windows, and macOS binaries
 - Later: OS keychain for the API key; code-signed installers

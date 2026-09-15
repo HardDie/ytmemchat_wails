@@ -10,6 +10,12 @@ export function GetRunStatus():Promise<main.RunStatus>;
 
 export function GetSettings():Promise<main.SettingsForm>;
 
+export function GetTTSVoices():Promise<Array<main.TTSVoice>>;
+
+export function PickCommandsFile():Promise<string>;
+
+export function PickMediaDirectory():Promise<string>;
+
 export function SaveSettings(arg1:main.SettingsForm):Promise<void>;
 
 export function Start():Promise<void>;

@@ -8,7 +8,7 @@
 
 ## Main scenario (happy path)
 
-1. The UI calls `SaveSettings` with stream ID, optional API key, and port. Other JSON fields (TTS, alerts, webhook) stay as last loaded.
+1. The UI calls `SaveSettings` with stream ID, optional API key, port, TTS, alerts, and webhook fields.
 2. The package validates port and (if alerts enabled) a single-character token. Empty stream ID is allowed on save.
 3. JSON is written atomically to `os.UserConfigDir()/ytmemchat/config.json` (or the store path) with mode `0600`.
 4. Later, `Store.Load` returns the same trimmed fields. Missing file yields defaults (port `8080`, alert token `@`, TTS on, webhook off).

@@ -112,9 +112,10 @@ func TestStart_missingCommandsFile(t *testing.T) {
 		a.stopHTTPLocked()
 		a.mu.Unlock()
 	})
-	if err := a.SaveSettings(SettingsForm{StreamID: "vid", Port: "8080"}); err != nil {
-		t.Fatal(err)
-	}
+	savePatched(t, a, func(f *SettingsForm) {
+		f.StreamID = "vid"
+		f.Port = "8080"
+	})
 	a.mu.Lock()
 	a.settings.Alerts.Enabled = true
 	a.settings.Alerts.CommandsFilePath = filepath.Join(t.TempDir(), "nope.yaml")
@@ -151,9 +152,10 @@ func TestStart_alertPublishesOverlayNotTTS(t *testing.T) {
 		a.stopHTTPLocked()
 		a.mu.Unlock()
 	})
-	if err := a.SaveSettings(SettingsForm{StreamID: "live1", Port: "8080"}); err != nil {
-		t.Fatal(err)
-	}
+	savePatched(t, a, func(f *SettingsForm) {
+		f.StreamID = "live1"
+		f.Port = "8080"
+	})
 	spoke := 0
 	a.mu.Lock()
 	a.settings.Alerts.Enabled = true
@@ -213,9 +215,10 @@ func TestStart_plainChatUsesTTS(t *testing.T) {
 		a.stopHTTPLocked()
 		a.mu.Unlock()
 	})
-	if err := a.SaveSettings(SettingsForm{StreamID: "live1", Port: "8080"}); err != nil {
-		t.Fatal(err)
-	}
+	savePatched(t, a, func(f *SettingsForm) {
+		f.StreamID = "live1"
+		f.Port = "8080"
+	})
 	a.mu.Lock()
 	a.settings.Alerts.Enabled = false
 	a.settings.TTS.Enabled = true

@@ -55,13 +55,9 @@ func (a *App) startHTTPLocked() error {
 		a.httpAddr = ""
 		return fmt.Errorf("obs listen %s: %w", addr, err)
 	}
-	media := ""
-	if a.settings.Alerts.Enabled {
-		media = strings.TrimSpace(a.settings.Alerts.MediaPath)
-	}
 	srv := obs.New(obs.Config{
 		Addr:      addr,
-		MediaPath: media,
+		MediaPath: mediaPathFor(a.settings),
 		Webhooks:  a.settings.Webhook.Enabled,
 	})
 	a.httpSrv = srv
@@ -118,6 +114,19 @@ func (a *App) GetOBSStatus() OBSStatus {
 	return a.obsStatusLocked()
 }
 
+func mediaPathFor(s config.Settings) string {
+	if !s.Alerts.Enabled {
+		return ""
+	}
+	return strings.TrimSpace(s.Alerts.MediaPath)
+}
+
 func sameListenAddr(old, next config.Settings) bool {
 	return old.Server.ListenAddr() == next.Server.ListenAddr()
+}
+
+func sameOBSListen(old, next config.Settings) bool {
+	return sameListenAddr(old, next) &&
+		mediaPathFor(old) == mediaPathFor(next) &&
+		old.Webhook.Enabled == next.Webhook.Enabled
 }
