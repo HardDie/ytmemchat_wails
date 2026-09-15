@@ -89,14 +89,10 @@ function writeGif(pngPaths, dest) {
   for (const frame of frames) {
     const palette = quantize(frame.data, 256)
     const index = applyPalette(frame.data, palette)
-    gif.writeFrame(index, w, h, { palette, delay: frameDelayMs })
+    gif.writeFrame(index, w, h, { palette, delay: frameDelayMs, repeat: 0 })
   }
   gif.finish()
-  const bytes = gif.bytes()
-  // Inject Netscape Application Extension for infinite looping (repeat = 0).
-  const netscapeExt = Buffer.from([0x21, 0xff, 0x0b, ...Buffer.from('NETSCAPE2.0'), 0x03, 0x01, 0x00, 0x00, 0x00])
-  const output = Buffer.concat([bytes.subarray(0, 13), netscapeExt, bytes.subarray(13)])
-  writeFileSync(dest, output)
+  writeFileSync(dest, Buffer.from(gif.bytes()))
 }
 
 async function main() {
