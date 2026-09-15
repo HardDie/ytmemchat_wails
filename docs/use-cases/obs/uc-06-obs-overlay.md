@@ -20,4 +20,4 @@
 
 ## Postconditions
 
-* Overlay JSON field names match the console overlay contract. `obs` does not import `alerts` or `tts`.
+* Overlay JSON field names match the console overlay contract. `obs` does not import `alerts` or `tts`. The Wails process keeps this server up until exit.

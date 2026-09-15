@@ -6,6 +6,10 @@ export function ConfigPath() {
   return window['go']['main']['App']['ConfigPath']();
 }
 
+export function GetOBSStatus() {
+  return window['go']['main']['App']['GetOBSStatus']();
+}
+
 export function GetSettings() {
   return window['go']['main']['App']['GetSettings']();
 }

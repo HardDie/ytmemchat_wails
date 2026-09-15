@@ -96,7 +96,7 @@ Wails has **no built-in settings store** in v2 (maintainers point at XDG / the O
 3. **Never write next to the binary** (macOS `.app` / Program Files are not writable after install).
 4. **Format**: one JSON document with defaults in code. Missing file = first launch, use defaults. Unknown fields ignored (`json` unmarshal). Include a `version` field if we need migrations later.
 5. **Lifecycle**: load in `OnStartup`. **Save on every successful settings change** from `SaveSettings` — do not rely on `OnShutdown` alone (force-quit / crash skips it). Atomic write: temp file in the same dir, `fsync`, then `Rename`. File mode `0600` because the file holds `YOUTUBE_API_KEY`.
-6. **Bindings**: `GetSettings() SettingsForm` and `SaveSettings(SettingsForm) error` on `App` (stream ID, API key, port). Svelte is a form over that struct. Full JSON (TTS, alerts, webhook) is loaded and written by Go; the window does not send those fields yet. Validate in Go (port, token length, paths).
+6. **Bindings**: `GetSettings() SettingsForm` and `SaveSettings(SettingsForm) error` on `App` (stream ID, API key, port). `GetOBSStatus()` reports listen state and OBS URLs. Svelte is a form over that struct. Full JSON (TTS, alerts, webhook) is loaded and written by Go; the window does not send those fields yet. Validate in Go (port, token length, paths).
 7. **What belongs here**: stream ID (required to Start), optional YouTube API key, listen port, TTS on/off + voice, alerts on/off + command token + media/commands paths, webhook on/off, optional window size. **What does not**: chat history, live iterator state.
 8. **API key**: optional. Empty means use `youtube/nokey`. When set, store in this `0600` JSON. OS keychain is a later hardening step. Never log the key.
 

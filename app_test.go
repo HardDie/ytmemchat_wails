@@ -2,7 +2,10 @@ package main
 
 import (
 	"errors"
+	"io"
+	"net/http"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/HardDie/ytmemchat_wails/internal/config"
@@ -52,5 +55,55 @@ func TestSaveSettings_emptyStreamIDAllowed(t *testing.T) {
 	a := newAppWithStore(st)
 	if err := a.SaveSettings(SettingsForm{Port: "8080"}); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestOBSHTTP_servesChatPage(t *testing.T) {
+	st := config.NewStore(filepath.Join(t.TempDir(), "config.json"))
+	a := newAppWithStore(st)
+	a.listenOverride = "127.0.0.1:0"
+	a.skipHTTP = false
+	a.mu.Lock()
+	if err := a.startHTTPLocked(); err != nil {
+		a.mu.Unlock()
+		t.Fatal(err)
+	}
+	a.mu.Unlock()
+	t.Cleanup(func() {
+		a.mu.Lock()
+		a.stopHTTPLocked()
+		a.mu.Unlock()
+	})
+	stt := a.GetOBSStatus()
+	if !stt.Listening || stt.ChatURL == "" || stt.OverlayURL == "" || stt.IndexURL == "" {
+		t.Fatalf("%+v", stt)
+	}
+	res, err := http.Get(stt.ChatURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, _ := io.ReadAll(res.Body)
+	res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("status %d", res.StatusCode)
+	}
+	if !strings.Contains(string(body), "location.pathname") {
+		t.Fatalf("body %s", body)
+	}
+	res, err = http.Get(stt.IndexURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("index %d", res.StatusCode)
+	}
+	res, err = http.Get(stt.OverlayURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("overlay %d", res.StatusCode)
 	}
 }

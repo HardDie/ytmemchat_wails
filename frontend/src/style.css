@@ -94,6 +94,31 @@ input:focus {
     background-image: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);
 }
 
+h2 {
+    font-size: 1.05rem;
+    margin: 1.25rem 0 0.5rem;
+}
+
+.url-row {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr auto;
+    gap: 0.4rem;
+    align-items: center;
+    margin: 0.45rem 0;
+    font-size: 0.85rem;
+}
+
+.url-row code {
+    overflow-wrap: anywhere;
+}
+
+.btn-small {
+    min-width: 0;
+    height: 1.7rem;
+    font-size: 0.8rem;
+    padding: 0 0.5rem;
+}
+
 .ok {
     color: #9fefc1;
     margin: 0.5rem 0;

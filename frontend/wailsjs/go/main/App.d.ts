@@ -4,6 +4,8 @@ import {main} from '../models';
 
 export function ConfigPath():Promise<string>;
 
+export function GetOBSStatus():Promise<main.OBSStatus>;
+
 export function GetSettings():Promise<main.SettingsForm>;
 
 export function SaveSettings(arg1:main.SettingsForm):Promise<void>;

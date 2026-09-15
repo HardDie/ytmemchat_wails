@@ -1,6 +1,6 @@
 // Package main is the Wails desktop entrypoint: native window plus bindings
-// façade. Domain logic lives in internal/. OBS pages are served by
-// internal/obs once wired in OnStartup (not yet).
+// façade. Domain logic lives in internal/. OBS HTTP starts in OnStartup and
+// stops on process exit.
 package main
 
 import (
@@ -20,12 +20,13 @@ func main() {
 	err := wails.Run(&options.App{
 		Title:  "ytmemchat",
 		Width:  560,
-		Height: 640,
+		Height: 720,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        app.startup,
+		OnShutdown:       app.shutdown,
 		Bind: []interface{}{
 			app,
 		},

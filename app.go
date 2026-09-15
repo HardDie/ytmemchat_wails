@@ -7,15 +7,21 @@ import (
 	"sync"
 
 	"github.com/HardDie/ytmemchat_wails/internal/config"
+	"github.com/HardDie/ytmemchat_wails/internal/obs"
 )
 
-// App is the Wails bindings façade (settings now; start/stop later).
+// App is the Wails bindings façade (settings and OBS HTTP; start/stop later).
 type App struct {
-	ctx      context.Context
-	mu       sync.Mutex
-	store    *config.Store
-	storeErr error
-	settings config.Settings
+	ctx            context.Context
+	mu             sync.Mutex
+	store          *config.Store
+	storeErr       error
+	settings       config.Settings
+	httpSrv        *obs.Server
+	httpErr        error
+	httpAddr       string
+	listenOverride string
+	skipHTTP       bool
 }
 
 // SettingsForm is the settings window payload. Other JSON fields stay on disk
@@ -42,7 +48,7 @@ func NewApp() *App {
 }
 
 func newAppWithStore(st *config.Store) *App {
-	return &App{store: st, settings: config.Defaults()}
+	return &App{store: st, settings: config.Defaults(), skipHTTP: true}
 }
 
 func (a *App) startup(ctx context.Context) {
@@ -50,6 +56,9 @@ func (a *App) startup(ctx context.Context) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.loadLocked()
+	if err := a.startHTTPLocked(); err != nil {
+		slog.Error("obs listen failed", "err", err)
+	}
 }
 
 func (a *App) loadLocked() {
@@ -98,7 +107,16 @@ func (a *App) SaveSettings(in SettingsForm) error {
 	if err := a.store.Save(next); err != nil {
 		return err
 	}
+	old := a.settings
 	a.loadLocked()
+	if a.skipHTTP {
+		return nil
+	}
+	if a.httpSrv == nil || !sameListenAddr(old, a.settings) {
+		if err := a.startHTTPLocked(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

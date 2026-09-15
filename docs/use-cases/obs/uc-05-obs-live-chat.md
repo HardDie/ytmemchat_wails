@@ -4,7 +4,7 @@
 **Status:** Ported  
 **Actors:** OBS Browser Source, pipeline via `PublishChat`  
 **Goal:** OBS loads `/obs/chat` and new messages appear over WebSocket  
-**Preconditions:** Server is serving; chat WebSocket is connected  
+**Preconditions:** The Wails app is open (OBS HTTP starts in `OnStartup`); chat WebSocket is connected  
 
 ## Main scenario (happy path)
 
