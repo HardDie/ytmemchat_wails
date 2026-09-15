@@ -21,7 +21,7 @@ ytmemchat is a YouTube Live companion: it reads live chat and reacts in realtime
 - HTTP server with the nested `/obs/…` Browser Source URLs (see contract below).
 - Live chat HTML page that updates over WebSocket as messages arrive.
 - Connection / quota / error state visible in the Wails window (and logs).
-- Config UI copies the two OBS URLs (`/obs/chat`, `/obs/overlay`) for the current listen port.
+- Home copies the two OBS URLs (`/obs/chat`, `/obs/overlay`) for the current listen port.
 
 **Port from console app (with the HTTP layer, not after a desktop chat UI)**
 
@@ -97,7 +97,7 @@ Wails has **no built-in settings store** in v2 (maintainers point at XDG / the O
 4. **Format**: one JSON document with defaults in code. Missing file = first launch, use defaults. Unknown fields ignored (`json` unmarshal). Include a `version` field if we need migrations later.
 5. **Lifecycle**: load in `OnStartup`. **Save on every successful settings change** from `SaveSettings` — do not rely on `OnShutdown` alone (force-quit / crash skips it). Atomic write: temp file in the same dir, `fsync`, then `Rename`. File mode `0600` because the file holds `YOUTUBE_API_KEY`.
 6. **Bindings**: `GetSettings` / `SaveSettings`, `GetOBSStatus`, `Start` / `Stop` / `GetRunStatus`, `GetTTSVoices`, `LookupLatestStream`, `SendTestMessage`, `InterruptTTS`, file/folder pickers. Start uses saved settings (window saves the form first). Empty API key → `nokey`; non-empty → v3 only. Never fall back on invalid key. Connect runs in a goroutine. After each chat line (YouTube, `POST /api/webhook`, or **Send** in the window): overlay `alert` on a command match, else TTS when enabled. Inject/test run while OBS HTTP is up; YouTube Start is not required. Empty `commandsFilePath` skips the matcher; a bad file fails Start (inject logs and skips the matcher).
-7. **What belongs here**: stream ID (required to Start), optional YouTube API key, listen port, TTS on/off + voice, alerts on/off + command token + media/commands paths, webhook on/off, optional window size. The window is setup only (not on stream). **Home**: YouTube status, Start/Stop, interrupt overlay audio, Find latest stream. **Config**: all settings and OBS URLs; Find latest fills stream ID from the channel of a known video (live, else upcoming; not VOD). Requires a Data API key. Does not save until Save/Start. **Test**: send a fake chat line. **What does not**: chat history, live iterator state.
+7. **What belongs here**: stream ID (required to Start), optional YouTube API key, listen port, TTS on/off + voice, alerts on/off + command token + media/commands paths, webhook on/off, optional window size. The window is setup only (not on stream). **Home**: YouTube status, Start/Stop, interrupt overlay audio, Find latest stream, OBS Browser Source URLs. **Config**: all settings; Find latest fills stream ID from the channel of a known video (live, else upcoming; not VOD). Requires a Data API key. Does not save until Save/Start. **Test**: send a fake chat line. **What does not**: chat history, live iterator state.
 8. **API key**: optional. Empty means use `youtube/nokey`. When set, store in this `0600` JSON. OS keychain is a later hardening step. Never log the key.
 
 Do not panic if config is missing (unlike console `config.Get()`). Start is allowed without an API key if a stream ID is set. Show a clear “not configured” state when the stream ID is empty.

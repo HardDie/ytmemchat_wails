@@ -15,15 +15,11 @@
   export let webhookEnabled: boolean
   export let saving: boolean
   export let configPath: string
-  export let obs: main.OBSStatus | null
-
   export let onSave: () => Promise<void>
   export let onLookup: () => Promise<void>
   export let lookingUp: boolean
   export let onPickYaml: () => Promise<void>
   export let onPickMedia: () => Promise<void>
-  export let onCopyChat: () => void
-  export let onCopyOverlay: () => void
 
   let voices: main.TTSVoice[] = []
 
@@ -51,7 +47,7 @@
   })
 </script>
 
-<p class="lead">Stored on this machine. OBS Browser Sources use the URLs in the last section.</p>
+<p class="lead">Stored on this machine. Chat and overlay URLs are on Home.</p>
 
 <section class="card">
   <header class="card-head">
@@ -184,28 +180,6 @@
   </button>
 </div>
 
-{#if obs}
-  <section class="card">
-    <header class="card-head">
-      <h2>OBS Browser Sources</h2>
-      <span class="badge {obs.listening ? 'badge-ok' : 'badge-danger'}">{obs.listening ? 'Listening' : 'Offline'}</span>
-    </header>
-    {#if !obs.listening && obs.error}
-      <p class="err">{obs.error}</p>
-    {/if}
-    <p class="url-row">
-      <span>Chat</span>
-      <code>{obs.chatUrl}</code>
-      <button class="btn btn-small" type="button" on:click={onCopyChat}>Copy</button>
-    </p>
-    <p class="url-row">
-      <span>Overlay</span>
-      <code>{obs.overlayUrl}</code>
-      <button class="btn btn-small" type="button" on:click={onCopyOverlay}>Copy</button>
-    </p>
-    <p class="hint">Do not use the index URL as an OBS source: <code>{obs.indexUrl}</code></p>
-  </section>
-{/if}
 {#if configPath}
   <p class="path">Settings file <code>{configPath}</code></p>
 {/if}

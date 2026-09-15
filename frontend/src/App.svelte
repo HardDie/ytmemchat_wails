@@ -262,19 +262,16 @@
           bind:webhookEnabled
           {saving}
           {configPath}
-          {obs}
           onSave={save}
           onLookup={lookupLatest}
           lookingUp={lookingUp}
           onPickYaml={pickYaml}
           onPickMedia={pickMedia}
-          onCopyChat={copyChat}
-          onCopyOverlay={copyOverlay}
         />
       {:else if page === 'test'}
         <TestPane bind:testMessage {obs} onSend={sendTest} />
       {:else}
-        <HomePane {run} {obs} {streamId} {apiKey} {starting} {lookingUp} onStart={start} onStop={stop} onInterrupt={interruptTTS} onLookup={lookupLatest} />
+        <HomePane {run} {obs} {streamId} {apiKey} {starting} {lookingUp} onStart={start} onStop={stop} onInterrupt={interruptTTS} onLookup={lookupLatest} onCopyChat={copyChat} onCopyOverlay={copyOverlay} />
       {/if}
     </div>
 
