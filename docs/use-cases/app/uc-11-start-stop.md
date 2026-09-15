@@ -28,4 +28,4 @@
 
 ## Postconditions
 
-* At most one live iterator. Force-quit skips `app_closed` as before.
+* At most one live iterator. Force-quit skips `app_closed` as before. `POST /api/webhook` uses the same overlay fan-out while HTTP is up, including when the iterator is stopped.

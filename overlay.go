@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"strings"
+	"sync"
 
 	"github.com/HardDie/ytmemchat_wails/internal/alerts"
 	"github.com/HardDie/ytmemchat_wails/internal/config"
@@ -74,16 +76,65 @@ func (a *App) synthFactory() synthFactory {
 	return defaultSynth
 }
 
-func (a *App) overlayFor(settings config.Settings, srv *obs.Server) (alertMatcher, synthesizer, error) {
-	match, err := a.matcherFactory()(settings, srv)
-	if err != nil {
-		return nil, nil, err
+type overlayState struct {
+	match alertMatcher
+	speak synthesizer
+	sink  overlaySink
+}
+
+func (a *App) installOverlayLocked(strict bool) error {
+	if a.httpSrv == nil {
+		a.overlay.Store(nil)
+		return nil
 	}
-	speak, err := a.synthFactory()(settings, srv)
+	match, err := a.matcherFactory()(a.settings, a.httpSrv)
 	if err != nil {
-		return nil, nil, err
+		if strict {
+			return err
+		}
+		slog.Error("alerts matcher", "err", err)
+		match = nil
 	}
-	return match, speak, nil
+	speak, err := a.synthFactory()(a.settings, a.httpSrv)
+	if err != nil {
+		if strict {
+			return err
+		}
+		slog.Error("tts engine", "err", err)
+		speak = nil
+	}
+	a.overlay.Store(&overlayState{match: match, speak: speak, sink: a.httpSrv})
+	return nil
+}
+
+func (a *App) dispatchLine(fallback overlaySink, msg *youtube.ChatMessage) {
+	st := a.overlay.Load()
+	if st != nil && st.sink != nil {
+		dispatchChat(st.sink, st.match, st.speak, msg)
+		return
+	}
+	if fallback != nil {
+		dispatchChat(fallback, nil, nil, msg)
+	}
+}
+
+func (a *App) drainInjected(ctx context.Context, wg *sync.WaitGroup, srv *obs.Server) {
+	defer wg.Done()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case msg, ok := <-srv.Injected():
+			if !ok {
+				return
+			}
+			a.dispatchLine(srv, &youtube.ChatMessage{
+				Author:    msg.Author,
+				Message:   msg.Text,
+				Timestamp: msg.SentAt,
+			})
+		}
+	}
 }
 
 func defaultMatcher(s config.Settings, srv *obs.Server) (alertMatcher, error) {

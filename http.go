@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/HardDie/ytmemchat_wails/internal/config"
@@ -63,6 +64,8 @@ func (a *App) startHTTPLocked() error {
 	a.httpSrv = srv
 	a.httpAddr = ln.Addr().String()
 	a.httpErr = nil
+	_ = a.installOverlayLocked(false)
+	a.startInjectLocked()
 	go func() {
 		if err := srv.Serve(ln); err != nil {
 			slog.Error("obs serve ended", "err", err)
@@ -71,7 +74,29 @@ func (a *App) startHTTPLocked() error {
 	return nil
 }
 
+func (a *App) startInjectLocked() {
+	if a.httpSrv == nil {
+		return
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	a.injectCancel = cancel
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	a.injectWG = wg
+	go a.drainInjected(ctx, wg, a.httpSrv)
+}
+
 func (a *App) stopHTTPLocked() {
+	if a.injectCancel != nil {
+		a.injectCancel()
+		a.injectCancel = nil
+	}
+	wg := a.injectWG
+	a.injectWG = nil
+	if wg != nil {
+		wg.Wait()
+	}
+	a.overlay.Store(nil)
 	if a.httpSrv == nil {
 		return
 	}

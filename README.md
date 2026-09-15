@@ -89,7 +89,7 @@ Chat messages that contain the command token (default `@`) plus a command name p
 
 ### Test API
 
-With the server running and webhooks enabled:
+With the app open and **Test HTTP API** enabled (YouTube Start is not required):
 
 ```bash
 curl -X POST http://127.0.0.1:8080/api/webhook \
@@ -101,7 +101,7 @@ curl -X POST http://127.0.0.1:8080/api/interrupt
 
 ## How it works
 
-1. Go polls YouTube live chat (Data API v3 if a key is set, otherwise the no-key client).
+1. Go polls YouTube live chat (Data API v3 if a key is set, otherwise the no-key client), or an operator POSTs `/api/webhook`.
 2. Each message is sent to the chat WebSocket (`/obs/chat/ws`).
 3. If the text matches an alert command, the overlay WebSocket (`/obs/overlay/ws`) gets an alert. Otherwise, if TTS is on, the overlay gets speech audio.
 4. OBS Browser Sources render those pages.
@@ -111,7 +111,7 @@ curl -X POST http://127.0.0.1:8080/api/interrupt
 - Scaffold Wails v2 + Svelte, persist settings, serve OBS HTTP, Start/Stop chat overlay (done)
 - Wire alert commands and TTS onto the overlay (done)
 - Settings window: module toggles and inner pages for paths/voice (done)
-- Copy OBS URLs from the settings window
+- Wire `POST /api/webhook` into the same overlay path (done)
 - GitHub Actions: tests on push; tagged releases with Linux (amd64, arm64), Windows, and macOS binaries
 - Later: OS keychain for the API key; code-signed installers
 

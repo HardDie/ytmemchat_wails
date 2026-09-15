@@ -131,6 +131,8 @@ func TestSaveSettings_webhookRestartsHTTP(t *testing.T) {
 	}
 	savePatched(t, a, func(f *SettingsForm) {
 		f.WebhookEnabled = true
+		f.TTSEnabled = false
+		f.AlertsEnabled = false
 	})
 	base = strings.TrimSuffix(a.GetOBSStatus().ChatURL, obs.PathChat)
 	res, err = http.Post(base+obs.PathWebhook, "application/json", strings.NewReader(`{"message":"x"}`))

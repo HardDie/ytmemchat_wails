@@ -113,15 +113,14 @@ func (a *App) Start() error {
 		a.mu.Unlock()
 		return err
 	}
-	settings := a.settings
-	srv := a.httpSrv
-	match, speak, err := a.overlayFor(settings, srv)
-	if err != nil {
+	if err := a.installOverlayLocked(true); err != nil {
 		a.runError = publicPipelineError(err)
 		a.emitRunLocked()
 		a.mu.Unlock()
 		return err
 	}
+	settings := a.settings
+	srv := a.httpSrv
 	newClient := a.factory()
 	ctx, cancel := context.WithCancel(context.Background())
 	a.runCancel = cancel
@@ -137,7 +136,7 @@ func (a *App) Start() error {
 	a.emitRunLocked()
 	a.mu.Unlock()
 
-	go a.ingestChat(ctx, gen, wg, settings, srv, newClient, match, speak)
+	go a.ingestChat(ctx, gen, wg, settings, srv, newClient)
 	return nil
 }
 
@@ -156,7 +155,7 @@ func (a *App) Stop() {
 	}
 }
 
-func (a *App) ingestChat(ctx context.Context, gen int, wg *sync.WaitGroup, settings config.Settings, srv *obs.Server, newClient clientFactory, match alertMatcher, speak synthesizer) {
+func (a *App) ingestChat(ctx context.Context, gen int, wg *sync.WaitGroup, settings config.Settings, srv *obs.Server, newClient clientFactory) {
 	defer wg.Done()
 	client, err := newClient(settings)
 	if err != nil {
@@ -196,7 +195,7 @@ func (a *App) ingestChat(ctx context.Context, gen int, wg *sync.WaitGroup, setti
 				a.finishRun(gen)
 				return
 			}
-			dispatchChat(srv, match, speak, msg)
+			a.dispatchLine(srv, msg)
 		}
 	}
 }

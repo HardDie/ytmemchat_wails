@@ -10,7 +10,7 @@
 
 1. Operator POSTs `/api/webhook` with `{"message": "@jump"}`.
 2. Handler responds 204 and sends [InjectedMessage] (`Author` `webhook`, `Text` from JSON) on `Injected()`.
-3. `app.go` (not yet ported) maps that onto the same chat/alerts/TTS path as YouTube.
+3. `app.go` maps that onto the same chat/alerts/TTS path as YouTube (`dispatchChat`) while OBS HTTP is up. YouTube Start is not required.
 
 ## Alternative scenarios and errors
 
@@ -21,4 +21,4 @@
 
 ## Postconditions
 
-* Handler does not import `youtube`. It does not call alerts or TTS itself.
+* Handler does not import `youtube`. It does not call alerts or TTS itself; the process-level inject loop does.

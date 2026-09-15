@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/HardDie/ytmemchat_wails/internal/config"
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
@@ -27,6 +28,9 @@ type App struct {
 	clientFn       clientFactory
 	newMatcher     matcherFactory
 	newSynth       synthFactory
+	overlay        atomic.Pointer[overlayState]
+	injectCancel   context.CancelFunc
+	injectWG       *sync.WaitGroup
 	runCancel      context.CancelFunc
 	runWG          *sync.WaitGroup
 	runGen         int
@@ -161,6 +165,8 @@ func (a *App) SaveSettings(in SettingsForm) error {
 		if err := a.startHTTPLocked(); err != nil {
 			return err
 		}
+	} else {
+		a.installOverlayLocked(false)
 	}
 	return nil
 }
