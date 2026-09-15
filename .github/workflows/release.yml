@@ -150,6 +150,7 @@ jobs:
 
       - name: Generate window.gif for release
         run: |
+          npm install --prefix frontend
           cd scripts/screenshots
           npm install
           npx playwright install --with-deps chromium
