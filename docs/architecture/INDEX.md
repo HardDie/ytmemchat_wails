@@ -12,3 +12,4 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [006](006-internal-packages-by-surface.md) | Collapse console packages into `youtube`, `youtube/nokey`, `obs` | Accepted |
 | [007](007-docs-layout.md) | README, CURSOR.md, and `docs/` | Accepted |
 | [008](008-github-actions-test-and-release.md) | GitHub Actions: tests on push, binaries on tag | Accepted |
+| [009](009-obs-http-process-lifetime.md) | OBS HTTP/WS live with the Wails process; Start is the iterator | Accepted |

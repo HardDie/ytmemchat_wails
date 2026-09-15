@@ -56,17 +56,17 @@ Settings are stored in a local JSON file (mode `0600`), not in the repo:
 
 ## Usage
 
-1. Open the app. Set the **stream/video ID**. Optionally set a YouTube API key.
-2. Set the HTTP listen port (default planned: `8080`) and **Start**.
-3. In OBS, add two **Browser Sources**:
+1. Open the app. OBS URLs are already served (default port `8080`). Set the **stream/video ID**. Optionally set a YouTube API key.
+2. In OBS, add two **Browser Sources**:
 
 | Source | URL (port `8080`) |
 |---|---|
 | Chat | `http://127.0.0.1:8080/obs/chat` |
 | Alerts + TTS | `http://127.0.0.1:8080/obs/overlay` |
 
-4. Size each source to your canvas (for example `1920x1080`).
-5. On the overlay source, click **Interact** once and allow audio so TTS and alert sounds can autoplay.
+3. Size each source to your canvas (for example `1920x1080`).
+4. On the overlay source, click **Interact** once and allow audio so TTS and alert sounds can autoplay.
+5. Click **Start** (or Run) in the app to pull live chat. **Stop** ends YouTube polling; OBS sources stay connected.
 
 Chat with a transparent background: `http://127.0.0.1:8080/obs/chat?transparent=1`.
 

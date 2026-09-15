@@ -34,7 +34,7 @@ The Svelte webview is a control panel: API key, stream ID, port, start/stop, sta
 
 ### Negative and risks
 
-* Two processes in one binary: Wails UI and an HTTP server that must start/stop with the session.
+* Two processes in one binary: Wails UI and an HTTP server that stays up for the life of the app (see [ADR 009](009-obs-http-process-lifetime.md)). Start/Stop is the YouTube iterator, not the OBS listener.
 * Streamers must still add Browser Sources; the Wails window does not replace OBS.
 
 ### Neutral

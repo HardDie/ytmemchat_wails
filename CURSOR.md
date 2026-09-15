@@ -17,7 +17,7 @@ ytmemchat is a YouTube Live companion: it reads live chat and reacts in realtime
 
 **Must have (first vertical slice)**
 
-- Configuration window: persist optional API key, stream/video ID, listen port; start / stop the pipeline without restarting the process.
+- Configuration window: persist optional API key, stream/video ID, listen port; **Start / Stop the YouTube iterator** without restarting the process (OBS HTTP stays up).
 - HTTP server with the nested `/obs/…` Browser Source URLs (see contract below).
 - Live chat HTML page that updates over WebSocket as messages arrive.
 - Connection / quota / error state visible in the Wails window (and logs).
@@ -78,6 +78,8 @@ Optional query on chat: `?transparent=1` to drop the opaque background (map onto
 **Overlay WS payload** (same as `ytmemchat/internal/server/contract.go`): `type` (`alert` \| `tts` \| `tts_interrupt`), `payload`, `filename`, `volume`, `scale`. Overlay media URLs must use `/obs/media/<file>`, not `/media/`.
 
 Do not invent a parallel Wails Events protocol for OBS. If the config UI needs a status line, use bound Go methods (and optional Wails events **only** for window status — never as the OBS transport).
+
+**Process vs Start:** Serve `internal/obs` from Wails `OnStartup` until the process exits (or the listen port is saved and the listener is restarted). OBS pages and WebSockets are available whenever the app is open, including before the first Start and after Stop. The Start/Run binding only starts the YouTube iterator and fans each new message into those sockets (chat hub; alerts vs TTS on the overlay hub). Stop cancels the iterator only. See [ADR 009](docs/architecture/009-obs-http-process-lifetime.md).
 
 ---
 
@@ -324,7 +326,7 @@ The console tree splits HTTP into `server` + `chat`, YouTube into `clients/youtu
 - **Go is the source of truth for chat.** Svelte calls bound methods (`SaveSettings`, `Start`, `Stop`, getters for status). The YouTube iterator publishes into the same pipeline as the console app (raw message → chat WS; alerts vs TTS → overlay WS).
 - **Keep the WebSocket JSON stable.** Additive fields are OK; renaming or dropping `authorName` / overlay `type` is not. HTTP paths in this repo follow `/obs/…` and `/api/…`, not the console root layout.
 - **One live iterator per session.** Start must cancel the previous context. History skip and polling interval stay in the YouTube iterator — not in Svelte.
-- **`app.go` is a thin façade.** Bindings are exported, JSON-friendly, and must not block the UI thread on YouTube HTTP. Long work runs in goroutines; the HTTP server lifetime is tied to Start/Stop (or app shutdown), not to Vite HMR.
+- **`app.go` is a thin façade.** Bindings are exported, JSON-friendly, and must not block the UI thread on YouTube HTTP. Long work runs in goroutines. The OBS HTTP server starts with the Wails process (`OnStartup`) and stops on app exit, not on Start/Stop. Start/Stop is the YouTube iterator plus fan-out into already-open sockets. Vite HMR must not own the listener.
 - **Port packages, do not rewrite blindly.** Bring YouTube iterators, overlay/chat HTML, alerts, and TTS over, then **reshape** into `youtube` / `youtube/nokey` / `obs` as above. Do not copy `clients/`, a second HTTP package, or watermill unless Start/Stop orchestration actually needs a bus.
 - **Config is a JSON file under `os.UserConfigDir()/ytmemchat`**, loaded at startup and saved on change. Defaults live in Go. Stream ID is required to Start; API key is optional. Do not panic the process the way console `config.Get()` does.
 - **YouTube client is chosen by API key presence**, not by a hardcoded flag. Empty key → `youtube/nokey`. Non-empty key → API v3 only. Invalid key → error in the config window, never fall back to the no-key client.
