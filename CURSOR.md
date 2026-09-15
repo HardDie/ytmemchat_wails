@@ -171,6 +171,7 @@ This file stays lean. **[README.md](README.md)** is the user-facing entry (what 
 | Architecture decisions (ADRs) | **[docs/architecture](docs/architecture/INDEX.md)** |
 | Use cases (after a module is ported) | **[docs/use-cases](docs/use-cases/INDEX.md)** |
 | Console behavior and historical overlay URLs | [HardDie/ytmemchat README](https://github.com/HardDie/ytmemchat) and local `../ytmemchat` |
+| Persisted settings JSON | `internal/config` |
 | HTTP mux, overlay + chat WS, OBS HTML | `internal/obs` (console: `internal/server` + `internal/chat`) |
 | Normalized chat event + v3 iterator | `internal/youtube` (console: `internal/clients/youtube`) |
 | No-key live chat client | `internal/youtube/nokey` (console: `internal/clients/youtubev1`) |
