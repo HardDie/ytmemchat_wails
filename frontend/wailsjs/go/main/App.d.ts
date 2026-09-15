@@ -24,6 +24,8 @@ export function PickCommandsFile():Promise<string>;
 
 export function PickMediaDirectory():Promise<string>;
 
+export function PreviewAlert(arg1:string,arg2:number,arg3:number):Promise<void>;
+
 export function SaveAlertCommands(arg1:main.AlertCommandsFile):Promise<void>;
 
 export function SaveSettings(arg1:main.SettingsForm):Promise<void>;

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onDestroy, onMount } from 'svelte'
+
   export let path: string
   export let rows: Array<{ name: string; file: string; volume: string; scale: string }>
   export let saving: boolean
@@ -10,8 +12,28 @@
   export let onReload: () => Promise<void>
   export let mediaPath: string
   export let onPickFile: (index: number) => Promise<void>
+  export let onTest: (index: number) => Promise<void>
+  export let canTest: boolean
 
   $: hasMedia = mediaPath.trim() !== ''
+
+  let menu = -1
+
+  function closeMenu(): void {
+    menu = -1
+  }
+
+  function toggleMenu(i: number): void {
+    menu = menu === i ? -1 : i
+  }
+
+  onMount(() => {
+    const onDoc = (): void => closeMenu()
+    document.addEventListener('click', onDoc)
+    return () => document.removeEventListener('click', onDoc)
+  })
+
+  onDestroy(closeMenu)
 
   function cmp(a: string, b: string): number {
     return a.trim().localeCompare(b.trim(), undefined, { sensitivity: 'base', numeric: true })
@@ -167,7 +189,32 @@
                   on:input={(e) => onDecimalInput(row, 'scale', e)}
                 />
               </label>
-              <button class="btn btn-small" type="button" on:click={() => onRemove(i)}>Remove</button>
+              <div class="command-more" on:click|stopPropagation>
+                <button
+                  class="file-in-btn command-more-btn"
+                  type="button"
+                  aria-label="More actions"
+                  title="More"
+                  on:click|stopPropagation={() => toggleMenu(i)}
+                >
+                  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                    <circle cx="3" cy="8" r="1.5" fill="currentColor" />
+                    <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+                    <circle cx="13" cy="8" r="1.5" fill="currentColor" />
+                  </svg>
+                </button>
+                {#if menu === i}
+                  <div class="command-menu">
+                    <button
+                      disabled={!canTest || !row.file.trim()}
+                      type="button"
+                      title={canTest ? 'Play this command on the OBS overlay' : 'OBS overlay is offline'}
+                      on:click={() => { closeMenu(); onTest(i) }}
+                    >Test on overlay</button>
+                    <button class="menu-danger" type="button" on:click={() => { closeMenu(); onRemove(i) }}>Delete</button>
+                  </div>
+                {/if}
+              </div>
             </div>
           </div>
         {/each}

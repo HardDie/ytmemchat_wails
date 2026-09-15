@@ -551,11 +551,60 @@ code {
     max-width: 100%;
 }
 
-.command-meta .btn {
+.command-more {
+    position: relative;
     flex: 0 0 auto;
-    min-width: max-content;
-    white-space: nowrap;
+    align-self: flex-end;
+}
+
+.command-more-btn {
+    position: static;
+    width: 32px;
     height: 32px;
+    border-radius: 6px;
+}
+
+.command-menu {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 4px);
+    z-index: 5;
+    min-width: 11rem;
+    padding: 4px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.command-menu button {
+    margin: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 10px;
+    cursor: pointer;
+}
+
+.command-menu button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.command-menu button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.command-menu .menu-danger {
+    color: var(--danger);
 }
 
 @container commands (min-width: 720px) {

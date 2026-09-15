@@ -11,6 +11,7 @@
     PickCommandsFile,
     PickMediaDirectory,
     PickAlertMediaFile,
+    PreviewAlert,
     SaveSettings,
     SendTestMessage,
     InterruptTTS,
@@ -223,6 +224,24 @@
     }
   }
 
+  async function testCommand(index: number): Promise<void> {
+    error = ''
+    status = ''
+    const row = commandRows[index]
+    if (!row || !row.file.trim()) {
+      error = 'Command needs a file'
+      return
+    }
+    try {
+      const volume = row.volume.trim() ? Number(row.volume) : 1
+      const scale = row.scale.trim() ? Number(row.scale) : 1
+      await PreviewAlert(row.file.trim(), volume, scale)
+      status = 'Alert sent to overlay'
+    } catch (e) {
+      error = String(e)
+    }
+  }
+
   async function pickCommandFile(index: number): Promise<void> {
     error = ''
     status = ''
@@ -403,6 +422,8 @@
           onReload={loadCommands}
           mediaPath={alertsMediaPath}
           onPickFile={pickCommandFile}
+          onTest={testCommand}
+          canTest={!!(obs && obs.listening)}
         />
       {:else if page === 'test'}
         <TestPane bind:testMessage {obs} onSend={sendTest} />

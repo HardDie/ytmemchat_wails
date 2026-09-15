@@ -26,6 +26,9 @@ func TestSendTestMessage_requiresHTTP(t *testing.T) {
 	if err := a.InterruptTTS(); !errors.Is(err, errOBSNotListening) {
 		t.Fatalf("interrupt %v", err)
 	}
+	if err := a.PreviewAlert("a.mp3", 1, 1); !errors.Is(err, errOBSNotListening) {
+		t.Fatalf("preview %v", err)
+	}
 }
 
 func TestSendTestMessage_usesOverlayPath(t *testing.T) {
@@ -104,6 +107,31 @@ func TestInterruptTTS_publishesOverlay(t *testing.T) {
 		t.Fatal(err)
 	}
 	if ev.Type != obs.PayloadTypeTTSInterrupt {
+		t.Fatalf("%+v", ev)
+	}
+}
+
+func TestPreviewAlert_publishesOverlay(t *testing.T) {
+	a := listenApp(t)
+	if err := a.PreviewAlert("  ", 1, 1); !errors.Is(err, errAlertFileEmpty) {
+		t.Fatalf("empty %v", err)
+	}
+	u := "ws" + strings.TrimPrefix(a.GetOBSStatus().OverlayURL, "http") + "/ws"
+	conn, _, err := websocket.DefaultDialer.Dial(u, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+	time.Sleep(30 * time.Millisecond)
+	if err := a.PreviewAlert(" videos/huh.webm ", 0.5, 1.2); err != nil {
+		t.Fatal(err)
+	}
+	_ = conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+	var ev obs.OverlayEvent
+	if err := conn.ReadJSON(&ev); err != nil {
+		t.Fatal(err)
+	}
+	if ev.Type != obs.PayloadTypeAlert || ev.Filename != "videos/huh.webm" || ev.Volume != 0.5 || ev.Scale != 1.2 {
 		t.Fatalf("%+v", ev)
 	}
 }

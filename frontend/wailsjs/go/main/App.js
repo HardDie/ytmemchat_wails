@@ -46,6 +46,10 @@ export function PickMediaDirectory() {
   return window['go']['main']['App']['PickMediaDirectory']();
 }
 
+export function PreviewAlert(arg1, arg2, arg3) {
+  return window['go']['main']['App']['PreviewAlert'](arg1, arg2, arg3);
+}
+
 export function SaveAlertCommands(arg1) {
   return window['go']['main']['App']['SaveAlertCommands'](arg1);
 }
