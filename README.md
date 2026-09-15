@@ -191,7 +191,7 @@ Then open `http://localhost:8081` and select this module.
 | `internal/youtube` | Ported | `go doc -all ./internal/youtube` |
 | `internal/youtube/nokey` | Ported | `go doc -all ./internal/youtube/nokey` |
 | `internal/obs` | Not ported | `go doc -all ./internal/obs` |
-| `internal/alerts` | Not ported | `go doc -all ./internal/alerts` |
+| `internal/alerts` | Ported | `go doc -all ./internal/alerts` |
 | `internal/tts` | Ported | `go doc -all ./internal/tts` |
 | `package main` (bindings façade) | Not ported | `go doc -all .` |
 

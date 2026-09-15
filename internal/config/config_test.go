@@ -94,6 +94,7 @@ func TestSaveLoad_roundTrip(t *testing.T) {
 	in.Youtube.APIKey = " secret-key "
 	in.TTS.VoiceName = "Milena"
 	in.Webhook.Enabled = true
+	in.Alerts.CommandsFilePath = "  /tmp/commands.yaml  "
 	if err := st.Save(in); err != nil {
 		t.Fatal(err)
 	}
@@ -109,6 +110,9 @@ func TestSaveLoad_roundTrip(t *testing.T) {
 	}
 	if out.TTS.VoiceName != "Milena" || !out.Webhook.Enabled {
 		t.Fatalf("out %+v", out)
+	}
+	if out.Alerts.CommandsFilePath != "/tmp/commands.yaml" {
+		t.Fatalf("commands file = %q", out.Alerts.CommandsFilePath)
 	}
 	raw, err := os.ReadFile(path)
 	if err != nil {

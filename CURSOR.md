@@ -175,7 +175,7 @@ This file stays lean. **[README.md](README.md)** is the user-facing entry (what 
 | HTTP mux, overlay + chat WS, OBS HTML | `internal/obs` (console: `internal/server` + `internal/chat`) |
 | Normalized chat event + v3 iterator | `internal/youtube` (console: `internal/clients/youtube`) |
 | No-key live chat client | `internal/youtube/nokey` (console: `internal/clients/youtubev1`) |
-| Alert token matching + `commands.yaml` | `ytmemchat/internal/alerts` |
+| Alert token matching + `commands.yaml` | `internal/alerts` |
 | TTS drivers | `internal/tts` |
 | Wails project layout / bindings | [Wails first project](https://wails.io/docs/gettingstarted/firstproject/) |
 
