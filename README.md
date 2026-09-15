@@ -32,9 +32,10 @@ The Wails window is a control panel. It is not the on-stream chat renderer.
 From source (after the Wails project exists in this directory):
 
 ```bash
+# From source (after Wails scaffold)
 git clone <this-repo>
 cd ytmemchat_wails
-wails build
+make build
 ```
 
 Tagged versions also publish archives on GitHub Releases (Linux amd64/arm64, Windows amd64, macOS universal).
@@ -42,7 +43,7 @@ Tagged versions also publish archives on GitHub Releases (Linux amd64/arm64, Win
 During development:
 
 ```bash
-wails dev
+make dev
 ```
 
 Settings are stored in a local JSON file (mode `0600`), not in the repo:
@@ -129,15 +130,20 @@ See [CURSOR.md](CURSOR.md) for layout, routes, and implementation rules. Archite
 
 The Wails app is not runnable yet. When you change **user-facing** behavior (features, install steps, OBS URLs, settings location, status, CI, releases), update this README in the same change. When you **port a module**, add a use-case file under `docs/use-cases/<module>/`, set its row to Ported in [docs/use-cases/INDEX.md](docs/use-cases/INDEX.md), give the package complete [Go documentation](https://go.dev/doc/comment), add a `go doc` command for it in the table below, and add unit tests (plus integration tests when the package hits HTTP, disk, or the OS). New architecture choices get an ADR in [docs/architecture](docs/architecture/INDEX.md).
 
-Developer-oriented contracts live in [CURSOR.md](CURSOR.md). Match Go style in [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat).
+Developer-oriented contracts live in [CURSOR.md](CURSOR.md). Match Go style in [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat). Day-to-day commands:
 
 ```bash
-wails dev    # after scaffold
-go test -race ./internal/...
-go test -tags=integration ./internal/...
+make help              # all targets
+make dev               # wails dev (needs scaffold)
+make build             # local production binary
+make test              # unit tests (race), same as CI
+make test-integration  # integration tests
+make test-all          # unit then integration
+make doc PKG=./internal/tts
+make doc-all PKG=./internal/tts
 ```
 
-Unit tests are `*_test.go` in the same package. Integration tests are `*_integration_test.go` with `//go:build integration`. Keep `internal/` free of Wails/CGO so CI does not need WebKit. Integration tests must not require YouTube credentials; skip if an optional external is missing.
+Unit tests are `*_test.go` in the same package. Integration tests use `//go:build integration`. If a test is tied to one OS, add that GOOS to the tag (`integration && darwin`, `integration && linux`, `integration && windows`) so it is not compiled elsewhere. Skip only when the platform matches but an optional binary is missing. Keep `internal/` free of Wails/CGO so CI does not need WebKit. Integration tests must not require YouTube credentials.
 
 GitHub Actions ([`.github/workflows/test.yml`](.github/workflows/test.yml)) runs those two test commands on every **push** and **pull request** (skipped until `go.mod` exists).
 
@@ -167,8 +173,8 @@ Requires `wails.json` (project already scaffolded). Binaries are not code-signed
 Each Go package must have a package comment and comments on all exported names. After a package is ported, check it from the **repository root**:
 
 ```bash
-go doc ./internal/<package>       # package summary
-go doc -all ./internal/<package>  # package + all exports
+make doc PKG=./internal/<package>
+make doc-all PKG=./internal/<package>
 ```
 
 Optional HTML browse of the whole module:
@@ -186,7 +192,7 @@ Then open `http://localhost:8081` and select this module.
 | `internal/youtube/nokey` | Not ported | `go doc -all ./internal/youtube/nokey` |
 | `internal/obs` | Not ported | `go doc -all ./internal/obs` |
 | `internal/alerts` | Not ported | `go doc -all ./internal/alerts` |
-| `internal/tts` | Not ported | `go doc -all ./internal/tts` |
+| `internal/tts` | Ported | `go doc -all ./internal/tts` |
 | `package main` (bindings façade) | Not ported | `go doc -all .` |
 
 Set **Status** to Ported in this table when `go doc -all` prints a real package comment and every export is described.

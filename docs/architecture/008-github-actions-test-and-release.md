@@ -21,7 +21,7 @@ The desktop app must stay green as packages are ported, and streamers need downl
 Use option 3.
 
 * **Unit tests** live next to the package (`foo_test.go`). Run on every push: `go test -race ./internal/...`.
-* **Integration tests** use `//go:build integration` and files named `*_integration_test.go`. Run on every push: `go test -tags=integration ./internal/...`. They must not need YouTube credentials or a display. Skip (don’t fail) if an optional external is missing.
+* **Integration tests** use `//go:build integration` and files named `*_integration_test.go`. OS-specific cases add the GOOS (`integration && darwin`, `linux`, `windows`) so they compile only on that platform. Run on every push: `go test -tags=integration ./internal/...`. They must not need YouTube credentials or a display. Skip (don’t fail) if an optional tool is missing **on that OS**.
 * **`internal/` stays CGO-free** so Ubuntu CI does not install WebKit for tests.
 * **Releases:** tag `v1.2.3` (semver with `v` prefix). Build with `wails build -platform …` on `ubuntu-latest`, `ubuntu-24.04-arm`, `windows-latest`, `macos-latest` (`darwin/universal`). Attach archives plus `SHA256SUMS.txt` to the GitHub Release.
 * Until `go.mod` exists, the test workflow skips instead of failing. A tag without `wails.json` fails the release job.

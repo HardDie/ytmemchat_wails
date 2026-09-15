@@ -148,11 +148,14 @@ This workspace is already named `ytmemchat_wails`. Scaffold **into this director
 Prerequisites: Go, Node/npm, Wails CLI (`go install github.com/wailsapp/wails/v2/cmd/wails@latest`), Xcode CLT.
 
 ```bash
-wails dev
-wails build
+make help   # all developer targets
+make dev    # wails dev (needs wails.json)
+make build  # wails build for this OS
+make test
+make test-integration
 ```
 
-Frontend-only (from `frontend/`): `npm install` then `npm run dev` / `npm run build`. Wails generates bindings under `frontend/wailsjs/` — do not edit those files by hand.
+Raw Wails/Go equivalents: `wails dev`, `wails build`, `go test -race ./internal/...`. Frontend-only (from `frontend/`): `npm install` then `npm run dev` / `npm run build`. Wails generates bindings under `frontend/wailsjs/` — do not edit those files by hand. After changing exported `App` methods: `make generate`.
 
 YouTube Data API v3 is only required when the user saves an API key. After start, add OBS Browser Sources to `http://127.0.0.1:<port>/obs/chat` and `http://127.0.0.1:<port>/obs/overlay`. Click Interact on the overlay source once so the browser can autoplay audio (same as the console README).
 
@@ -172,7 +175,7 @@ This file stays lean. **[README.md](README.md)** is the user-facing entry (what 
 | Normalized chat event + v3 iterator | `internal/youtube` (console: `internal/clients/youtube`) |
 | No-key live chat client | `internal/youtube/nokey` (console: `internal/clients/youtubev1`) |
 | Alert token matching + `commands.yaml` | `ytmemchat/internal/alerts` |
-| TTS drivers | `ytmemchat/internal/tts` |
+| TTS drivers | `internal/tts` |
 | Wails project layout / bindings | [Wails first project](https://wails.io/docs/gettingstarted/firstproject/) |
 
 ### Intended tree (after scaffold + port)
@@ -181,6 +184,7 @@ Official Wails layout is a **Vite Svelte app in `frontend/`** plus **`package ma
 
 ```text
 .
+├── Makefile                  # make help / dev / build / test / doc
 ├── README.md                 # users: product, install, OBS, status
 ├── CURSOR.md                 # agents: contracts and layout
 ├── docs/
@@ -248,8 +252,8 @@ Every Go package in this repo must have documentation that `go doc` can print. T
 **How to check** (from the repo root, after the package exists):
 
 ```bash
-go doc ./internal/youtube
-go doc -all ./internal/youtube
+make doc PKG=./internal/tts
+make doc-all PKG=./internal/tts
 ```
 
 `-all` must show the package comment and every export. If `go doc` prints `no Go files` or only a name with no prose, the port is incomplete.
@@ -262,14 +266,16 @@ Every ported Go package **must** have unit tests. Add integration tests when the
 
 | Kind | Files | Build tag | Local command |
 |---|---|---|---|
-| Unit | `foo_test.go` next to the code | none | `go test ./internal/alerts` |
-| Integration | `foo_integration_test.go` | `//go:build integration` | `go test -tags=integration ./internal/obs` |
+| Unit | `foo_test.go` next to the code | none | `make test` or `go test ./internal/alerts` |
+| Integration (all OS) | `foo_integration_test.go` | `//go:build integration` | `make test-integration` |
+| Integration (one OS) | `foo_integration_darwin_test.go` (or `_linux_`, `_windows_`) | `//go:build integration && darwin` (or `linux` / `windows`) | same; other GOOS never compile those files |
 
 **Rules**
 
 - Prefer table-driven tests. Cover happy path and the error cases in the use-case file (invalid API key, not live, bad YAML).
 - `internal/` must stay **CGO-free** so CI can test on Ubuntu without WebKit. Do not import Wails from `internal/`.
 - Integration tests use `httptest`, temp dirs, and fakes. They **skip** (`t.Skip`) if a real YouTube key or live stream is required; they must not fail CI for missing secrets. Never commit API keys.
+- **OS-specific integration tests use GOOS build tags**, not `runtime.GOOS` branches that skip. Example: `//go:build integration && darwin` so Linux/Windows do not compile `say` tests. Skip only when this OS is correct but the tool is missing (`espeak` not installed on Linux CI). Shared helpers may use `//go:build integration` with no GOOS.
 - A package with no integration surface (for example pure token matching) does not need an integration file; say so in the package comment if it is unclear.
 - Porting is incomplete without tests, godoc, a use-case file, and a README `go doc` row.
 
@@ -335,7 +341,7 @@ The console tree splits HTTP into `server` + `chat`, YouTube into `clients/youtu
 - **Keep [README.md](README.md) up to date in the same change** whenever user-visible facts move: features, project status, requirements, install/run, config path, OBS URLs, webhook examples, TTS OS notes, license, contributing commands, the package `go doc` table, CI, or release artifacts. README follows [Make a README](https://www.makeareadme.com/): name, description, install, usage, contributing, license, and honest **project status**. Do not dump this file into the README; deep contracts stay here.
 - **Use cases only after porting.** When a module is first added under `internal/` (or `app.go` for UC-11), write `docs/use-cases/<module>/uc-NN-….md` from `docs/use-cases/_TEMPLATE.md` and set the row to Ported in `docs/use-cases/INDEX.md`. Do not invent UC files for code that is not in this repo.
 - **Godoc on every Go package.** Package comment plus comments on all exports. After porting, add a `go doc ./…` row for that package in README (Package documentation). Verify with `go doc -all` before considering the port done.
-- **Tests on every ported package.** Unit tests always; integration tests (`//go:build integration`) when the package hits HTTP, disk, or OS APIs. Keep `internal/` CGO-free. CI must stay green.
+- **Tests on every ported package.** Unit tests always; integration tests (`//go:build integration`) when the package hits HTTP, disk, or OS APIs. Platform-specific integration files also tag GOOS (`integration && darwin`). Keep `internal/` CGO-free. CI must stay green.
 - **New core decisions get an ADR** in `docs/architecture/` (next number, update `docs/architecture/INDEX.md`). Do not leave accepted decisions only in chat.
 - Prefer the smallest change that ports one behavior correctly over a large rewrite.
 - Treat HTTP + WebSocket overlay/chat as core, not a follow-up. Do not “simplify” by moving chat into the Wails window.

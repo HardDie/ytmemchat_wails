@@ -15,7 +15,7 @@ Copy [\_TEMPLATE.md](_TEMPLATE.md) when a module is ported.
 | UC-05 | Show live chat in OBS | `internal/obs` | Planned | — |
 | UC-06 | Play alert / TTS on overlay | `internal/obs` | Planned | — |
 | UC-07 | Match an alert command | `internal/alerts` | Planned | — |
-| UC-08 | Speak a non-alert message | `internal/tts` | Planned | — |
+| UC-08 | Speak a non-alert message | `internal/tts` | Ported | [tts/uc-08-speak-message.md](tts/uc-08-speak-message.md) |
 | UC-09 | Inject a test chat message | `internal/obs` (`/api/webhook`) | Planned | — |
 | UC-10 | Interrupt TTS | `internal/obs` (`/api/interrupt`) | Planned | — |
 | UC-11 | Start and stop the pipeline | `app.go` | Planned | — |
