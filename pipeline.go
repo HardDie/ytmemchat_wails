@@ -11,7 +11,6 @@ import (
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
 	"github.com/HardDie/ytmemchat_wails/internal/youtube"
 	"github.com/HardDie/ytmemchat_wails/internal/youtube/nokey"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type clientFactory func(config.Settings) (youtube.Client, error)
@@ -72,10 +71,10 @@ func (a *App) stopRunLocked() (cancel context.CancelFunc, wg *sync.WaitGroup) {
 }
 
 func (a *App) emitRunLocked() {
-	if a.ctx == nil {
+	if a.emit == nil {
 		return
 	}
-	runtime.EventsEmit(a.ctx, "pipeline", a.runStatusLocked())
+	a.emit("pipeline", a.runStatusLocked())
 }
 
 func (a *App) runStatusLocked() RunStatus {

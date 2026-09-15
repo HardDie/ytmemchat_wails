@@ -30,6 +30,7 @@ type App struct {
 	runRunning     bool
 	runUsingKey    bool
 	runError       string
+	emit           func(string, any)
 }
 
 // SettingsForm is the settings window payload. Other JSON fields stay on disk
@@ -61,6 +62,7 @@ func newAppWithStore(st *config.Store) *App {
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	a.setupWailsHooks()
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.loadLocked()

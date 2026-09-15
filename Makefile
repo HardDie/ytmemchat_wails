@@ -2,6 +2,8 @@
 
 APP_NAME     := ytmemchat
 INTERNAL     := ./internal/...
+# Exclude the Wails entrypoint (CGO) so package main tests run on CI.
+TEST_MAIN_TAGS := nomain
 GO           := go
 WAILS        := wails
 PKG          ?= ./internal/tts
@@ -31,8 +33,9 @@ build: require-wails
 generate: require-wails
 	$(WAILS) generate module
 
-## test: Unit tests for internal packages (same as CI, with race)
+## test: Unit tests for package main and internal packages (same as CI, with race)
 test:
+	$(GO) test -race -count=1 -tags=$(TEST_MAIN_TAGS) .
 	$(GO) test -race -count=1 $(INTERNAL)
 
 ## test-integration: Integration tests (OS TTS, later HTTP); skips if tools missing
@@ -45,8 +48,9 @@ test-all: test test-integration
 ## ci: What GitHub Actions test.yml runs
 ci: test-all
 
-## vet: Go vet on internal packages
+## vet: Go vet on package main (no Wails CGO) and internal packages
 vet:
+	$(GO) vet -tags=$(TEST_MAIN_TAGS) .
 	$(GO) vet $(INTERNAL)
 
 ## fmt: Format Go files; fail if any file needed formatting

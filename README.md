@@ -142,7 +142,7 @@ make doc PKG=./internal/tts
 make doc-all PKG=./internal/tts
 ```
 
-Unit tests are `*_test.go` in the same package. Integration tests use `//go:build integration`. If a test is tied to one OS, add that GOOS to the tag (`integration && darwin`, `integration && linux`, `integration && windows`) so it is not compiled elsewhere. Skip only when the platform matches but an optional binary is missing. Keep `internal/` free of Wails/CGO so CI does not need WebKit. Integration tests must not require YouTube credentials.
+Unit tests are `*_test.go` in the same package. `make test` also runs package main with `-tags=nomain` so Wails CGO is skipped. Integration tests use `//go:build integration`. If a test is tied to one OS, add that GOOS to the tag (`integration && darwin`, `integration && linux`, `integration && windows`) so it is not compiled elsewhere. Skip only when the platform matches but an optional binary is missing. Keep `internal/` free of Wails/CGO so CI does not need WebKit. Integration tests must not require YouTube credentials.
 
 GitHub Actions ([`.github/workflows/test.yml`](.github/workflows/test.yml)) runs those two test commands on every **push** and **pull request** (skipped until `go.mod` exists).
 

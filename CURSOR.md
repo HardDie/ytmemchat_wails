@@ -151,7 +151,7 @@ make test
 make test-integration
 ```
 
-Raw Wails/Go equivalents: `wails dev`, `wails build`, `go test -race ./internal/...`. Frontend-only (from `frontend/`): `npm install` then `npm run dev` / `npm run build`. Wails generates bindings under `frontend/wailsjs/` — do not edit those files by hand. After changing exported `App` methods: `make generate`.
+Raw Wails/Go equivalents: `wails dev`, `wails build`, `go test -race -tags=nomain .` then `go test -race ./internal/...`. Frontend-only (from `frontend/`): `npm install` then `npm run dev` / `npm run build`. Wails generates bindings under `frontend/wailsjs/` — do not edit those files by hand. After changing exported `App` methods: `make generate`.
 
 YouTube Data API v3 is only required when the user saves an API key. After start, add OBS Browser Sources to `http://127.0.0.1:<port>/obs/chat` and `http://127.0.0.1:<port>/obs/overlay`. Click Interact on the overlay source once so the browser can autoplay audio (same as the console README).
 
@@ -263,7 +263,7 @@ Every ported Go package **must** have unit tests. Add integration tests when the
 
 | Kind | Files | Build tag | Local command |
 |---|---|---|---|
-| Unit | `foo_test.go` next to the code | none | `make test` or `go test ./internal/alerts` |
+| Unit | `foo_test.go` next to the code | none (`nomain` for package main) | `make test` or `go test ./internal/alerts` |
 | Integration (all OS) | `foo_integration_test.go` | `//go:build integration` | `make test-integration` |
 | Integration (one OS) | `foo_integration_darwin_test.go` (or `_linux_`, `_windows_`) | `//go:build integration && darwin` (or `linux` / `windows`) | same; other GOOS never compile those files |
 
@@ -276,7 +276,7 @@ Every ported Go package **must** have unit tests. Add integration tests when the
 - A package with no integration surface (for example pure token matching) does not need an integration file; say so in the package comment if it is unclear.
 - Porting is incomplete without tests, godoc, a use-case file, and a README `go doc` row.
 
-CI (every push and pull request): `go test -race ./internal/...` then `go test -tags=integration ./internal/...`. See [ADR 008](docs/architecture/008-github-actions-test-and-release.md).
+CI (every push and pull request): `go test -race -tags=nomain .` then `go test -race ./internal/...` then `go test -tags=integration ./internal/...`. See [ADR 008](docs/architecture/008-github-actions-test-and-release.md). The `nomain` tag skips `main.go` (Wails CGO) so App/pipeline tests run on Ubuntu.
 
 ### Releases
 

@@ -1,3 +1,5 @@
+//go:build !nomain
+
 // Package main is the Wails desktop entrypoint: native window plus bindings
 // façade. Domain logic lives in internal/. OBS HTTP starts in OnStartup.
 // Start/Stop runs the YouTube iterator into the chat overlay.

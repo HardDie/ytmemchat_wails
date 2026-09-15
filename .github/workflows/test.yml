@@ -31,7 +31,9 @@ jobs:
 
       - name: Unit tests
         if: steps.mod.outputs.present == 'true'
-        run: go test -race -count=1 ./internal/...
+        run: |
+          go test -race -count=1 -tags=nomain .
+          go test -race -count=1 ./internal/...
 
       - name: Integration tests
         if: steps.mod.outputs.present == 'true'
