@@ -37,6 +37,8 @@ cd ytmemchat_wails
 wails build
 ```
 
+Tagged versions also publish archives on GitHub Releases (Linux amd64/arm64, Windows amd64, macOS universal).
+
 During development:
 
 ```bash
@@ -109,7 +111,8 @@ curl -X POST http://127.0.0.1:8080/api/interrupt
 - Scaffold Wails v2 + Svelte and persist settings in the OS config directory
 - Port YouTube clients, HTTP/WebSocket OBS routes, alerts, and TTS
 - Copy OBS URLs from the settings window
-- Later: OS keychain for the API key
+- GitHub Actions: tests on push; tagged releases with Linux (amd64, arm64), Windows, and macOS binaries
+- Later: OS keychain for the API key; code-signed installers
 
 See [CURSOR.md](CURSOR.md) for layout, routes, and implementation rules. Architecture decisions are in [docs/architecture](docs/architecture/INDEX.md). Use cases are added under [docs/use-cases](docs/use-cases/INDEX.md) after each module is ported.
 
@@ -124,14 +127,40 @@ See [CURSOR.md](CURSOR.md) for layout, routes, and implementation rules. Archite
 
 ## Contributing
 
-The Wails app is not runnable yet. When you change **user-facing** behavior (features, install steps, OBS URLs, settings location, status), update this README in the same change. When you **port a module**, add a use-case file under `docs/use-cases/<module>/`, set its row to Ported in [docs/use-cases/INDEX.md](docs/use-cases/INDEX.md), give the package complete [Go documentation](https://go.dev/doc/comment), and add a `go doc` command for it in the table below. New architecture choices get an ADR in [docs/architecture](docs/architecture/INDEX.md).
+The Wails app is not runnable yet. When you change **user-facing** behavior (features, install steps, OBS URLs, settings location, status, CI, releases), update this README in the same change. When you **port a module**, add a use-case file under `docs/use-cases/<module>/`, set its row to Ported in [docs/use-cases/INDEX.md](docs/use-cases/INDEX.md), give the package complete [Go documentation](https://go.dev/doc/comment), add a `go doc` command for it in the table below, and add unit tests (plus integration tests when the package hits HTTP, disk, or the OS). New architecture choices get an ADR in [docs/architecture](docs/architecture/INDEX.md).
 
 Developer-oriented contracts live in [CURSOR.md](CURSOR.md). Match Go style in [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat).
 
 ```bash
 wails dev    # after scaffold
-go test ./...
+go test -race ./internal/...
+go test -tags=integration ./internal/...
 ```
+
+Unit tests are `*_test.go` in the same package. Integration tests are `*_integration_test.go` with `//go:build integration`. Keep `internal/` free of Wails/CGO so CI does not need WebKit. Integration tests must not require YouTube credentials; skip if an optional external is missing.
+
+GitHub Actions ([`.github/workflows/test.yml`](.github/workflows/test.yml)) runs those two test commands on every **push** and **pull request** (skipped until `go.mod` exists).
+
+### Releases
+
+Push a semver tag with a `v` prefix:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+[`.github/workflows/release.yml`](.github/workflows/release.yml) publishes a GitHub Release with:
+
+| File | Platform |
+|---|---|
+| `ytmemchat-linux-amd64.tar.gz` | Linux x86_64 |
+| `ytmemchat-linux-arm64.tar.gz` | Linux ARM64 |
+| `ytmemchat-windows-amd64.zip` | Windows x86_64 |
+| `ytmemchat-darwin-universal.zip` | macOS Intel + Apple Silicon |
+| `SHA256SUMS.txt` | checksums |
+
+Requires `wails.json` (project already scaffolded). Binaries are not code-signed yet.
 
 ### Package documentation
 

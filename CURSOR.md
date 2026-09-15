@@ -186,6 +186,9 @@ Official Wails layout is a **Vite Svelte app in `frontend/`** plus **`package ma
 ├── docs/
 │   ├── architecture/         # ADRs
 │   └── use-cases/            # UC files only after the module is ported
+├── .github/workflows/
+│   ├── test.yml              # go test on every push/PR
+│   └── release.yml           # binaries on v* tags
 ├── wails.json                # Wails CLI: frontend install/build/dev
 ├── go.mod
 ├── main.go                   # wails.Run, //go:embed all:frontend/dist
@@ -253,6 +256,38 @@ go doc -all ./internal/youtube
 
 After porting a package, add (or mark Ported) its `go doc` command in [README.md](README.md) under Contributing → Package documentation.
 
+### Tests
+
+Every ported Go package **must** have unit tests. Add integration tests when the package talks to the network, disk, OS TTS, or HTTP — not for pure functions.
+
+| Kind | Files | Build tag | Local command |
+|---|---|---|---|
+| Unit | `foo_test.go` next to the code | none | `go test ./internal/alerts` |
+| Integration | `foo_integration_test.go` | `//go:build integration` | `go test -tags=integration ./internal/obs` |
+
+**Rules**
+
+- Prefer table-driven tests. Cover happy path and the error cases in the use-case file (invalid API key, not live, bad YAML).
+- `internal/` must stay **CGO-free** so CI can test on Ubuntu without WebKit. Do not import Wails from `internal/`.
+- Integration tests use `httptest`, temp dirs, and fakes. They **skip** (`t.Skip`) if a real YouTube key or live stream is required; they must not fail CI for missing secrets. Never commit API keys.
+- A package with no integration surface (for example pure token matching) does not need an integration file; say so in the package comment if it is unclear.
+- Porting is incomplete without tests, godoc, a use-case file, and a README `go doc` row.
+
+CI (every push and pull request): `go test -race ./internal/...` then `go test -tags=integration ./internal/...`. See [ADR 008](docs/architecture/008-github-actions-test-and-release.md).
+
+### Releases
+
+Push a tag `vMAJOR.MINOR.PATCH` (for example `v0.1.0`). GitHub Actions builds and attaches:
+
+| Artifact | Runner / platform |
+|---|---|
+| `ytmemchat-linux-amd64.tar.gz` | `ubuntu-latest` · `linux/amd64` |
+| `ytmemchat-linux-arm64.tar.gz` | `ubuntu-24.04-arm` · `linux/arm64` |
+| `ytmemchat-windows-amd64.zip` | `windows-latest` · `windows/amd64` |
+| `ytmemchat-darwin-universal.zip` | `macos-latest` · `darwin/universal` |
+
+Plus `SHA256SUMS.txt`. Code signing is not part of the first slice.
+
 ### Internal packages (optimized vs console)
 
 The console tree splits HTTP into `server` + `chat`, YouTube into `clients/youtube` + `clients/youtubev1`, and a one-handler `webhook` package. That is more packages than behaviors. Collapse by **surface**, not by file count.
@@ -297,9 +332,10 @@ The console tree splits HTTP into `server` + `chat`, YouTube into `clients/youtu
 
 - Match existing Go style in the console repo (`slog`, small `internal/` packages, interfaces at the package boundary).
 - Keep this file updated when routes, payloads, stack, or directory layout change.
-- **Keep [README.md](README.md) up to date in the same change** whenever user-visible facts move: features, project status, requirements, install/run, config path, OBS URLs, webhook examples, TTS OS notes, license, contributing commands, or the package `go doc` table. README follows [Make a README](https://www.makeareadme.com/): name, description, install, usage, contributing, license, and honest **project status**. Do not dump this file into the README; deep contracts stay here.
+- **Keep [README.md](README.md) up to date in the same change** whenever user-visible facts move: features, project status, requirements, install/run, config path, OBS URLs, webhook examples, TTS OS notes, license, contributing commands, the package `go doc` table, CI, or release artifacts. README follows [Make a README](https://www.makeareadme.com/): name, description, install, usage, contributing, license, and honest **project status**. Do not dump this file into the README; deep contracts stay here.
 - **Use cases only after porting.** When a module is first added under `internal/` (or `app.go` for UC-11), write `docs/use-cases/<module>/uc-NN-….md` from `docs/use-cases/_TEMPLATE.md` and set the row to Ported in `docs/use-cases/INDEX.md`. Do not invent UC files for code that is not in this repo.
 - **Godoc on every Go package.** Package comment plus comments on all exports. After porting, add a `go doc ./…` row for that package in README (Package documentation). Verify with `go doc -all` before considering the port done.
+- **Tests on every ported package.** Unit tests always; integration tests (`//go:build integration`) when the package hits HTTP, disk, or OS APIs. Keep `internal/` CGO-free. CI must stay green.
 - **New core decisions get an ADR** in `docs/architecture/` (next number, update `docs/architecture/INDEX.md`). Do not leave accepted decisions only in chat.
 - Prefer the smallest change that ports one behavior correctly over a large rewrite.
 - Treat HTTP + WebSocket overlay/chat as core, not a follow-up. Do not “simplify” by moving chat into the Wails window.
