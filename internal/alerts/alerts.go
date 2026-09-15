@@ -31,7 +31,7 @@ type Config struct {
 type Alerts struct {
 	token    string
 	mediaDir string
-	commands map[string]command
+	commands map[string]Command
 	out      chan<- Clip
 }
 
@@ -45,12 +45,12 @@ func New(cfg Config) (*Alerts, error) {
 	}
 	parsed, err := parseCommands(cfg.CommandsFilePath)
 	if err != nil {
-		return nil, fmt.Errorf("parseCommands(): %w", err)
+		return nil, err
 	}
 	a := &Alerts{
 		token:    cfg.Token,
 		mediaDir: cfg.MediaPath,
-		commands: make(map[string]command),
+		commands: make(map[string]Command),
 		out:      cfg.Out,
 	}
 	for _, it := range parsed.Commands {

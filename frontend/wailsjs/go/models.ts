@@ -1,5 +1,55 @@
 export namespace main {
 	
+	export class AlertCommand {
+	    name: string;
+	    file: string;
+	    volume?: number;
+	    scale?: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new AlertCommand(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.file = source["file"];
+	        this.volume = source["volume"];
+	        this.scale = source["scale"];
+	    }
+	}
+	export class AlertCommandsFile {
+	    path: string;
+	    commands: AlertCommand[];
+	
+	    static createFrom(source: any = {}) {
+	        return new AlertCommandsFile(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.path = source["path"];
+	        this.commands = this.convertValues(source["commands"], AlertCommand);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class OBSStatus {
 	    listening: boolean;
 	    error: string;

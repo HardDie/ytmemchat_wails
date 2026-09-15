@@ -20,6 +20,7 @@ Copy [\_TEMPLATE.md](_TEMPLATE.md) when a module is ported.
 | UC-10 | Interrupt TTS | `internal/obs` (`/api/interrupt`) | Ported | [obs/uc-10-interrupt-tts.md](obs/uc-10-interrupt-tts.md) |
 | UC-11 | Start and stop the pipeline | `app.go` | Ported | [app/uc-11-start-stop.md](app/uc-11-start-stop.md) |
 | UC-12 | Find latest live or upcoming stream | `internal/youtube` | Ported | [youtube/uc-12-find-latest-stream.md](youtube/uc-12-find-latest-stream.md) |
+| UC-13 | Edit commands.yaml from the window | `internal/alerts` | Ported | [alerts/uc-13-edit-commands-yaml.md](alerts/uc-13-edit-commands-yaml.md) |
 
 ## Layout (after porting)
 
@@ -40,7 +41,8 @@ docs/use-cases/
 │   ├── uc-09-inject-webhook.md
 │   └── uc-10-interrupt-tts.md
 ├── alerts/
-│   └── uc-07-alert-command.md
+│   ├── uc-07-alert-command.md
+│   └── uc-13-edit-commands-yaml.md
 ├── tts/
 │   └── uc-08-speak-message.md
 └── app/

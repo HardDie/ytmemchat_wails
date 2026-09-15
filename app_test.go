@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/HardDie/ytmemchat_wails/internal/alerts"
 	"github.com/HardDie/ytmemchat_wails/internal/config"
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
 	"github.com/HardDie/ytmemchat_wails/internal/tts"
@@ -265,5 +266,42 @@ func TestLookupLatestStream_requiresIDAndKey(t *testing.T) {
 	}
 	if _, err := a.LookupLatestStream("vid", ""); err == nil || !strings.Contains(err.Error(), "API key") {
 		t.Fatalf("key err = %v", err)
+	}
+}
+
+func TestGetSaveAlertCommands(t *testing.T) {
+	st := config.NewStore(filepath.Join(t.TempDir(), "config.json"))
+	a := newAppWithStore(st)
+	if _, err := a.GetAlertCommands(); err == nil || !strings.Contains(err.Error(), "commands.yaml") {
+		t.Fatalf("path err = %v", err)
+	}
+	yamlPath := filepath.Join(t.TempDir(), "commands.yaml")
+	savePatched(t, a, func(f *SettingsForm) {
+		f.AlertsCommandsFilePath = yamlPath
+	})
+	got, err := a.GetAlertCommands()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Path != yamlPath || len(got.Commands) != 0 {
+		t.Fatalf("%+v", got)
+	}
+	vol := 0.5
+	if err := a.SaveAlertCommands(AlertCommandsFile{Commands: []AlertCommand{
+		{Name: "jump", File: "jump.mp3"},
+		{Name: "dance", File: "cat.gif", Volume: &vol},
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	loaded, err := alerts.LoadFile(yamlPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(loaded.Commands) != 2 || loaded.Commands[0].Volume != nil || loaded.Commands[1].Volume == nil {
+		t.Fatalf("%+v", loaded)
+	}
+	again, err := a.GetAlertCommands()
+	if err != nil || len(again.Commands) != 2 {
+		t.Fatalf("%+v %v", again, err)
 	}
 }

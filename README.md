@@ -4,7 +4,7 @@ ytmemchat is a desktop companion for [YouTube](https://www.youtube.com/) Live. I
 
 This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) desktop app. You configure and start the pipeline in a native window. OBS Browser Sources load local HTTP pages that update over WebSocket.
 
-**Project status:** early development. The Wails window is setup only (Home / Config / Test). OBS shows chat and overlay. Start/Stop YouTube chat from Home; alerts and TTS go to the overlay.
+**Project status:** early development. The Wails window is setup only (Home / Config / Commands / Test). OBS shows chat and overlay. Start/Stop YouTube chat from Home; alerts and TTS go to the overlay.
 
 ## Features
 
@@ -74,7 +74,7 @@ The config window can copy these URLs for the current port. Opening `http://127.
 
 ### Alert commands
 
-Point the app at a media folder and a YAML file from **Config** (or the same fields in `config.json`):
+Point the app at a media folder and a YAML file from **Config**. Edit the file in the **Commands** pane (add rows; leave volume/scale blank so those keys are not written). Overlay playback uses 1 when a key is omitted:
 
 ```yaml
 commands:

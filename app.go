@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
+	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
 
+	"github.com/HardDie/ytmemchat_wails/internal/alerts"
 	"github.com/HardDie/ytmemchat_wails/internal/config"
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
 	"github.com/HardDie/ytmemchat_wails/internal/tts"
@@ -226,6 +229,81 @@ func (a *App) ConfigPath() string {
 		return ""
 	}
 	return a.store.Path()
+}
+
+// AlertCommand is one row in commands.yaml for the editor.
+type AlertCommand struct {
+	// Name is the token word (for example "jump" in @jump).
+	Name string `json:"name"`
+	// File is a media filename inside the alerts media folder.
+	File string `json:"file"`
+	// Volume is overlay gain 0–1. Nil omits the YAML key (runtime default 1).
+	Volume *float64 `json:"volume,omitempty"`
+	// Scale is visual size. Nil omits the YAML key (runtime default 1).
+	Scale *float64 `json:"scale,omitempty"`
+}
+
+// AlertCommandsFile is the commands.yaml editor payload.
+type AlertCommandsFile struct {
+	// Path is the saved commands.yaml location.
+	Path string `json:"path"`
+	// Commands is the list to show and write.
+	Commands []AlertCommand `json:"commands"`
+}
+
+// GetAlertCommands loads the saved commands.yaml. A missing file yields an empty list.
+func (a *App) GetAlertCommands() (AlertCommandsFile, error) {
+	a.mu.Lock()
+	path := strings.TrimSpace(a.settings.Alerts.CommandsFilePath)
+	a.mu.Unlock()
+	if path == "" {
+		return AlertCommandsFile{}, fmt.Errorf("set a commands.yaml path in Configuration")
+	}
+	parsed, err := alerts.LoadFile(path)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return AlertCommandsFile{Path: path, Commands: []AlertCommand{}}, nil
+		}
+		return AlertCommandsFile{}, err
+	}
+	return AlertCommandsFile{Path: path, Commands: toAlertCommands(parsed.Commands)}, nil
+}
+
+// SaveAlertCommands writes commands.yaml. Empty volume and scale are omitted.
+func (a *App) SaveAlertCommands(in AlertCommandsFile) error {
+	a.mu.Lock()
+	path := strings.TrimSpace(a.settings.Alerts.CommandsFilePath)
+	skip := a.skipHTTP
+	a.mu.Unlock()
+	if path == "" {
+		return fmt.Errorf("set a commands.yaml path in Configuration")
+	}
+	if err := alerts.SaveFile(path, alerts.File{Commands: fromAlertCommands(in.Commands)}); err != nil {
+		return err
+	}
+	if skip {
+		return nil
+	}
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.installOverlayLocked(false)
+	return nil
+}
+
+func toAlertCommands(in []alerts.Command) []AlertCommand {
+	out := make([]AlertCommand, len(in))
+	for i, c := range in {
+		out[i] = AlertCommand{Name: c.Name, File: c.File, Volume: c.Volume, Scale: c.Scale}
+	}
+	return out
+}
+
+func fromAlertCommands(in []AlertCommand) []alerts.Command {
+	out := make([]alerts.Command, len(in))
+	for i, c := range in {
+		out[i] = alerts.Command{Name: strings.TrimSpace(c.Name), File: strings.TrimSpace(c.File), Volume: c.Volume, Scale: c.Scale}
+	}
+	return out
 }
 
 // TTSVoice is one installed OS voice for the settings list.

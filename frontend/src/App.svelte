@@ -5,6 +5,8 @@
     GetOBSStatus,
     GetRunStatus,
     GetSettings,
+    GetAlertCommands,
+    SaveAlertCommands,
     LookupLatestStream,
     PickCommandsFile,
     PickMediaDirectory,
@@ -18,13 +20,15 @@
   import { ClipboardSetText, EventsOn } from '../wailsjs/runtime/runtime'
   import HomePane from './lib/HomePane.svelte'
   import ConfigPane from './lib/ConfigPane.svelte'
+  import CommandsPane from './lib/CommandsPane.svelte'
   import TestPane from './lib/TestPane.svelte'
 
-  type Page = 'home' | 'config' | 'test'
+  type Page = 'home' | 'config' | 'commands' | 'test'
 
   const titles: Record<Page, string> = {
     home: 'Home',
     config: 'Configuration',
+    commands: 'Commands',
     test: 'Test message',
   }
 
@@ -46,6 +50,10 @@
   let saving = false
   let starting = false
   let lookingUp = false
+  let commandsSaving = false
+  let commandsLoading = false
+  let commandsPath = ''
+  let commandRows: Array<{ name: string; file: string; volume: string; scale: string }> = []
   let obs: main.OBSStatus | null = null
   let run: main.RunStatus | null = null
 
@@ -226,6 +234,104 @@
       error = String(e)
     }
   }
+
+  function optionalFloat(raw: string, label: string): number | undefined {
+    const t = raw.trim().replace(/,/g, '.').replace(/\.$/, '')
+    if (!t) {
+      return undefined
+    }
+    if (!/^(?:\d+(?:\.\d{1,2})?|\.\d{1,2})$/.test(t)) {
+      throw new Error(`${label} must be a number with at most two digits after the decimal point`)
+    }
+    const n = Number(t)
+    if (!Number.isFinite(n)) {
+      throw new Error(`${label} must be a number`)
+    }
+    return n
+  }
+
+  function formatDecimal(n: number): string {
+    return String(Number(n.toFixed(2)))
+  }
+
+  function emptyRow(): { name: string; file: string; volume: string; scale: string } {
+    return { name: '', file: '', volume: '', scale: '' }
+  }
+
+  async function loadCommands(): Promise<void> {
+    if (!alertsCommandsFilePath.trim()) {
+      commandsPath = ''
+      commandRows = []
+      return
+    }
+    commandsLoading = true
+    error = ''
+    try {
+      const got = await GetAlertCommands()
+      commandsPath = got.path ?? ''
+      commandRows = (got.commands ?? []).map((c) => ({
+        name: c.name ?? '',
+        file: c.file ?? '',
+        volume: c.volume == null ? '' : formatDecimal(c.volume),
+        scale: c.scale == null ? '' : formatDecimal(c.scale),
+      }))
+    } catch (e) {
+      commandsPath = ''
+      commandRows = []
+      error = String(e)
+    } finally {
+      commandsLoading = false
+    }
+  }
+
+  async function openCommands(): Promise<void> {
+    page = 'commands'
+    await loadCommands()
+  }
+
+  function reorderCommands(next: Array<{ name: string; file: string; volume: string; scale: string }>): void {
+    commandRows = next
+  }
+
+  function addCommand(): void {
+    commandRows = [...commandRows, emptyRow()]
+  }
+
+  function removeCommand(index: number): void {
+    commandRows = commandRows.filter((_, i) => i !== index)
+  }
+
+  async function saveCommands(): Promise<void> {
+    commandsSaving = true
+    error = ''
+    status = ''
+    try {
+      const commands = commandRows.map((row, i) => {
+        const name = row.name.trim()
+        const file = row.file.trim()
+        if (!name || !file) {
+          throw new Error(`Command ${i + 1} needs a name and file`)
+        }
+        const item: { name: string; file: string; volume?: number; scale?: number } = { name, file }
+        const volume = optionalFloat(row.volume, `Command ${name} volume`)
+        const scale = optionalFloat(row.scale, `Command ${name} scale`)
+        if (volume !== undefined) {
+          item.volume = volume
+        }
+        if (scale !== undefined) {
+          item.scale = scale
+        }
+        return item
+      })
+      await SaveAlertCommands(main.AlertCommandsFile.createFrom({ path: commandsPath, commands }))
+      await loadCommands()
+      status = 'Commands saved'
+    } catch (e) {
+      error = String(e)
+    } finally {
+      commandsSaving = false
+    }
+  }
 </script>
 
 <div class="shell">
@@ -237,6 +343,7 @@
     <nav class="panes" aria-label="Window panes">
       <button class="pane-btn" class:active={page === 'home'} type="button" on:click={() => { page = 'home' }}>Home</button>
       <button class="pane-btn" class:active={page === 'config'} type="button" on:click={() => { page = 'config' }}>Configuration</button>
+      <button class="pane-btn" class:active={page === 'commands'} type="button" on:click={openCommands}>Commands</button>
       <button class="pane-btn" class:active={page === 'test'} type="button" on:click={() => { page = 'test' }}>Test</button>
     </nav>
   </aside>
@@ -267,6 +374,18 @@
           lookingUp={lookingUp}
           onPickYaml={pickYaml}
           onPickMedia={pickMedia}
+        />
+      {:else if page === 'commands'}
+        <CommandsPane
+          path={commandsPath}
+          rows={commandRows}
+          saving={commandsSaving}
+          loading={commandsLoading}
+          onAdd={addCommand}
+          onRemove={removeCommand}
+          onReorder={reorderCommands}
+          onSave={saveCommands}
+          onReload={loadCommands}
         />
       {:else if page === 'test'}
         <TestPane bind:testMessage {obs} onSend={sendTest} />

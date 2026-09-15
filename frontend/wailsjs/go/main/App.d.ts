@@ -4,6 +4,8 @@ import {main} from '../models';
 
 export function ConfigPath():Promise<string>;
 
+export function GetAlertCommands():Promise<main.AlertCommandsFile>;
+
 export function GetOBSStatus():Promise<main.OBSStatus>;
 
 export function GetRunStatus():Promise<main.RunStatus>;
@@ -19,6 +21,8 @@ export function LookupLatestStream(arg1:string,arg2:string):Promise<main.StreamL
 export function PickCommandsFile():Promise<string>;
 
 export function PickMediaDirectory():Promise<string>;
+
+export function SaveAlertCommands(arg1:main.AlertCommandsFile):Promise<void>;
 
 export function SaveSettings(arg1:main.SettingsForm):Promise<void>;
 

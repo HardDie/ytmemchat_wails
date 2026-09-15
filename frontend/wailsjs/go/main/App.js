@@ -6,6 +6,10 @@ export function ConfigPath() {
   return window['go']['main']['App']['ConfigPath']();
 }
 
+export function GetAlertCommands() {
+  return window['go']['main']['App']['GetAlertCommands']();
+}
+
 export function GetOBSStatus() {
   return window['go']['main']['App']['GetOBSStatus']();
 }
@@ -36,6 +40,10 @@ export function PickCommandsFile() {
 
 export function PickMediaDirectory() {
   return window['go']['main']['App']['PickMediaDirectory']();
+}
+
+export function SaveAlertCommands(arg1) {
+  return window['go']['main']['App']['SaveAlertCommands'](arg1);
 }
 
 export function SaveSettings(arg1) {

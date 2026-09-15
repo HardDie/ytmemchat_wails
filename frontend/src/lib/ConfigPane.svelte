@@ -109,6 +109,7 @@
         <button class="btn btn-small" type="button" on:click={onPickYaml}>Browse</button>
       </span>
     </label>
+    <p class="hint">Edit names, files, volume, and scale in the Commands pane after this path is saved.</p>
     <label class="field">
       Media folder
       <span class="path-row">
