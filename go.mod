@@ -4,6 +4,7 @@ go 1.25.3
 
 require (
 	github.com/PuerkitoBio/goquery v1.13.0
+	github.com/gorilla/websocket v1.5.3
 	google.golang.org/api v0.298.0
 	gopkg.in/yaml.v3 v3.0.1
 )

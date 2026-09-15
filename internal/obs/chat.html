@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <title>ytmemchat</title>
+    <style>
+        :root {
+            --bg-color: #18181b;
+            --text-color: #efeff1;
+            --accent-color: #9147ff;
+            --font-size: 16px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            overflow: hidden;
+        }
+
+        body.transparent { background-color: transparent !important; }
+
+        #chat-container {
+            display: flex;
+            /* Changed to column-reverse to keep new items at the top */
+            flex-direction: column-reverse; 
+            height: 100vh;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+
+            /* HIDE SCROLLBAR LOGIC */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;     /* Firefox */
+        }
+
+        /* HIDE SCROLLBAR LOGIC (Chrome/Safari) */
+        #chat-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .message-row {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            /* Animation slightly adjusted for top-entry */
+            animation: slideDown 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px;
+            border-radius: 6px;
+            flex-shrink: 0;
+            transition: opacity 0.2s ease-in;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 12px;
+            border: 1px solid var(--accent-color);
+        }
+
+        .content {
+            font-size: var(--font-size);
+
+            /* This is the magic line */
+            word-break: break-word;
+            overflow-wrap: anywhere;
+
+            /* Optional: helps with alignment if the message is very long */
+            display: inline;
+        }
+
+        .author {
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-right: 8px;
+        }
+
+        .badge {
+            font-size: 0.7em;
+            padding: 2px 5px;
+            border-radius: 4px;
+            background: #e91916;
+            margin-right: 5px;
+            text-transform: uppercase;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #connection-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-family: sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            background-color: rgba(255, 0, 0, 0.7); /* Red for disconnected */
+            display: none; /* Hidden by default when connected */
+            z-index: 10001;
+            pointer-events: none; /* Don't interfere with clicks */
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container"></div>
+    <div id="connection-status">⚠️ WEB SOCKET DISCONNECTED - RETRYING...</div>
+
+    <script>
+        // --- Global Safety Net ---
+        window.onerror = function(msg, url, line) {
+            console.error(`CRITICAL ERROR: ${msg} at ${line}`);
+            // Delay reload by 5s so you have time to see the error in DevTools
+            // and to prevent a high-speed refresh loop.
+            setTimeout(() => { location.reload(); }, 5000);
+            return false;
+        };
+
+        window.onunhandledrejection = function(event) {
+            console.error("PROMISE REJECTION:", event.reason);
+            setTimeout(() => { location.reload(); }, 5000);
+        };
+
+        const wsProto = (window.location.protocol === 'https:') ? 'wss://' : 'ws://';
+        const wsUri = wsProto + window.location.host + window.location.pathname.replace(/\/$/, '') + '/ws';
+        const statusEl = document.getElementById('connection-status');
+        const RETRY_INTERVAL = 500; // 0.5 seconds
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('fontSize')) {
+            document.documentElement.style.setProperty('--font-size', params.get('fontSize'));
+        }
+        if (params.get('textColor')) {
+            document.documentElement.style.setProperty('--text-color', '#' + params.get('textColor'));
+        }
+        if (params.get('transparent') === '1' || params.get('transparent') === 'true') {
+            document.body.classList.add('transparent');
+        }
+
+        let websocket = new WebSocket(wsUri);
+        function connectWebSocket() {
+            // 1. Clean up the old socket if it exists
+            if (websocket) {
+                console.log("Cleaning up old WebSocket before reconnecting...");
+                websocket.onopen = null;
+                websocket.onmessage = null;
+                websocket.onerror = null;
+                websocket.onclose = null;
+                websocket.close();
+                websocket = null;
+            }
+
+            // 2. Initialize new connection
+            websocket = new WebSocket(wsUri);
+
+            websocket.onopen = function() {
+                console.log("WebSocket Connected! Ready for media alerts.");
+                statusEl.style.display = 'none'; // Hide error
+            };
+            websocket.onmessage = function(event) {
+                const container = document.getElementById('chat-container');
+
+                const msg = JSON.parse(event.data);
+                const div = document.createElement('div');
+                div.className = 'message-row';
+
+                const avatar = buildAvatarElement(msg);
+                const content = buildContentElement(msg);
+
+                div.appendChild(avatar);
+                div.appendChild(content);
+
+                container.prepend(div);
+            }
+
+            websocket.onclose = function() {
+                statusEl.style.display = 'block'; // Show error immediately
+                console.log(`Connection lost. Retrying in ${RETRY_INTERVAL}ms...`);
+
+                // Nullify the reference so the next call knows to clean up
+                websocket = null;
+                // Immediate scheduled retry
+                setTimeout(connectWebSocket, RETRY_INTERVAL);
+            };
+
+            websocket.onerror = function(err) {
+                // Log it, but let onclose handle the reconnection logic
+                console.error("Socket encountered error: ", err.message, "Closing socket");
+                // We don't call connectWebSocket here;
+                // websocket.close() will trigger onclose automatically.
+                if (websocket) websocket.close();
+            };
+        }
+
+
+        setTimeout(() => {
+            connectWebSocket();
+        }, 300); // 300ms is usually enough for Chrome to clear the previous socket
+    </script>
+
+    <script>
+        // helpers
+        function buildAvatarElement(msg) {
+            const avatar = document.createElement('img');
+            avatar.className = 'avatar';
+            // Logic: Use provided picture, or generate one if missing/placeholder
+            if (msg.authorPicture && !msg.authorPicture.includes('placeholder')) {
+                avatar.referrerPolicy = "no-referrer";
+                avatar.src = msg.authorPicture;
+            } else {
+                avatar.src = generateAvatar(msg.authorName || "?");
+            }
+            return avatar
+        }
+
+        function buildContentElement(msg) {
+            // Create elements manually to ensure text is escaped
+            const content = document.createElement('div');
+            content.className = 'content';
+
+            // Badges (controlled by your server, so these are safe)
+            if (msg.isOwner) content.innerHTML += '<span class="badge" style="background:#ffd700; color:black">Host</span>';
+            if (msg.isModerator) content.innerHTML += '<span class="badge">Mod</span>';
+
+            const authorSpan = document.createElement('span');
+            authorSpan.className = 'author';
+            authorSpan.textContent = msg.authorName + ": "; // Safe escaping
+
+            const textSpan = document.createElement('span');
+            textSpan.className = 'text';
+            textSpan.textContent = msg.messageText; // Safe escaping
+
+            content.appendChild(authorSpan);
+            content.appendChild(textSpan);
+
+            return content;
+        }
+
+        // Function to generate an avatar with initials
+        function generateAvatar(name) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+
+            // Generate a consistent color based on the name
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const color = `hsl(${hash % 360}, 60%, 45%)`;
+
+            // Draw background
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw text
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 32px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const initial = name.charAt(0).toUpperCase();
+            ctx.fillText(initial, canvas.width / 2, canvas.height / 2);
+
+            return canvas.toDataURL();
+        }
+    </script>
+</body>
+</html>
