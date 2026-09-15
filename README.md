@@ -65,7 +65,7 @@ Settings are stored in a local JSON file (mode `0600`), not in the repo:
 
 3. Size each source to your canvas (for example `1920x1080`).
 4. On the overlay source, click **Interact** once and allow audio so TTS and alert sounds can autoplay.
-5. On **Home**, click **Start** to pull live chat onto `/obs/chat`. Matching `@command` lines play on `/obs/overlay`; other lines are spoken when TTS is enabled. **Stop** ends YouTube polling; OBS sources stay connected. **Interrupt** cuts current overlay audio.
+5. On **Home**, click **Start** to pull live chat onto `/obs/chat`. Matching `@command` lines play on `/obs/overlay`; other lines are spoken when TTS is enabled. **Stop** ends YouTube polling; OBS sources stay connected. **Interrupt** cuts current overlay audio. Default global shortcut **Ctrl+Shift+I** does the same even when OBS is fullscreen (change it on Config). Linux needs X11.
 6. Use **Test** to send a fake chat line without going live. **HTTP API** on Config is optional, for curl/automation.
 
 Chat with a transparent background: `http://127.0.0.1:8080/obs/chat?transparent=1`.
@@ -194,6 +194,7 @@ Then open `http://localhost:8081` and select this module.
 | `internal/obs` | Ported | `go doc -all ./internal/obs` |
 | `internal/alerts` | Ported | `go doc -all ./internal/alerts` |
 | `internal/tts` | Ported | `go doc -all ./internal/tts` |
+| `internal/hotkey` | Ported | `go doc -all ./internal/hotkey` |
 | `package main` (bindings façade) | Chat Start/Stop | `go doc -all .` |
 
 Set **Status** to Ported in this table when `go doc -all` prints a real package comment and every export is described.

@@ -21,6 +21,7 @@ Copy [\_TEMPLATE.md](_TEMPLATE.md) when a module is ported.
 | UC-11 | Start and stop the pipeline | `app.go` | Ported | [app/uc-11-start-stop.md](app/uc-11-start-stop.md) |
 | UC-12 | Find latest live or upcoming stream | `internal/youtube` | Ported | [youtube/uc-12-find-latest-stream.md](youtube/uc-12-find-latest-stream.md) |
 | UC-13 | Edit commands.yaml from the window | `internal/alerts` | Ported | [alerts/uc-13-edit-commands-yaml.md](alerts/uc-13-edit-commands-yaml.md) |
+| UC-14 | Global interrupt shortcut | `internal/hotkey` | Ported | [app/uc-14-global-interrupt-hotkey.md](app/uc-14-global-interrupt-hotkey.md) |
 
 ## Layout (after porting)
 
@@ -46,5 +47,6 @@ docs/use-cases/
 ├── tts/
 │   └── uc-08-speak-message.md
 └── app/
-    └── uc-11-start-stop.md
+    ├── uc-11-start-stop.md
+    └── uc-14-global-interrupt-hotkey.md
 ```

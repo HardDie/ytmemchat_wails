@@ -32,6 +32,7 @@ type OBSStatus struct {
 
 func (a *App) shutdown(_ context.Context) {
 	a.Stop()
+	a.stopInterruptHotkey()
 	a.mu.Lock()
 	srv := a.httpSrv
 	a.mu.Unlock()

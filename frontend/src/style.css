@@ -377,6 +377,19 @@ textarea:focus {
     padding: 0 10px;
 }
 
+input.recording {
+    color: var(--warn);
+}
+
+kbd {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 1px 6px;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    background: var(--bg-input);
+}
+
 .url-row {
     display: grid;
     grid-template-columns: 72px 1fr auto;

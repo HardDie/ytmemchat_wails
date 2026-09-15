@@ -26,6 +26,9 @@ func TestDefaults(t *testing.T) {
 	if d.HasAPIKey() {
 		t.Fatal("HasAPIKey on defaults")
 	}
+	if !d.InterruptHotkey.IsEnabled() || d.InterruptHotkey.Chord != "Ctrl+Shift+I" {
+		t.Fatalf("hotkey = %+v", d.InterruptHotkey)
+	}
 	if err := d.CanStart(); !errors.Is(err, ErrStreamIDRequired) {
 		t.Fatalf("CanStart = %v", err)
 	}
@@ -71,6 +74,14 @@ func TestValidateAndParsePort(t *testing.T) {
 	if err := s.Validate(); err != nil {
 		t.Fatal(err)
 	}
+	s.InterruptHotkey.Chord = "I"
+	if err := s.Validate(); !errors.Is(err, ErrInterruptHotkey) {
+		t.Fatalf("hotkey = %v", err)
+	}
+	s.InterruptHotkey.Chord = "Ctrl+Shift+F8"
+	if err := s.Validate(); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestLoad_missingFile_defaults(t *testing.T) {
@@ -95,6 +106,9 @@ func TestSaveLoad_roundTrip(t *testing.T) {
 	in.TTS.VoiceName = "Milena"
 	in.Webhook.Enabled = true
 	in.Alerts.CommandsFilePath = "  /tmp/commands.yaml  "
+	off := false
+	in.InterruptHotkey.Enabled = &off
+	in.InterruptHotkey.Chord = " ctrl+alt+x "
 	if err := st.Save(in); err != nil {
 		t.Fatal(err)
 	}
@@ -113,6 +127,9 @@ func TestSaveLoad_roundTrip(t *testing.T) {
 	}
 	if out.Alerts.CommandsFilePath != "/tmp/commands.yaml" {
 		t.Fatalf("commands file = %q", out.Alerts.CommandsFilePath)
+	}
+	if out.InterruptHotkey.IsEnabled() || out.InterruptHotkey.Chord != "Ctrl+Alt+X" {
+		t.Fatalf("hotkey = %+v", out.InterruptHotkey)
 	}
 	raw, err := os.ReadFile(path)
 	if err != nil {
@@ -141,6 +158,9 @@ func TestLoad_unknownFieldsIgnored(t *testing.T) {
 	}
 	if got.Alerts.Token != "@" {
 		t.Fatalf("defaults not merged: token %q", got.Alerts.Token)
+	}
+	if !got.InterruptHotkey.IsEnabled() || got.InterruptHotkey.Chord != "Ctrl+Shift+I" {
+		t.Fatalf("interrupt hotkey defaults: %+v", got.InterruptHotkey)
 	}
 }
 

@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/HardDie/ytmemchat_wails/internal/hotkey"
 )
 
 var (
@@ -15,6 +17,8 @@ var (
 	ErrInvalidPort = errors.New("config: invalid listen port")
 	// ErrAlertToken is returned when alerts are enabled and Token is not one character.
 	ErrAlertToken = errors.New("config: alert token must be a single character")
+	// ErrInterruptHotkey is returned when the interrupt shortcut cannot be parsed.
+	ErrInterruptHotkey = errors.New("config: invalid interrupt shortcut")
 )
 
 // CanStart reports whether the pipeline may start. Stream ID is required;
@@ -36,6 +40,9 @@ func (s Settings) Validate() error {
 	}
 	if s.Alerts.Enabled && utf8.RuneCountInString(s.Alerts.Token) != 1 {
 		return ErrAlertToken
+	}
+	if _, err := hotkey.Parse(s.InterruptHotkey.Chord); err != nil {
+		return fmt.Errorf("%w: %v", ErrInterruptHotkey, err)
 	}
 	return nil
 }

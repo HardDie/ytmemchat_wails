@@ -44,6 +44,8 @@ type App struct {
 	runError       string
 	emit           func(string, any)
 	lookupLatest   func(context.Context, string, string) (youtube.LatestBroadcast, error)
+	hk             interruptHotkey
+	hotkeyErr      string
 }
 
 // SettingsForm is the settings window payload (stream, modules, and paths).
@@ -68,6 +70,12 @@ type SettingsForm struct {
 	AlertsCommandsFilePath string `json:"alertsCommandsFilePath"`
 	// WebhookEnabled serves POST /api/webhook and /api/interrupt.
 	WebhookEnabled bool `json:"webhookEnabled"`
+	// InterruptHotkeyEnabled registers an OS-wide interrupt shortcut.
+	InterruptHotkeyEnabled bool `json:"interruptHotkeyEnabled"`
+	// InterruptHotkeyChord is the shortcut, for example "Ctrl+Shift+I".
+	InterruptHotkeyChord string `json:"interruptHotkeyChord"`
+	// InterruptHotkeyError is a register failure; empty when the shortcut is active or off.
+	InterruptHotkeyError string `json:"interruptHotkeyError"`
 }
 
 // NewApp returns the bound application struct with the default config store.
@@ -90,11 +98,12 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	a.setupWailsHooks()
 	a.mu.Lock()
-	defer a.mu.Unlock()
 	a.loadLocked()
 	if err := a.startHTTPLocked(); err != nil {
 		slog.Error("obs listen failed", "err", err)
 	}
+	a.mu.Unlock()
+	a.syncInterruptHotkey()
 }
 
 func (a *App) loadLocked() {
@@ -109,7 +118,7 @@ func (a *App) loadLocked() {
 	a.settings = s
 }
 
-func formFrom(s config.Settings) SettingsForm {
+func formFrom(s config.Settings, hotkeyErr string) SettingsForm {
 	return SettingsForm{
 		StreamID:               s.Youtube.StreamID,
 		APIKey:                 s.Youtube.APIKey,
@@ -121,6 +130,9 @@ func formFrom(s config.Settings) SettingsForm {
 		AlertsMediaPath:        s.Alerts.MediaPath,
 		AlertsCommandsFilePath: s.Alerts.CommandsFilePath,
 		WebhookEnabled:         s.Webhook.Enabled,
+		InterruptHotkeyEnabled: s.InterruptHotkey.IsEnabled(),
+		InterruptHotkeyChord:   s.InterruptHotkey.Chord,
+		InterruptHotkeyError:   hotkeyErr,
 	}
 }
 
@@ -135,13 +147,16 @@ func applyForm(dst *config.Settings, in SettingsForm) {
 	dst.Alerts.MediaPath = in.AlertsMediaPath
 	dst.Alerts.CommandsFilePath = in.AlertsCommandsFilePath
 	dst.Webhook.Enabled = in.WebhookEnabled
+	en := in.InterruptHotkeyEnabled
+	dst.InterruptHotkey.Enabled = &en
+	dst.InterruptHotkey.Chord = in.InterruptHotkeyChord
 }
 
 // GetSettings returns the current settings for the window.
 func (a *App) GetSettings() SettingsForm {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	return formFrom(a.settings)
+	return formFrom(a.settings, a.hotkeyErr)
 }
 
 // StreamLookup is a live or upcoming video resolved from a known stream ID.
@@ -194,31 +209,34 @@ func (a *App) LookupLatestStream(streamID, apiKey string) (StreamLookup, error) 
 // Errors never include the API key.
 func (a *App) SaveSettings(in SettingsForm) error {
 	a.mu.Lock()
-	defer a.mu.Unlock()
 	if a.store == nil {
-		if a.storeErr != nil {
-			return fmt.Errorf("config: %w", a.storeErr)
+		err := a.storeErr
+		a.mu.Unlock()
+		if err != nil {
+			return fmt.Errorf("config: %w", err)
 		}
 		return fmt.Errorf("config: no store")
 	}
 	next := a.settings
 	applyForm(&next, in)
 	if err := a.store.Save(next); err != nil {
+		a.mu.Unlock()
 		return err
 	}
 	old := a.settings
 	a.loadLocked()
-	if a.skipHTTP {
-		return nil
-	}
-	if a.httpSrv == nil || !sameOBSListen(old, a.settings) {
-		if err := a.startHTTPLocked(); err != nil {
-			return err
+	skip := a.skipHTTP
+	var httpErr error
+	if !skip {
+		if a.httpSrv == nil || !sameOBSListen(old, a.settings) {
+			httpErr = a.startHTTPLocked()
+		} else {
+			a.installOverlayLocked(false)
 		}
-	} else {
-		a.installOverlayLocked(false)
 	}
-	return nil
+	a.mu.Unlock()
+	a.syncInterruptHotkey()
+	return httpErr
 }
 
 // ConfigPath is the JSON file path, or empty if the store could not be created.

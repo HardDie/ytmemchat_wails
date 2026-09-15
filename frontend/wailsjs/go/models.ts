@@ -99,6 +99,9 @@ export namespace main {
 	    alertsMediaPath: string;
 	    alertsCommandsFilePath: string;
 	    webhookEnabled: boolean;
+	    interruptHotkeyEnabled: boolean;
+	    interruptHotkeyChord: string;
+	    interruptHotkeyError: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new SettingsForm(source);
@@ -116,6 +119,9 @@ export namespace main {
 	        this.alertsMediaPath = source["alertsMediaPath"];
 	        this.alertsCommandsFilePath = source["alertsCommandsFilePath"];
 	        this.webhookEnabled = source["webhookEnabled"];
+	        this.interruptHotkeyEnabled = source["interruptHotkeyEnabled"];
+	        this.interruptHotkeyChord = source["interruptHotkeyChord"];
+	        this.interruptHotkeyError = source["interruptHotkeyError"];
 	    }
 	}
 	export class StreamLookup {

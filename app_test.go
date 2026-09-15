@@ -37,6 +37,9 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 	if !got.TTSEnabled || !got.AlertsEnabled || got.AlertsToken != "@" || got.WebhookEnabled {
 		t.Fatalf("defaults %+v", got)
 	}
+	if !got.InterruptHotkeyEnabled || got.InterruptHotkeyChord != "Ctrl+Shift+I" {
+		t.Fatalf("hotkey %+v", got)
+	}
 	savePatched(t, a, func(f *SettingsForm) {
 		f.StreamID = "  liveid  "
 		f.APIKey = " secret "
@@ -48,6 +51,8 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 		f.AlertsMediaPath = " /tmp/media "
 		f.AlertsCommandsFilePath = " /tmp/commands.yaml "
 		f.WebhookEnabled = true
+		f.InterruptHotkeyEnabled = true
+		f.InterruptHotkeyChord = " ctrl+alt+f8 "
 	})
 	got = a.GetSettings()
 	if got.StreamID != "liveid" || got.APIKey != "secret" || got.Port != ":9090" {
@@ -62,8 +67,19 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 	if !got.WebhookEnabled {
 		t.Fatal("webhook")
 	}
+	if !got.InterruptHotkeyEnabled || got.InterruptHotkeyChord != "Ctrl+Alt+F8" {
+		t.Fatalf("hotkey after save %+v", got)
+	}
 	if a.ConfigPath() != st.Path() {
 		t.Fatalf("path %q", a.ConfigPath())
+	}
+}
+
+func TestSaveSettings_rejectsBareInterruptKey(t *testing.T) {
+	a := newAppWithStore(config.NewStore(filepath.Join(t.TempDir(), "config.json")))
+	err := a.SaveSettings(SettingsForm{Port: "8080", AlertsToken: "@", InterruptHotkeyEnabled: true, InterruptHotkeyChord: "I"})
+	if !errors.Is(err, config.ErrInterruptHotkey) {
+		t.Fatalf("err = %v", err)
 	}
 }
 

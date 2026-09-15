@@ -19,4 +19,4 @@
 
 ## Postconditions
 
-* Interrupt does not go through the inject channel. It is overlay-only. The Wails **Stop TTS** binding publishes the same event when HTTP is listening, even if webhooks are off.
+* Interrupt does not go through the inject channel. It is overlay-only. The Wails **Stop TTS** binding and the OS-global interrupt shortcut publish the same event when HTTP is listening, even if webhooks are off.

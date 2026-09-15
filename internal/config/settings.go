@@ -1,6 +1,10 @@
 package config
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/HardDie/ytmemchat_wails/internal/hotkey"
+)
 
 // CurrentVersion is stored in config.json for future migrations.
 const CurrentVersion = 1
@@ -25,6 +29,8 @@ type Settings struct {
 	Alerts Alerts `json:"alerts"`
 	// Webhook enables POST /api/webhook and /api/interrupt.
 	Webhook Webhook `json:"webhook"`
+	// InterruptHotkey is the OS-wide shortcut that stops overlay TTS.
+	InterruptHotkey InterruptHotkey `json:"interruptHotkey"`
 	// Window is optional saved Wails window bounds.
 	Window *Window `json:"window,omitempty"`
 }
@@ -69,6 +75,27 @@ type Webhook struct {
 	Enabled bool `json:"enabled"`
 }
 
+// InterruptHotkey is a global keyboard shortcut to interrupt overlay speech.
+type InterruptHotkey struct {
+	// Enabled is nil in old files (treated as on). Pointer so JSON can disable it.
+	Enabled *bool `json:"enabled"`
+	// Chord is a string such as "Ctrl+Shift+I". Empty uses the default.
+	Chord string `json:"chord"`
+}
+
+// IsEnabled reports whether the global interrupt shortcut should be registered.
+func (h InterruptHotkey) IsEnabled() bool {
+	if h.Enabled == nil {
+		return true
+	}
+	return *h.Enabled
+}
+
+func optBool(v bool) *bool {
+	b := v
+	return &b
+}
+
 // Window is saved desktop window geometry.
 type Window struct {
 	// Width is the window width in pixels.
@@ -92,6 +119,10 @@ func Defaults() Settings {
 			Token:   "@",
 		},
 		Webhook: Webhook{Enabled: false},
+		InterruptHotkey: InterruptHotkey{
+			Enabled: optBool(true),
+			Chord:   hotkey.DefaultChord,
+		},
 	}
 }
 
@@ -104,6 +135,13 @@ func (s Settings) TrimSpace() Settings {
 	s.Alerts.Token = strings.TrimSpace(s.Alerts.Token)
 	s.Alerts.MediaPath = strings.TrimSpace(s.Alerts.MediaPath)
 	s.Alerts.CommandsFilePath = strings.TrimSpace(s.Alerts.CommandsFilePath)
+	s.InterruptHotkey.Chord = strings.TrimSpace(s.InterruptHotkey.Chord)
+	if s.InterruptHotkey.Chord == "" {
+		s.InterruptHotkey.Chord = hotkey.DefaultChord
+	}
+	if c, err := hotkey.Parse(s.InterruptHotkey.Chord); err == nil {
+		s.InterruptHotkey.Chord = c.String()
+	}
 	return s
 }
 

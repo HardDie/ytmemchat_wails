@@ -6,6 +6,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.13.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/wailsapp/wails/v2 v2.11.0
+	golang.design/x/hotkey v0.4.1
 	golang.org/x/text v0.41.0
 	google.golang.org/api v0.298.0
 	gopkg.in/yaml.v3 v3.0.1

@@ -13,6 +13,9 @@
   export let onLookup: () => Promise<void>
   export let onCopyChat: () => void
   export let onCopyOverlay: () => void
+  export let interruptHotkeyEnabled: boolean
+  export let interruptHotkeyChord: string
+  export let interruptHotkeyError: string
 
   $: hasApiKey = apiKey.trim() !== ''
   $: lookupDisabled = lookingUp || !hasApiKey
@@ -84,6 +87,12 @@
       Interrupt speech
     </button>
   </div>
+  {#if interruptHotkeyEnabled && interruptHotkeyChord}
+    <p class="hint">Global shortcut <kbd>{interruptHotkeyChord}</kbd> works even when OBS is fullscreen.</p>
+  {/if}
+  {#if interruptHotkeyError}
+    <p class="err">Shortcut not active: {interruptHotkeyError}</p>
+  {/if}
   {#if obs && !obs.listening}
     <p class="err">HTTP listener is down{obs.error ? ': ' + obs.error : ''}.</p>
   {/if}

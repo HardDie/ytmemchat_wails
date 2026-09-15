@@ -46,6 +46,9 @@
   let alertsMediaPath = ''
   let alertsCommandsFilePath = ''
   let webhookEnabled = false
+  let interruptHotkeyEnabled = true
+  let interruptHotkeyChord = 'Ctrl+Shift+I'
+  let interruptHotkeyError = ''
   let testMessage = ''
   let configPath = ''
   let status = ''
@@ -72,6 +75,9 @@
     alertsMediaPath = s.alertsMediaPath ?? ''
     alertsCommandsFilePath = s.alertsCommandsFilePath ?? ''
     webhookEnabled = !!s.webhookEnabled
+    interruptHotkeyEnabled = s.interruptHotkeyEnabled !== false
+    interruptHotkeyChord = s.interruptHotkeyChord || 'Ctrl+Shift+I'
+    interruptHotkeyError = s.interruptHotkeyError ?? ''
   }
 
   function formPayload(): main.SettingsForm {
@@ -86,6 +92,8 @@
       alertsMediaPath,
       alertsCommandsFilePath,
       webhookEnabled,
+      interruptHotkeyEnabled,
+      interruptHotkeyChord,
     })
   }
 
@@ -407,6 +415,9 @@
           bind:alertsMediaPath
           bind:alertsCommandsFilePath
           bind:webhookEnabled
+          bind:interruptHotkeyEnabled
+          bind:interruptHotkeyChord
+          interruptHotkeyError={interruptHotkeyError}
           {saving}
           {configPath}
           onSave={save}
@@ -434,7 +445,7 @@
       {:else if page === 'test'}
         <TestPane bind:testMessage {obs} onSend={sendTest} />
       {:else}
-        <HomePane {run} {obs} {streamId} {apiKey} {starting} {lookingUp} onStart={start} onStop={stop} onInterrupt={interruptTTS} onLookup={lookupLatest} onCopyChat={copyChat} onCopyOverlay={copyOverlay} />
+        <HomePane {run} {obs} {streamId} {apiKey} {starting} {lookingUp} interruptHotkeyEnabled={interruptHotkeyEnabled} interruptHotkeyChord={interruptHotkeyChord} interruptHotkeyError={interruptHotkeyError} onStart={start} onStop={stop} onInterrupt={interruptTTS} onLookup={lookupLatest} onCopyChat={copyChat} onCopyOverlay={copyOverlay} />
       {/if}
     </div>
 

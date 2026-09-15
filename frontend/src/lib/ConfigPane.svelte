@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onDestroy, onMount } from 'svelte'
   import { GetTTSVoices } from '../../wailsjs/go/main/App.js'
   import type { main } from '../../wailsjs/go/models'
 
@@ -13,6 +13,9 @@
   export let alertsMediaPath: string
   export let alertsCommandsFilePath: string
   export let webhookEnabled: boolean
+  export let interruptHotkeyEnabled: boolean
+  export let interruptHotkeyChord: string
+  export let interruptHotkeyError: string
   export let saving: boolean
   export let configPath: string
   export let onSave: () => Promise<void>
@@ -22,6 +25,7 @@
   export let onPickMedia: () => Promise<void>
 
   let voices: main.TTSVoice[] = []
+  let recording = false
 
   $: selected = voices.find((v) => v.name === ttsVoiceName)
   $: hasApiKey = apiKey.trim() !== ''
@@ -37,6 +41,98 @@
     }
     return bits.join(' — ')
   }
+
+  function chordFromEvent(e: KeyboardEvent): string | null {
+    if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) {
+      return null
+    }
+    const key = keyName(e)
+    if (!key) {
+      return null
+    }
+    const parts: string[] = []
+    if (e.ctrlKey) {
+      parts.push('Ctrl')
+    }
+    if (e.metaKey) {
+      parts.push('Cmd')
+    }
+    if (e.altKey) {
+      parts.push('Alt')
+    }
+    if (e.shiftKey) {
+      parts.push('Shift')
+    }
+    if (parts.length === 0) {
+      return null
+    }
+    parts.push(key)
+    return parts.join('+')
+  }
+
+  function keyName(e: KeyboardEvent): string {
+    const c = e.code || ''
+    if (c.startsWith('Key') && c.length === 4) {
+      return c.slice(3)
+    }
+    if (c.startsWith('Digit') && c.length === 6) {
+      return c.slice(5)
+    }
+    if (/^F([1-9]|1[012])$/.test(c)) {
+      return c
+    }
+    const named: Record<string, string> = {
+      Space: 'Space',
+      Escape: 'Escape',
+      Tab: 'Tab',
+      Enter: 'Enter',
+      Backspace: 'Delete',
+      Delete: 'Delete',
+      ArrowLeft: 'Left',
+      ArrowRight: 'Right',
+      ArrowUp: 'Up',
+      ArrowDown: 'Down',
+    }
+    return named[c] || named[e.key] || ''
+  }
+
+  function stopRecord(): void {
+    if (!recording) {
+      return
+    }
+    recording = false
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('keydown', onRecordKey, true)
+    }
+  }
+
+  function startRecord(): void {
+    if (recording) {
+      return
+    }
+    recording = true
+    window.addEventListener('keydown', onRecordKey, true)
+  }
+
+  function onRecordKey(e: KeyboardEvent): void {
+    if (!recording) {
+      return
+    }
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.key === 'Escape' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+      stopRecord()
+      return
+    }
+    const chord = chordFromEvent(e)
+    if (!chord) {
+      return
+    }
+    interruptHotkeyChord = chord
+    stopRecord()
+  }
+
+  onDestroy(stopRecord)
 
   onMount(async () => {
     try {
@@ -160,6 +256,39 @@
       </p>
     {:else}
       <p class="hint">Leave empty for the operating-system default voice.</p>
+    {/if}
+  {/if}
+</section>
+
+<section class="card" class:card-compact={!interruptHotkeyEnabled}>
+  <header class="card-head">
+    <h2>Interrupt shortcut</h2>
+    <label class="toggle toggle-head">
+      {interruptHotkeyEnabled ? 'On' : 'Off'}
+      <input bind:checked={interruptHotkeyEnabled} type="checkbox" />
+    </label>
+  </header>
+  {#if interruptHotkeyEnabled}
+    <label class="field">
+      Key combination
+      <span class="path-row">
+        <input
+          readonly
+          class:recording
+          autocomplete="off"
+          spellcheck="false"
+          type="text"
+          value={recording ? 'Press a shortcut…' : interruptHotkeyChord}
+        />
+        <button class="btn btn-small" type="button" on:click={startRecord}>Set</button>
+        <button class="btn btn-small" type="button" on:click={() => { stopRecord(); interruptHotkeyChord = 'Ctrl+Shift+I' }}>Default</button>
+      </span>
+    </label>
+    <p class="hint">
+      Works while OBS is fullscreen and this window is in the background. Needs at least one modifier (Ctrl, Cmd, Alt, or Shift). Escape cancels recording. Save to apply. Linux needs X11 (not pure Wayland).
+    </p>
+    {#if interruptHotkeyError}
+      <p class="err">Could not register shortcut: {interruptHotkeyError}</p>
     {/if}
   {/if}
 </section>
