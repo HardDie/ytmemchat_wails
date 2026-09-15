@@ -1,6 +1,5 @@
 html {
     background-color: rgba(27, 38, 54, 1);
-    text-align: center;
     color: white;
 }
 
@@ -21,6 +20,90 @@ body {
 }
 
 #app {
-    height: 100vh;
-    text-align: center;
+    min-height: 100vh;
+    text-align: left;
+}
+
+main {
+    max-width: 32rem;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 2rem;
+}
+
+h1 {
+    margin: 0 0 0.35rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.lead, .hint, .path {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0 0 1rem;
+}
+
+.hint, .path {
+    margin: 0.35rem 0 1rem;
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="password"] {
+    border: none;
+    border-radius: 3px;
+    outline: none;
+    height: 2rem;
+    padding: 0 0.6rem;
+    background-color: rgba(240, 240, 240, 1);
+    color: #111;
+    font: inherit;
+}
+
+input:focus {
+    background-color: #fff;
+}
+
+.actions {
+    margin: 1rem 0;
+}
+
+.btn {
+    min-width: 5.5rem;
+    height: 2rem;
+    border-radius: 3px;
+    border: none;
+    padding: 0 0.85rem;
+    cursor: pointer;
+    font: inherit;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.btn:hover:not(:disabled) {
+    background-image: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);
+}
+
+.ok {
+    color: #9fefc1;
+    margin: 0.5rem 0;
+}
+
+.err {
+    color: #ffb4b4;
+    margin: 0.5rem 0;
+}
+
+code {
+    font-size: 0.84em;
 }

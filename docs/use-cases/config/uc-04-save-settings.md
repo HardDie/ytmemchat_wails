@@ -2,13 +2,13 @@
 
 **Module:** `internal/config`  
 **Status:** Ported  
-**Actors:** Settings UI (Wails `App` façade, not yet ported)  
+**Actors:** Settings UI (Wails `GetSettings` / `SaveSettings`)  
 **Goal:** Persist user settings on disk and get the same values back after restart  
 **Preconditions:** Process can create the config directory (or a test uses a temp path)  
 
 ## Main scenario (happy path)
 
-1. The UI calls `Store.Save` with stream ID, optional API key, port, TTS, alerts, webhook.
+1. The UI calls `SaveSettings` with stream ID, optional API key, and port. Other JSON fields (TTS, alerts, webhook) stay as last loaded.
 2. The package validates port and (if alerts enabled) a single-character token. Empty stream ID is allowed on save.
 3. JSON is written atomically to `os.UserConfigDir()/ytmemchat/config.json` (or the store path) with mode `0600`.
 4. Later, `Store.Load` returns the same trimmed fields. Missing file yields defaults (port `8080`, alert token `@`, TTS on, webhook off).

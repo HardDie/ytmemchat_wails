@@ -1,79 +1,82 @@
 <script lang="ts">
-  import logo from './assets/images/logo-universal.png'
-  import {Greet} from '../wailsjs/go/main/App.js'
+  import { onMount } from 'svelte'
+  import { ConfigPath, GetSettings, SaveSettings } from '../wailsjs/go/main/App.js'
+  import { main } from '../wailsjs/go/models'
 
-  let resultText: string = "Please enter your name below 👇"
-  let name: string
+  let streamId = ''
+  let apiKey = ''
+  let port = '8080'
+  let configPath = ''
+  let status = ''
+  let error = ''
+  let saving = false
 
-  function greet(): void {
-    Greet(name).then(result => resultText = result)
+  onMount(async () => {
+    try {
+      const [s, path] = await Promise.all([GetSettings(), ConfigPath()])
+      streamId = s.streamId ?? ''
+      apiKey = s.apiKey ?? ''
+      port = s.port || '8080'
+      configPath = path
+    } catch (e) {
+      error = String(e)
+    }
+  })
+
+  async function save(): Promise<void> {
+    saving = true
+    error = ''
+    status = ''
+    try {
+      await SaveSettings(main.SettingsForm.createFrom({ streamId, apiKey, port }))
+      const s = await GetSettings()
+      streamId = s.streamId ?? ''
+      apiKey = s.apiKey ?? ''
+      port = s.port || '8080'
+      status = 'Saved.'
+    } catch (e) {
+      error = String(e)
+    } finally {
+      saving = false
+    }
   }
 </script>
 
 <main>
-  <img alt="Wails logo" id="logo" src="{logo}">
-  <div class="result" id="result">{resultText}</div>
-  <div class="input-box" id="input">
-    <input autocomplete="off" bind:value={name} class="input" id="name" type="text"/>
-    <button class="btn" on:click={greet}>Greet</button>
+  <h1>ytmemchat</h1>
+  <p class="lead">Settings for this machine. OBS overlays are not started from this screen yet.</p>
+
+  <label>
+    Stream / video ID
+    <input autocomplete="off" bind:value={streamId} spellcheck="false" type="text" />
+  </label>
+  <p class="hint">The <code>v=</code> value from the YouTube watch URL. Required later to Start; you can save without it.</p>
+
+  <label>
+    YouTube API key (optional)
+    <input autocomplete="off" bind:value={apiKey} spellcheck="false" type="password" />
+  </label>
+  <p class="hint">Leave empty to use the no-key live chat client. A wrong key does not fall back.</p>
+
+  <label>
+    HTTP port
+    <input autocomplete="off" bind:value={port} spellcheck="false" type="text" />
+  </label>
+  <p class="hint">OBS will use <code>http://127.0.0.1:&lt;port&gt;/obs/chat</code> (default 8080).</p>
+
+  <div class="actions">
+    <button class="btn" disabled={saving} type="button" on:click={save}>
+      {saving ? 'Saving…' : 'Save'}
+    </button>
   </div>
+
+  {#if status}
+    <p class="ok">{status}</p>
+  {/if}
+  {#if error}
+    <p class="err">{error}</p>
+  {/if}
+  {#if configPath}
+    <p class="path">File: <code>{configPath}</code></p>
+  {/if}
 </main>
-
-<style>
-
-  #logo {
-    display: block;
-    width: 50%;
-    height: 50%;
-    margin: auto;
-    padding: 10% 0 0;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-origin: content-box;
-  }
-
-  .result {
-    height: 20px;
-    line-height: 20px;
-    margin: 1.5rem auto;
-  }
-
-  .input-box .btn {
-    width: 60px;
-    height: 30px;
-    line-height: 30px;
-    border-radius: 3px;
-    border: none;
-    margin: 0 0 0 20px;
-    padding: 0 8px;
-    cursor: pointer;
-  }
-
-  .input-box .btn:hover {
-    background-image: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);
-    color: #333333;
-  }
-
-  .input-box .input {
-    border: none;
-    border-radius: 3px;
-    outline: none;
-    height: 30px;
-    line-height: 30px;
-    padding: 0 10px;
-    background-color: rgba(240, 240, 240, 1);
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .input-box .input:hover {
-    border: none;
-    background-color: rgba(255, 255, 255, 1);
-  }
-
-  .input-box .input:focus {
-    border: none;
-    background-color: rgba(255, 255, 255, 1);
-  }
-
-</style>
