@@ -14,6 +14,8 @@ export function GetTTSVoices():Promise<Array<main.TTSVoice>>;
 
 export function InterruptTTS():Promise<void>;
 
+export function LookupLatestStream(arg1:string,arg2:string):Promise<main.StreamLookup>;
+
 export function PickCommandsFile():Promise<string>;
 
 export function PickMediaDirectory():Promise<string>;

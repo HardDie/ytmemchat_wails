@@ -19,6 +19,7 @@ Copy [\_TEMPLATE.md](_TEMPLATE.md) when a module is ported.
 | UC-09 | Inject a test chat message | `internal/obs` (`/api/webhook`) | Ported | [obs/uc-09-inject-webhook.md](obs/uc-09-inject-webhook.md) |
 | UC-10 | Interrupt TTS | `internal/obs` (`/api/interrupt`) | Ported | [obs/uc-10-interrupt-tts.md](obs/uc-10-interrupt-tts.md) |
 | UC-11 | Start and stop the pipeline | `app.go` | Ported | [app/uc-11-start-stop.md](app/uc-11-start-stop.md) |
+| UC-12 | Find latest live or upcoming stream | `internal/youtube` | Ported | [youtube/uc-12-find-latest-stream.md](youtube/uc-12-find-latest-stream.md) |
 
 ## Layout (after porting)
 
@@ -31,7 +32,8 @@ docs/use-cases/
 ├── youtube/
 │   ├── uc-01-start-chat-without-api-key.md
 │   ├── uc-02-start-chat-with-api-key.md
-│   └── uc-03-invalid-api-key.md
+│   ├── uc-03-invalid-api-key.md
+│   └── uc-12-find-latest-stream.md
 ├── obs/
 │   ├── uc-05-obs-live-chat.md
 │   ├── uc-06-obs-overlay.md

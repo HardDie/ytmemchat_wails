@@ -68,6 +68,22 @@ export namespace main {
 	        this.webhookEnabled = source["webhookEnabled"];
 	    }
 	}
+	export class StreamLookup {
+	    streamId: string;
+	    channelId: string;
+	    kind: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new StreamLookup(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.streamId = source["streamId"];
+	        this.channelId = source["channelId"];
+	        this.kind = source["kind"];
+	    }
+	}
 	export class TTSVoice {
 	    name: string;
 	    languages: string;

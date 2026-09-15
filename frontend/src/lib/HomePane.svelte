@@ -4,10 +4,19 @@
   export let run: main.RunStatus | null
   export let obs: main.OBSStatus | null
   export let streamId: string
+  export let apiKey: string
   export let starting: boolean
+  export let lookingUp: boolean
   export let onStart: () => Promise<void>
   export let onStop: () => Promise<void>
   export let onInterrupt: () => Promise<void>
+  export let onLookup: () => Promise<void>
+
+  $: hasApiKey = apiKey.trim() !== ''
+  $: lookupDisabled = lookingUp || !hasApiKey
+  $: lookupHint = hasApiKey
+    ? 'Finds the current live stream, or the next upcoming one. Skips VODs.'
+    : 'Find latest requires a YouTube API key (set it in Configuration).'
 
   $: youtubeLabel = !run
     ? 'Unknown'
@@ -46,10 +55,20 @@
     <button class="btn btn-primary" disabled={starting || (run && (run.running || run.connecting))} type="button" on:click={onStart}>
       {run && run.connecting ? 'Connecting…' : 'Start'}
     </button>
+    <button
+      class="btn"
+      disabled={lookupDisabled}
+      title={hasApiKey ? 'Find the current live or upcoming stream' : 'A YouTube API key is required'}
+      type="button"
+      on:click={onLookup}
+    >
+      {lookingUp ? 'Finding…' : 'Find latest'}
+    </button>
     <button class="btn" disabled={!run || (!run.running && !run.connecting)} type="button" on:click={onStop}>
       Stop
     </button>
   </div>
+  <p class="hint">{lookupHint}</p>
 </section>
 
 <section class="card">

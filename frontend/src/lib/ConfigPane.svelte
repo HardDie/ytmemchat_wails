@@ -18,6 +18,8 @@
   export let obs: main.OBSStatus | null
 
   export let onSave: () => Promise<void>
+  export let onLookup: () => Promise<void>
+  export let lookingUp: boolean
   export let onPickYaml: () => Promise<void>
   export let onPickMedia: () => Promise<void>
   export let onCopyChat: () => void
@@ -26,6 +28,8 @@
   let voices: main.TTSVoice[] = []
 
   $: selected = voices.find((v) => v.name === ttsVoiceName)
+  $: hasApiKey = apiKey.trim() !== ''
+  $: lookupDisabled = lookingUp || !hasApiKey
 
   function voiceLabel(v: main.TTSVoice): string {
     const bits = [v.name]
@@ -55,9 +59,25 @@
   </header>
   <label class="field">
     Stream / video ID
-    <input autocomplete="off" bind:value={streamId} spellcheck="false" type="text" />
+    <span class="path-row">
+      <input autocomplete="off" bind:value={streamId} spellcheck="false" type="text" />
+      <button
+        class="btn btn-small"
+        disabled={lookupDisabled}
+        title={hasApiKey ? 'Find the current live or upcoming stream' : 'A YouTube API key is required'}
+        type="button"
+        on:click={onLookup}
+      >
+        {lookingUp ? 'Finding…' : 'Find latest'}
+      </button>
+    </span>
   </label>
-  <p class="hint">The <code>v=</code> value from the YouTube watch URL. Required to Start.</p>
+  <p class="hint">
+    Paste any recent video from the channel once. Find latest loads the current live stream, or the next upcoming one if nothing is live. VODs are skipped. Save to persist.
+    {#if !hasApiKey}
+      A YouTube API key is required for Find latest.
+    {/if}
+  </p>
 
   <label class="field">
     YouTube API key

@@ -26,6 +26,10 @@ export function InterruptTTS() {
   return window['go']['main']['App']['InterruptTTS']();
 }
 
+export function LookupLatestStream(arg1, arg2) {
+  return window['go']['main']['App']['LookupLatestStream'](arg1, arg2);
+}
+
 export function PickCommandsFile() {
   return window['go']['main']['App']['PickCommandsFile']();
 }

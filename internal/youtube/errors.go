@@ -17,6 +17,10 @@ var (
 	ErrNotLive = errors.New("youtube: video is not a current live stream with active chat")
 	// ErrQuotaExceeded is returned when the Data API quota is exhausted.
 	ErrQuotaExceeded = errors.New("youtube: API quota exceeded")
+	// ErrUnknownVideo is returned when videos.list finds no item for the given ID.
+	ErrUnknownVideo = errors.New("youtube: unknown video ID")
+	// ErrNoBroadcast is returned when the channel has no live or upcoming stream.
+	ErrNoBroadcast = errors.New("youtube: no live or upcoming stream on this channel")
 )
 
 // IsInvalidAPIKey reports whether err is or wraps [ErrInvalidAPIKey].

@@ -5,6 +5,7 @@
     GetOBSStatus,
     GetRunStatus,
     GetSettings,
+    LookupLatestStream,
     PickCommandsFile,
     PickMediaDirectory,
     SaveSettings,
@@ -44,6 +45,7 @@
   let error = ''
   let saving = false
   let starting = false
+  let lookingUp = false
   let obs: main.OBSStatus | null = null
   let run: main.RunStatus | null = null
 
@@ -181,6 +183,24 @@
     }
   }
 
+  async function lookupLatest(): Promise<void> {
+    lookingUp = true
+    error = ''
+    status = ''
+    try {
+      const got = await LookupLatestStream(streamId, apiKey)
+      if (got && got.streamId) {
+        streamId = got.streamId
+        const kind = got.kind === 'upcoming' ? 'upcoming' : 'live'
+        status = `Latest ${kind} stream: ${got.streamId}`
+      }
+    } catch (e) {
+      error = String(e)
+    } finally {
+      lookingUp = false
+    }
+  }
+
   async function pickYaml(): Promise<void> {
     try {
       const p = await PickCommandsFile()
@@ -244,6 +264,8 @@
           {configPath}
           {obs}
           onSave={save}
+          onLookup={lookupLatest}
+          lookingUp={lookingUp}
           onPickYaml={pickYaml}
           onPickMedia={pickMedia}
           onCopyChat={copyChat}
@@ -252,7 +274,7 @@
       {:else if page === 'test'}
         <TestPane bind:testMessage {obs} onSend={sendTest} />
       {:else}
-        <HomePane {run} {obs} {streamId} {starting} onStart={start} onStop={stop} onInterrupt={interruptTTS} />
+        <HomePane {run} {obs} {streamId} {apiKey} {starting} {lookingUp} onStart={start} onStop={stop} onInterrupt={interruptTTS} onLookup={lookupLatest} />
       {/if}
     </div>
 

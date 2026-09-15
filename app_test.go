@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 	"github.com/HardDie/ytmemchat_wails/internal/config"
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
 	"github.com/HardDie/ytmemchat_wails/internal/tts"
+	"github.com/HardDie/ytmemchat_wails/internal/youtube"
 )
 
 func savePatched(t *testing.T, a *App, patch func(*SettingsForm)) {
@@ -209,5 +211,59 @@ func TestOBSHTTP_servesChatPage(t *testing.T) {
 	res.Body.Close()
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("overlay %d", res.StatusCode)
+	}
+}
+
+func TestLookupLatestStream_usesSavedKeyAndFormID(t *testing.T) {
+	st := config.NewStore(filepath.Join(t.TempDir(), "config.json"))
+	a := newAppWithStore(st)
+	savePatched(t, a, func(f *SettingsForm) {
+		f.StreamID = "oldvid"
+		f.APIKey = "secret"
+	})
+	a.lookupLatest = func(_ context.Context, key, vid string) (youtube.LatestBroadcast, error) {
+		if key != "secret" || vid != "oldvid" {
+			t.Fatalf("key=%q vid=%q", key, vid)
+		}
+		return youtube.LatestBroadcast{VideoID: "newlive", ChannelID: "UCabc", Kind: youtube.BroadcastLive}, nil
+	}
+	got, err := a.LookupLatestStream("", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.StreamID != "newlive" || got.Kind != "live" || got.ChannelID != "UCabc" {
+		t.Fatalf("%+v", got)
+	}
+	if a.GetSettings().StreamID != "oldvid" {
+		t.Fatal("lookup must not save")
+	}
+}
+
+func TestLookupLatestStream_prefersCallArgs(t *testing.T) {
+	st := config.NewStore(filepath.Join(t.TempDir(), "config.json"))
+	a := newAppWithStore(st)
+	a.lookupLatest = func(_ context.Context, key, vid string) (youtube.LatestBroadcast, error) {
+		if key != "formkey" || vid != "formvid" {
+			t.Fatalf("key=%q vid=%q", key, vid)
+		}
+		return youtube.LatestBroadcast{VideoID: "soon", Kind: youtube.BroadcastUpcoming}, nil
+	}
+	got, err := a.LookupLatestStream(" formvid ", " formkey ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.StreamID != "soon" || got.Kind != "upcoming" {
+		t.Fatalf("%+v", got)
+	}
+}
+
+func TestLookupLatestStream_requiresIDAndKey(t *testing.T) {
+	st := config.NewStore(filepath.Join(t.TempDir(), "config.json"))
+	a := newAppWithStore(st)
+	if _, err := a.LookupLatestStream("", "k"); err == nil || !strings.Contains(err.Error(), "stream ID") {
+		t.Fatalf("id err = %v", err)
+	}
+	if _, err := a.LookupLatestStream("vid", ""); err == nil || !strings.Contains(err.Error(), "API key") {
+		t.Fatalf("key err = %v", err)
 	}
 }

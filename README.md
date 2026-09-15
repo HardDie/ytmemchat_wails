@@ -10,7 +10,7 @@ This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) de
 
 - Live YouTube chat with history skipped on connect
 - Optional [YouTube Data API v3](https://developers.google.com/youtube/v3) key; empty key uses the no-key live chat client
-- Desktop settings window (API key, stream ID, port, start/stop, alerts/TTS/webhook)
+- Desktop settings window (API key, stream ID, Find latest live/upcoming stream, port, start/stop, alerts/TTS/webhook)
 - OBS chat page and alert/TTS overlay over HTTP + WebSocket
 - Alert commands from `commands.yaml` (for example `@jump`)
 - TTS on macOS (`say`), Windows (PowerShell), and Linux (`espeak`)
@@ -24,7 +24,7 @@ The Wails window is a control panel. It is not the on-stream chat renderer.
 - [Node.js](https://nodejs.org/) (npm)
 - [Wails CLI](https://wails.io/docs/gettingstarted/installation): `go install github.com/wailsapp/wails/v2/cmd/wails@latest`
 - macOS: Xcode Command Line Tools. Windows: WebView2. Linux: Wails system packages plus `espeak` for TTS
-- A YouTube live video ID (the `v=` value in the watch URL)
+- A YouTube live video ID (the `v=` value in the watch URL). After one ID is saved, **Find latest** (API key required) can replace it with the channel’s current live stream or next upcoming stream, not a VOD.
 - Optional: a Google Cloud API key with **YouTube Data API v3** enabled. Leave the key empty to use the no-key client. A **wrong** key does not fall back; the window reports that the key is invalid
 
 ## Installation

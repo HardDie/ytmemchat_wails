@@ -11,6 +11,7 @@ import (
 	"github.com/HardDie/ytmemchat_wails/internal/config"
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
 	"github.com/HardDie/ytmemchat_wails/internal/tts"
+	"github.com/HardDie/ytmemchat_wails/internal/youtube"
 )
 
 // App is the Wails bindings façade (settings, OBS HTTP, YouTube chat Start/Stop).
@@ -39,6 +40,7 @@ type App struct {
 	runUsingKey    bool
 	runError       string
 	emit           func(string, any)
+	lookupLatest   func(context.Context, string, string) (youtube.LatestBroadcast, error)
 }
 
 // SettingsForm is the settings window payload (stream, modules, and paths).
@@ -137,6 +139,51 @@ func (a *App) GetSettings() SettingsForm {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	return formFrom(a.settings)
+}
+
+// StreamLookup is a live or upcoming video resolved from a known stream ID.
+type StreamLookup struct {
+	// StreamID is the watch URL v= value to use for Start.
+	StreamID string `json:"streamId"`
+	// ChannelID is the UC… channel that owns the video.
+	ChannelID string `json:"channelId"`
+	// Kind is "live" or "upcoming".
+	Kind string `json:"kind"`
+}
+
+// LookupLatestStream finds the channel from streamID, then the current live
+// stream or newest upcoming stream (not a VOD). Requires a Data API key.
+// apiKey may be empty to use the saved key. Does not write settings.
+func (a *App) LookupLatestStream(streamID, apiKey string) (StreamLookup, error) {
+	vid := strings.TrimSpace(streamID)
+	key := strings.TrimSpace(apiKey)
+	a.mu.Lock()
+	if vid == "" {
+		vid = strings.TrimSpace(a.settings.Youtube.StreamID)
+	}
+	if key == "" {
+		key = strings.TrimSpace(a.settings.Youtube.APIKey)
+	}
+	ctx := a.ctx
+	fn := a.lookupLatest
+	a.mu.Unlock()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if vid == "" {
+		return StreamLookup{}, fmt.Errorf("a previous stream ID is required to find the channel")
+	}
+	if key == "" {
+		return StreamLookup{}, fmt.Errorf("finding the latest stream requires a YouTube API key")
+	}
+	if fn == nil {
+		fn = youtube.LookupLatestBroadcast
+	}
+	got, err := fn(ctx, key, vid)
+	if err != nil {
+		return StreamLookup{}, err
+	}
+	return StreamLookup{StreamID: got.VideoID, ChannelID: got.ChannelID, Kind: string(got.Kind)}, nil
 }
 
 // SaveSettings writes the settings form. Empty stream ID is allowed.
