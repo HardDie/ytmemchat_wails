@@ -10,10 +10,22 @@ export function GetOBSStatus() {
   return window['go']['main']['App']['GetOBSStatus']();
 }
 
+export function GetRunStatus() {
+  return window['go']['main']['App']['GetRunStatus']();
+}
+
 export function GetSettings() {
   return window['go']['main']['App']['GetSettings']();
 }
 
 export function SaveSettings(arg1) {
   return window['go']['main']['App']['SaveSettings'](arg1);
+}
+
+export function Start() {
+  return window['go']['main']['App']['Start']();
+}
+
+export function Stop() {
+  return window['go']['main']['App']['Stop']();
 }

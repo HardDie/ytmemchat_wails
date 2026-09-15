@@ -1,6 +1,6 @@
 // Package main is the Wails desktop entrypoint: native window plus bindings
-// façade. Domain logic lives in internal/. OBS HTTP starts in OnStartup and
-// stops on process exit.
+// façade. Domain logic lives in internal/. OBS HTTP starts in OnStartup.
+// Start/Stop runs the YouTube iterator into the chat overlay.
 package main
 
 import (
@@ -20,7 +20,7 @@ func main() {
 	err := wails.Run(&options.App{
 		Title:  "ytmemchat",
 		Width:  560,
-		Height: 720,
+		Height: 780,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

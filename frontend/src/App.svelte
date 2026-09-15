@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { ConfigPath, GetOBSStatus, GetSettings, SaveSettings } from '../wailsjs/go/main/App.js'
+  import { ConfigPath, GetOBSStatus, GetRunStatus, GetSettings, SaveSettings, Start, Stop } from '../wailsjs/go/main/App.js'
   import { main } from '../wailsjs/go/models'
-  import { ClipboardSetText } from '../wailsjs/runtime/runtime'
+  import { ClipboardSetText, EventsOn } from '../wailsjs/runtime/runtime'
 
   let streamId = ''
   let apiKey = ''
@@ -11,13 +11,22 @@
   let status = ''
   let error = ''
   let saving = false
+  let starting = false
   let obs: main.OBSStatus | null = null
+  let run: main.RunStatus | null = null
 
   async function refreshOBS(): Promise<void> {
     obs = await GetOBSStatus()
   }
 
+  async function refreshRun(): Promise<void> {
+    run = await GetRunStatus()
+  }
+
   onMount(async () => {
+    EventsOn('pipeline', (s: main.RunStatus) => {
+      run = s
+    })
     try {
       const [s, path] = await Promise.all([GetSettings(), ConfigPath()])
       streamId = s.streamId ?? ''
@@ -25,6 +34,7 @@
       port = s.port || '8080'
       configPath = path
       await refreshOBS()
+      await refreshRun()
     } catch (e) {
       error = String(e)
     }
@@ -54,6 +64,33 @@
     }
   }
 
+  async function start(): Promise<void> {
+    starting = true
+    error = ''
+    status = ''
+    try {
+      await save()
+      if (error) {
+        return
+      }
+      await Start()
+      await refreshRun()
+      status = 'Starting chat…'
+    } catch (e) {
+      error = String(e)
+      await refreshRun()
+    } finally {
+      starting = false
+    }
+  }
+
+  async function stop(): Promise<void> {
+    error = ''
+    await Stop()
+    await refreshRun()
+    status = 'Stopped.'
+  }
+
   async function copy(url: string): Promise<void> {
     await ClipboardSetText(url)
     status = 'Copied URL.'
@@ -70,13 +107,13 @@
 
 <main>
   <h1>ytmemchat</h1>
-  <p class="lead">Settings for this machine. OBS pages are served while this window is open.</p>
+  <p class="lead">Settings for this machine. OBS pages are served while this window is open. Start pulls live chat into the chat overlay (alerts/TTS later).</p>
 
   <label>
     Stream / video ID
     <input autocomplete="off" bind:value={streamId} spellcheck="false" type="text" />
   </label>
-  <p class="hint">The <code>v=</code> value from the YouTube watch URL. Required later to Start; you can save without it.</p>
+  <p class="hint">The <code>v=</code> value from the YouTube watch URL. Required to Start.</p>
 
   <label>
     YouTube API key (optional)
@@ -88,13 +125,30 @@
     HTTP port
     <input autocomplete="off" bind:value={port} spellcheck="false" type="text" />
   </label>
-  <p class="hint">Changing the port restarts the OBS listener after a successful save. Restart the app if you saved while it was not listening.</p>
+  <p class="hint">Changing the port restarts the OBS listener after a successful save.</p>
 
   <div class="actions">
     <button class="btn" disabled={saving} type="button" on:click={save}>
       {saving ? 'Saving…' : 'Save'}
     </button>
+    <button class="btn" disabled={starting || (run && (run.running || run.connecting))} type="button" on:click={start}>
+      {run && run.connecting ? 'Connecting…' : 'Start'}
+    </button>
+    <button class="btn" disabled={!run || (!run.running && !run.connecting)} type="button" on:click={stop}>
+      Stop
+    </button>
   </div>
+
+  {#if run}
+    {#if run.running}
+      <p class="ok">Chat running{run.usingApiKey ? ' (YouTube API key)' : ' (no API key)'}.</p>
+    {:else if run.connecting}
+      <p class="ok">Connecting to YouTube chat…</p>
+    {/if}
+    {#if run.error}
+      <p class="err">{run.error}</p>
+    {/if}
+  {/if}
 
   {#if obs}
     <section class="obs">

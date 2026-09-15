@@ -10,7 +10,7 @@ import (
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
 )
 
-// App is the Wails bindings façade (settings and OBS HTTP; start/stop later).
+// App is the Wails bindings façade (settings, OBS HTTP, YouTube chat Start/Stop).
 type App struct {
 	ctx            context.Context
 	mu             sync.Mutex
@@ -22,6 +22,14 @@ type App struct {
 	httpAddr       string
 	listenOverride string
 	skipHTTP       bool
+	clientFn       clientFactory
+	runCancel      context.CancelFunc
+	runWG          *sync.WaitGroup
+	runGen         int
+	runConnecting  bool
+	runRunning     bool
+	runUsingKey    bool
+	runError       string
 }
 
 // SettingsForm is the settings window payload. Other JSON fields stay on disk

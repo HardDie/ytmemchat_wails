@@ -18,7 +18,7 @@ Copy [\_TEMPLATE.md](_TEMPLATE.md) when a module is ported.
 | UC-08 | Speak a non-alert message | `internal/tts` | Ported | [tts/uc-08-speak-message.md](tts/uc-08-speak-message.md) |
 | UC-09 | Inject a test chat message | `internal/obs` (`/api/webhook`) | Ported | [obs/uc-09-inject-webhook.md](obs/uc-09-inject-webhook.md) |
 | UC-10 | Interrupt TTS | `internal/obs` (`/api/interrupt`) | Ported | [obs/uc-10-interrupt-tts.md](obs/uc-10-interrupt-tts.md) |
-| UC-11 | Start and stop the pipeline | `app.go` | Planned | — |
+| UC-11 | Start and stop the pipeline | `app.go` | Ported | [app/uc-11-start-stop.md](app/uc-11-start-stop.md) |
 
 ## Layout (after porting)
 

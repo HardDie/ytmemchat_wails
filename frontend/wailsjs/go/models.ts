@@ -20,6 +20,24 @@ export namespace main {
 	        this.indexUrl = source["indexUrl"];
 	    }
 	}
+	export class RunStatus {
+	    running: boolean;
+	    connecting: boolean;
+	    usingApiKey: boolean;
+	    error: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new RunStatus(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.running = source["running"];
+	        this.connecting = source["connecting"];
+	        this.usingApiKey = source["usingApiKey"];
+	        this.error = source["error"];
+	    }
+	}
 	export class SettingsForm {
 	    streamId: string;
 	    apiKey: string;

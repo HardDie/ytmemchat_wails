@@ -6,6 +6,12 @@ export function ConfigPath():Promise<string>;
 
 export function GetOBSStatus():Promise<main.OBSStatus>;
 
+export function GetRunStatus():Promise<main.RunStatus>;
+
 export function GetSettings():Promise<main.SettingsForm>;
 
 export function SaveSettings(arg1:main.SettingsForm):Promise<void>;
+
+export function Start():Promise<void>;
+
+export function Stop():Promise<void>;

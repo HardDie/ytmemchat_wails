@@ -4,7 +4,7 @@ ytmemchat is a desktop companion for [YouTube](https://www.youtube.com/) Live. I
 
 This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) desktop app. You configure and start the pipeline in a native window. OBS Browser Sources load local HTTP pages that update over WebSocket.
 
-**Project status:** early development. Opening the app serves OBS pages on the saved port. The window saves stream ID, API key, and port. YouTube Start is not wired yet. Until that lands, use the [console app](https://github.com/HardDie/ytmemchat) on stream.
+**Project status:** early development. The app serves OBS pages while open and can Start/Stop YouTube chat on the chat overlay. Alerts and TTS are not wired yet.
 
 ## Features
 
@@ -65,7 +65,7 @@ Settings are stored in a local JSON file (mode `0600`), not in the repo:
 
 3. Size each source to your canvas (for example `1920x1080`).
 4. On the overlay source, click **Interact** once and allow audio so TTS and alert sounds can autoplay.
-5. Click **Start** (or Run) in the app to pull live chat. **Stop** ends YouTube polling; OBS sources stay connected.
+5. Click **Start** to pull live chat onto `/obs/chat`. **Stop** ends YouTube polling; OBS sources stay connected. Alerts and TTS are not wired yet.
 
 Chat with a transparent background: `http://127.0.0.1:8080/obs/chat?transparent=1`.
 
@@ -108,8 +108,8 @@ curl -X POST http://127.0.0.1:8080/api/interrupt
 
 ## Roadmap
 
-- Scaffold Wails v2 + Svelte, persist settings, serve OBS HTTP while the app is open (done)
-- Wire YouTube Start/Stop into the already-open OBS sockets
+- Scaffold Wails v2 + Svelte, persist settings, serve OBS HTTP, Start/Stop chat overlay (done)
+- Wire alert commands and TTS onto the overlay
 - Copy OBS URLs from the settings window
 - GitHub Actions: tests on push; tagged releases with Linux (amd64, arm64), Windows, and macOS binaries
 - Later: OS keychain for the API key; code-signed installers
@@ -127,7 +127,7 @@ See [CURSOR.md](CURSOR.md) for layout, routes, and implementation rules. Archite
 
 ## Contributing
 
-The Wails window saves settings and serves OBS HTTP while it is open. Start/Stop is not wired yet. When you change **user-facing** behavior (features, install steps, OBS URLs, settings location, status, CI, releases), update this README in the same change. When you **port a module**, add a use-case file under `docs/use-cases/<module>/`, set its row to Ported in [docs/use-cases/INDEX.md](docs/use-cases/INDEX.md), give the package complete [Go documentation](https://go.dev/doc/comment), add a `go doc` command for it in the table below, and add unit tests (plus integration tests when the package hits HTTP, disk, or the OS). New architecture choices get an ADR in [docs/architecture](docs/architecture/INDEX.md).
+The Wails window saves settings, serves OBS HTTP, and can Start/Stop YouTube chat on the chat overlay. Alerts and TTS are not wired yet. When you change **user-facing** behavior (features, install steps, OBS URLs, settings location, status, CI, releases), update this README in the same change. When you **port a module**, add a use-case file under `docs/use-cases/<module>/`, set its row to Ported in [docs/use-cases/INDEX.md](docs/use-cases/INDEX.md), give the package complete [Go documentation](https://go.dev/doc/comment), add a `go doc` command for it in the table below, and add unit tests (plus integration tests when the package hits HTTP, disk, or the OS). New architecture choices get an ADR in [docs/architecture](docs/architecture/INDEX.md).
 
 Developer-oriented contracts live in [CURSOR.md](CURSOR.md). Match Go style in [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat). Day-to-day commands:
 
@@ -192,7 +192,7 @@ Then open `http://localhost:8081` and select this module.
 | `internal/obs` | Ported | `go doc -all ./internal/obs` |
 | `internal/alerts` | Ported | `go doc -all ./internal/alerts` |
 | `internal/tts` | Ported | `go doc -all ./internal/tts` |
-| `package main` (bindings façade) | Settings wired | `go doc -all .` |
+| `package main` (bindings façade) | Chat Start/Stop | `go doc -all .` |
 
 Set **Status** to Ported in this table when `go doc -all` prints a real package comment and every export is described.
 
