@@ -1,4 +1,7 @@
 build/bin
 frontend/dist
 frontend/node_modules
+scripts/screenshots/node_modules
+docs/screenshots/*.png
 node_modules
+.idea/

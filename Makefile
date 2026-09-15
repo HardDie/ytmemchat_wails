@@ -17,7 +17,7 @@ WAILS_TAGS := $(shell pkg-config --exists webkit2gtk-4.1 2>/dev/null && echo -ta
 .DEFAULT_GOAL := help
 
 .PHONY: help dev build generate test test-integration test-all \
-	vet fmt tidy doc doc-all docs-site frontend-install clean ci
+	vet fmt tidy doc doc-all docs-site frontend-install screenshots clean ci
 
 ## help: Show this list
 help:
@@ -83,6 +83,10 @@ docs-site:
 ## frontend-install: npm install in frontend/
 frontend-install: require-wails
 	npm install --prefix frontend
+
+## screenshots: Refresh README window.gif (Home → Config → Commands → Test)
+screenshots:
+	cd scripts/screenshots && npm install && npx playwright install chromium && node capture.mjs
 
 ## clean: Remove Wails/Go build artifacts
 clean:

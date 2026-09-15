@@ -36,3 +36,4 @@ Write a use-case file **only after** that module exists in this repo. Until then
 ### Neutral
 
 * Use-case prose follows the template in `docs/use-cases/_TEMPLATE.md` (actors, goal, preconditions, happy path, alternatives, postconditions).
+* README window showcase is `docs/screenshots/window.gif`, regenerated with `make screenshots` (Vite + Playwright + gifenc, not a Wails window).

@@ -1,5 +1,9 @@
 # ytmemchat
 
+<p align="center">
+  <img src="build/appicon.png" alt="ytmemchat" width="160">
+</p>
+
 ytmemchat is a desktop companion for [YouTube](https://www.youtube.com/) Live. It reads live chat and drives an [OBS](https://obsproject.com/) overlay: on-stream messages, meme alerts, and text-to-speech.
 
 This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) desktop app. You configure and start the pipeline in a native window. OBS Browser Sources load local HTTP pages that update over WebSocket.
@@ -17,6 +21,14 @@ This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) de
 - Optional HTTP API to inject a test message or interrupt TTS
 
 The Wails window is a control panel. It is not the on-stream chat renderer.
+
+## Window panes
+
+<p align="center">
+  <img src="docs/screenshots/window.gif" alt="Home, Configuration, Commands, and Test panes" width="760">
+</p>
+
+The operator window cycles through four panes: **Home** (Start/Stop, interrupt speech, OBS URLs), **Configuration** (stream, API key, alerts, TTS, shortcut), **Commands** (`commands.yaml`), and **Test** (inject a fake chat line).
 
 ## Requirements
 
@@ -129,7 +141,7 @@ See [CURSOR.md](CURSOR.md) for layout, routes, and implementation rules. Archite
 
 ## Contributing
 
-The Wails window saves settings, serves OBS HTTP, and can Start/Stop YouTube chat. Live lines go to the chat overlay; alert matches and TTS go to the overlay socket. When you change **user-facing** behavior (features, install steps, OBS URLs, settings location, status, CI, releases), update this README in the same change. When you **port a module**, add a use-case file under `docs/use-cases/<module>/`, set its row to Ported in [docs/use-cases/INDEX.md](docs/use-cases/INDEX.md), give the package complete [Go documentation](https://go.dev/doc/comment), add a `go doc` command for it in the table below, and add unit tests (plus integration tests when the package hits HTTP, disk, or the OS). New architecture choices get an ADR in [docs/architecture](docs/architecture/INDEX.md).
+The Wails window saves settings, serves OBS HTTP, and can Start/Stop YouTube chat. Live lines go to the chat overlay; alert matches and TTS go to the overlay socket. When you change **user-facing** behavior (features, install steps, OBS URLs, settings location, status, CI, releases), update this README in the same change. When the **window UI** changes, run `make screenshots` so the pane images stay current. When you **port a module**, add a use-case file under `docs/use-cases/<module>/`, set its row to Ported in [docs/use-cases/INDEX.md](docs/use-cases/INDEX.md), give the package complete [Go documentation](https://go.dev/doc/comment), add a `go doc` command for it in the table below, and add unit tests (plus integration tests when the package hits HTTP, disk, or the OS). New architecture choices get an ADR in [docs/architecture](docs/architecture/INDEX.md).
 
 Developer-oriented contracts live in [CURSOR.md](CURSOR.md). Match Go style in [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat). Day-to-day commands:
 
@@ -137,6 +149,7 @@ Developer-oriented contracts live in [CURSOR.md](CURSOR.md). Match Go style in [
 make help              # all targets
 make dev               # wails dev (needs scaffold)
 make build             # local production binary
+make screenshots       # refresh README window.gif
 make test              # unit tests (race), same as CI
 make test-integration  # integration tests
 make test-all          # unit then integration

@@ -181,11 +181,12 @@ Official Wails layout is a **Vite Svelte app in `frontend/`** plus **`package ma
 
 ```text
 .
-├── Makefile                  # make help / dev / build / test / doc
+├── Makefile                  # make help / dev / build / test / screenshots / doc
 ├── README.md                 # users: product, install, OBS, status
 ├── CURSOR.md                 # agents: contracts and layout
 ├── docs/
 │   ├── architecture/         # ADRs
+│   ├── screenshots/          # README window.gif (`make screenshots`)
 │   └── use-cases/            # UC files only after the module is ported
 ├── .github/workflows/
 │   ├── test.yml              # go test on every push/PR
@@ -200,10 +201,11 @@ Official Wails layout is a **Vite Svelte app in `frontend/`** plus **`package ma
 │   ├── vite.config.ts
 │   ├── svelte.config.js
 │   ├── src/
-│   │   ├── main.ts           # mount App (Svelte 5: mount(), not new App())
-│   │   ├── App.svelte        # pane shell (home / config / test)
+│   │   ├── main.ts           # boot App; ?screenshot=1 loads stub bindings
+│   │   ├── screenshotBridge.ts
+│   │   ├── App.svelte        # pane shell (home / config / commands / test)
 │   │   ├── style.css
-│   │   ├── lib/              # HomePane, ConfigPane, TestPane
+│   │   ├── lib/              # HomePane, ConfigPane, CommandsPane, TestPane
 │   │   └── assets/
 │   ├── wailsjs/              # generated bindings — do not edit
 │   │   ├── go/main/          # App.ts / App.js from package main
@@ -336,6 +338,7 @@ The console tree splits HTTP into `server` + `chat`, YouTube into `clients/youtu
 - Match existing Go style in the console repo (`slog`, small `internal/` packages, interfaces at the package boundary).
 - Keep this file updated when routes, payloads, stack, or directory layout change.
 - **Keep [README.md](README.md) up to date in the same change** whenever user-visible facts move: features, project status, requirements, install/run, config path, OBS URLs, webhook examples, TTS OS notes, license, contributing commands, the package `go doc` table, CI, or release artifacts. README follows [Make a README](https://www.makeareadme.com/): name, description, install, usage, contributing, license, and honest **project status**. Do not dump this file into the README; deep contracts stay here.
+- **Window pane GIF.** After changing Svelte panes (`App.svelte`, `frontend/src/lib/*`, `style.css`), run `make screenshots` so [docs/screenshots/window.gif](docs/screenshots/window.gif) matches the UI. Do not hand-edit the GIF. Capture uses `?screenshot=1` stubs, not a live Wails window.
 - **Use cases only after porting.** When a module is first added under `internal/` (or `app.go` for UC-11), write `docs/use-cases/<module>/uc-NN-….md` from `docs/use-cases/_TEMPLATE.md` and set the row to Ported in `docs/use-cases/INDEX.md`. Do not invent UC files for code that is not in this repo.
 - **Godoc on every Go package.** Package comment plus comments on all exports. After porting, add a `go doc ./…` row for that package in README (Package documentation). Verify with `go doc -all` before considering the port done.
 - **Tests on every ported package.** Unit tests always; integration tests (`//go:build integration`) when the package hits HTTP, disk, or OS APIs. Platform-specific integration files also tag GOOS (`integration && darwin`). Keep `internal/` CGO-free. CI must stay green.

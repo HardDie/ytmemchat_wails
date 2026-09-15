@@ -1,0 +1,10 @@
+{
+  "name": "ytmemchat-screenshots",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "gifenc": "^1.0.3",
+    "playwright": "^1.55.0",
+    "pngjs": "^7.0.0"
+  }
+}
