@@ -26,10 +26,12 @@ jobs:
           - name: linux-amd64
             os: ubuntu-latest
             wails_platform: linux/amd64
+            wails_tags: webkit2_41
             artifact: ytmemchat-linux-amd64.tar.gz
           - name: linux-arm64
             os: ubuntu-24.04-arm
             wails_platform: linux/arm64
+            wails_tags: webkit2_41
             artifact: ytmemchat-linux-arm64.tar.gz
           - name: windows-amd64
             os: windows-latest
@@ -96,6 +98,10 @@ jobs:
           # imports (gax-go.test → huge genproto zip) and also executes package
           # main (Linux hotkey init panics without DISPLAY).
           cmd=(wails build -skipbindings -clean -trimpath -platform "${{ matrix.wails_platform }}" -ldflags "-X main.buildVersion=${VERSION}")
+          # Ubuntu 24.04 has webkit2gtk-4.1 only; Wails 2.11 still defaults to 4.0.
+          if [ -n "${{ matrix.wails_tags }}" ]; then
+            cmd+=(-tags "${{ matrix.wails_tags }}")
+          fi
           if [ "${{ runner.os }}" = "Linux" ]; then
             xvfb-run -a "${cmd[@]}"
           else
