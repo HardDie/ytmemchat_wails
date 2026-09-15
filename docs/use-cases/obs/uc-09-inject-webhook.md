@@ -10,7 +10,7 @@
 
 1. Operator POSTs `/api/webhook` with `{"message": "@jump"}`.
 2. Handler responds 204 and sends [InjectedMessage] (`Author` `webhook`, `Text` from JSON) on `Injected()`.
-3. `app.go` maps that onto the same chat/alerts/TTS path as YouTube (`dispatchChat`) while OBS HTTP is up. YouTube Start is not required.
+3. `app.go` maps that onto the same chat/alerts/TTS path as YouTube (`dispatchChat`) while OBS HTTP is up. YouTube Start is not required. The settings window **Send** button uses the same path (author `test`) and does not need this HTTP route.
 
 ## Alternative scenarios and errors
 

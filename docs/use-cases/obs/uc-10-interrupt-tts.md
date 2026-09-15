@@ -10,7 +10,7 @@
 
 1. Operator POSTs `/api/interrupt`.
 2. Handler responds 204 and publishes an overlay event with `type` `tts_interrupt`.
-3. Overlay JS stops the current AudioBufferSource (console behavior).
+3. Overlay JS stops the current AudioBufferSource (console behavior). The Wails window **Stop TTS** button publishes the same event without enabling the HTTP API.
 
 ## Alternative scenarios and errors
 
@@ -19,4 +19,4 @@
 
 ## Postconditions
 
-* Interrupt does not go through the inject channel. It is overlay-only.
+* Interrupt does not go through the inject channel. It is overlay-only. The Wails **Stop TTS** binding publishes the same event when HTTP is listening, even if webhooks are off.

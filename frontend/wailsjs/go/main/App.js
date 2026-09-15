@@ -22,6 +22,10 @@ export function GetTTSVoices() {
   return window['go']['main']['App']['GetTTSVoices']();
 }
 
+export function InterruptTTS() {
+  return window['go']['main']['App']['InterruptTTS']();
+}
+
 export function PickCommandsFile() {
   return window['go']['main']['App']['PickCommandsFile']();
 }
@@ -32,6 +36,10 @@ export function PickMediaDirectory() {
 
 export function SaveSettings(arg1) {
   return window['go']['main']['App']['SaveSettings'](arg1);
+}
+
+export function SendTestMessage(arg1) {
+  return window['go']['main']['App']['SendTestMessage'](arg1);
 }
 
 export function Start() {

@@ -66,6 +66,7 @@ Settings are stored in a local JSON file (mode `0600`), not in the repo:
 3. Size each source to your canvas (for example `1920x1080`).
 4. On the overlay source, click **Interact** once and allow audio so TTS and alert sounds can autoplay.
 5. Click **Start** to pull live chat onto `/obs/chat`. Matching `@command` lines (when alerts are enabled and `commandsFilePath` is set in config) play on `/obs/overlay`; other lines are spoken when TTS is enabled. **Stop** ends YouTube polling; OBS sources stay connected.
+6. Use **Test overlay** in the window to send a fake chat line or **Stop TTS** without waiting for speech to finish. **Test HTTP API** is optional, for curl/automation.
 
 Chat with a transparent background: `http://127.0.0.1:8080/obs/chat?transparent=1`.
 

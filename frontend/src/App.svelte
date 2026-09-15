@@ -8,6 +8,8 @@
     PickCommandsFile,
     PickMediaDirectory,
     SaveSettings,
+    SendTestMessage,
+    InterruptTTS,
     Start,
     Stop,
   } from '../wailsjs/go/main/App.js'
@@ -29,6 +31,7 @@
   let alertsMediaPath = ''
   let alertsCommandsFilePath = ''
   let webhookEnabled = false
+  let testMessage = ''
   let configPath = ''
   let status = ''
   let error = ''
@@ -149,6 +152,28 @@
     if (obs) copy(obs.overlayUrl)
   }
 
+  async function sendTest(): Promise<void> {
+    error = ''
+    status = ''
+    try {
+      await SendTestMessage(testMessage)
+      status = 'Test message sent.'
+    } catch (e) {
+      error = String(e)
+    }
+  }
+
+  async function interruptTTS(): Promise<void> {
+    error = ''
+    status = ''
+    try {
+      await InterruptTTS()
+      status = 'TTS interrupted.'
+    } catch (e) {
+      error = String(e)
+    }
+  }
+
   async function pickYaml(): Promise<void> {
     try {
       const p = await PickCommandsFile()
@@ -242,7 +267,7 @@
         Test HTTP API
       </label>
     </div>
-    <p class="hint">Serves <code>/api/webhook</code> and <code>/api/interrupt</code> when enabled.</p>
+    <p class="hint">Serves <code>/api/webhook</code> and <code>/api/interrupt</code> for external automation. The test controls below do not need this toggle.</p>
 
     <div class="actions">
       <button class="btn" disabled={saving} type="button" on:click={save}>
@@ -287,6 +312,23 @@
         <button class="btn btn-small" type="button" on:click={copyOverlay}>Copy</button>
       </p>
       <p class="hint">Index (not for OBS): <code>{obs.indexUrl}</code></p>
+    </section>
+  {/if}
+
+  {#if page === 'home'}
+    <section class="obs">
+      <h2>Test overlay</h2>
+      <p class="hint">Send a fake chat line (alerts/TTS apply) or stop the current speech. OBS HTTP must be listening. YouTube Start is not required.</p>
+      <label>
+        Test message
+        <span class="path-row">
+          <input autocomplete="off" bind:value={testMessage} placeholder="@jump or hello" spellcheck="false" type="text" />
+          <button class="btn btn-small" disabled={!obs || !obs.listening || !testMessage.trim()} type="button" on:click={sendTest}>Send</button>
+        </span>
+      </label>
+      <div class="actions">
+        <button class="btn" disabled={!obs || !obs.listening} type="button" on:click={interruptTTS}>Stop TTS</button>
+      </div>
     </section>
   {/if}
 
