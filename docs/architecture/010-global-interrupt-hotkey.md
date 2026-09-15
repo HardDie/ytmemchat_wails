@@ -31,3 +31,4 @@ Use option 3. Default chord is `Ctrl+Shift+I` (Control, not Command, so it does 
 
 * The chord can collide with another app’s global shortcut; show the register error in Config/Home.
 * Pure Wayland sessions cannot grab keys this way.
+* Linux `init()` panics without an X11 display, so headless `wails build` (GitHub Actions) must use Xvfb.
