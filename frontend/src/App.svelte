@@ -21,6 +21,12 @@
 
   type Page = 'home' | 'config' | 'test'
 
+  const titles: Record<Page, string> = {
+    home: 'Home',
+    config: 'Configuration',
+    test: 'Test message',
+  }
+
   let page: Page = 'home'
   let streamId = ''
   let apiKey = ''
@@ -100,7 +106,7 @@
       await SaveSettings(formPayload())
       applyForm(await GetSettings())
       await refreshOBS()
-      status = 'Saved.'
+      status = 'Settings saved'
     } catch (e) {
       error = String(e)
       try {
@@ -124,7 +130,7 @@
       }
       await Start()
       await refreshRun()
-      status = 'Starting chat…'
+      status = ''
     } catch (e) {
       error = String(e)
       await refreshRun()
@@ -135,14 +141,15 @@
 
   async function stop(): Promise<void> {
     error = ''
+    status = ''
     await Stop()
     await refreshRun()
-    status = 'Stopped.'
   }
 
   async function copy(url: string): Promise<void> {
     await ClipboardSetText(url)
-    status = 'Copied URL.'
+    status = 'URL copied'
+    error = ''
   }
 
   function copyChat(): void {
@@ -158,7 +165,7 @@
     status = ''
     try {
       await SendTestMessage(testMessage)
-      status = 'Test message sent.'
+      status = 'Test message sent'
     } catch (e) {
       error = String(e)
     }
@@ -201,44 +208,63 @@
   }
 </script>
 
-<main>
-  <nav class="panes" aria-label="Window panes">
-    <button class="pane-btn" class:active={page === 'home'} type="button" on:click={() => { page = 'home' }}>Home</button>
-    <button class="pane-btn" class:active={page === 'config'} type="button" on:click={() => { page = 'config' }}>Config</button>
-    <button class="pane-btn" class:active={page === 'test'} type="button" on:click={() => { page = 'test' }}>Test</button>
-  </nav>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-name">ytmemchat</div>
+      <div class="brand-sub">Operator console</div>
+    </div>
+    <nav class="panes" aria-label="Window panes">
+      <button class="pane-btn" class:active={page === 'home'} type="button" on:click={() => { page = 'home' }}>Home</button>
+      <button class="pane-btn" class:active={page === 'config'} type="button" on:click={() => { page = 'config' }}>Configuration</button>
+      <button class="pane-btn" class:active={page === 'test'} type="button" on:click={() => { page = 'test' }}>Test</button>
+    </nav>
+  </aside>
 
-  {#if page === 'config'}
-    <ConfigPane
-      bind:streamId
-      bind:apiKey
-      bind:port
-      bind:ttsEnabled
-      bind:ttsVoiceName
-      bind:alertsEnabled
-      bind:alertsToken
-      bind:alertsMediaPath
-      bind:alertsCommandsFilePath
-      bind:webhookEnabled
-      {saving}
-      {configPath}
-      {obs}
-      onSave={save}
-      onPickYaml={pickYaml}
-      onPickMedia={pickMedia}
-      onCopyChat={copyChat}
-      onCopyOverlay={copyOverlay}
-    />
-  {:else if page === 'test'}
-    <TestPane bind:testMessage {obs} onSend={sendTest} />
-  {:else}
-    <HomePane {run} {obs} {starting} onStart={start} onStop={stop} onInterrupt={interruptTTS} />
-  {/if}
+  <div class="workspace">
+    <header class="toolbar">
+      <h1>{titles[page]}</h1>
+      <span class="toolbar-note">Not shown on stream</span>
+    </header>
 
-  {#if status}
-    <p class="ok">{status}</p>
-  {/if}
-  {#if error}
-    <p class="err">{error}</p>
-  {/if}
-</main>
+    <div class="content">
+      {#if page === 'config'}
+        <ConfigPane
+          bind:streamId
+          bind:apiKey
+          bind:port
+          bind:ttsEnabled
+          bind:ttsVoiceName
+          bind:alertsEnabled
+          bind:alertsToken
+          bind:alertsMediaPath
+          bind:alertsCommandsFilePath
+          bind:webhookEnabled
+          {saving}
+          {configPath}
+          {obs}
+          onSave={save}
+          onPickYaml={pickYaml}
+          onPickMedia={pickMedia}
+          onCopyChat={copyChat}
+          onCopyOverlay={copyOverlay}
+        />
+      {:else if page === 'test'}
+        <TestPane bind:testMessage {obs} onSend={sendTest} />
+      {:else}
+        <HomePane {run} {obs} {starting} onStart={start} onStop={stop} onInterrupt={interruptTTS} />
+      {/if}
+    </div>
+
+    {#if status || error}
+      <div class="flash">
+        {#if status}
+          <p class="ok">{status}</p>
+        {/if}
+        {#if error}
+          <p class="err">{error}</p>
+        {/if}
+      </div>
+    {/if}
+  </div>
+</div>

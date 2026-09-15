@@ -47,122 +47,145 @@
   })
 </script>
 
-<h1>Config</h1>
-<p class="lead">Saved on this machine. OBS Browser Sources use the URLs below.</p>
+<p class="lead">Stored on this machine. OBS Browser Sources use the URLs in the last section.</p>
 
-<label>
-  Stream / video ID
-  <input autocomplete="off" bind:value={streamId} spellcheck="false" type="text" />
-</label>
-<p class="hint">The <code>v=</code> value from the YouTube watch URL. Required to Start.</p>
+<section class="card">
+  <header class="card-head">
+    <h2>Connection</h2>
+  </header>
+  <label class="field">
+    Stream / video ID
+    <input autocomplete="off" bind:value={streamId} spellcheck="false" type="text" />
+  </label>
+  <p class="hint">The <code>v=</code> value from the YouTube watch URL. Required to Start.</p>
 
-<label>
-  YouTube API key (optional)
-  <input autocomplete="off" bind:value={apiKey} spellcheck="false" type="password" />
-</label>
-<p class="hint">Leave empty to use the no-key live chat client. A wrong key does not fall back.</p>
+  <label class="field">
+    YouTube API key
+    <input autocomplete="off" bind:value={apiKey} spellcheck="false" type="password" />
+  </label>
+  <p class="hint">Optional. Empty uses the no-key client. An invalid key does not fall back.</p>
 
-<label>
-  HTTP port
-  <input autocomplete="off" bind:value={port} spellcheck="false" type="text" />
-</label>
-<p class="hint">Changing the port restarts the OBS listener after a successful save.</p>
+  <label class="field">
+    HTTP port
+    <input autocomplete="off" bind:value={port} spellcheck="false" type="text" />
+  </label>
+  <p class="hint">Saving a new port restarts the local OBS listener.</p>
+</section>
 
-<h2>Alerts</h2>
-<label class="toggle">
-  <input bind:checked={alertsEnabled} type="checkbox" />
-  Enable alerts
-</label>
-<label>
-  Command token
-  <input autocomplete="off" bind:value={alertsToken} maxlength="1" spellcheck="false" type="text" />
-</label>
-<p class="hint">One character, for example <code>@</code>.</p>
-<label>
-  commands.yaml
-  <span class="path-row">
-    <input autocomplete="off" bind:value={alertsCommandsFilePath} spellcheck="false" type="text" />
-    <button class="btn btn-small" type="button" on:click={onPickYaml}>Browse</button>
-  </span>
-</label>
-<label>
-  Media folder
-  <span class="path-row">
-    <input autocomplete="off" bind:value={alertsMediaPath} spellcheck="false" type="text" />
-    <button class="btn btn-small" type="button" on:click={onPickMedia}>Browse</button>
-  </span>
-</label>
-<p class="hint">Served at <code>/obs/media/</code>. Empty commands path skips matching; a bad file fails Start.</p>
-
-<h2>Text to speech</h2>
-<label class="toggle">
-  <input bind:checked={ttsEnabled} type="checkbox" />
-  Speak non-alert messages
-</label>
-<label>
-  Voice
-  {#if voices.length > 0}
-    <select bind:value={ttsVoiceName}>
-      <option value="">System default</option>
-      {#if ttsVoiceName && !voices.some((v) => v.name === ttsVoiceName)}
-        <option value={ttsVoiceName}>{ttsVoiceName}</option>
-      {/if}
-      {#each voices as v}
-        <option value={v.name}>{voiceLabel(v)}</option>
-      {/each}
-    </select>
-  {:else}
-    <input autocomplete="off" bind:value={ttsVoiceName} placeholder="System default" spellcheck="false" type="text" />
+<section class="card" class:card-compact={!alertsEnabled}>
+  <header class="card-head">
+    <h2>Alerts</h2>
+    <label class="toggle toggle-head">
+      {alertsEnabled ? 'On' : 'Off'}
+      <input bind:checked={alertsEnabled} type="checkbox" />
+    </label>
+  </header>
+  {#if alertsEnabled}
+    <label class="field">
+      Command token
+      <input autocomplete="off" bind:value={alertsToken} maxlength="1" spellcheck="false" type="text" />
+    </label>
+    <p class="hint">Single character, for example <code>@</code>.</p>
+    <label class="field">
+      commands.yaml
+      <span class="path-row">
+        <input autocomplete="off" bind:value={alertsCommandsFilePath} spellcheck="false" type="text" />
+        <button class="btn btn-small" type="button" on:click={onPickYaml}>Browse</button>
+      </span>
+    </label>
+    <label class="field">
+      Media folder
+      <span class="path-row">
+        <input autocomplete="off" bind:value={alertsMediaPath} spellcheck="false" type="text" />
+        <button class="btn btn-small" type="button" on:click={onPickMedia}>Browse</button>
+      </span>
+    </label>
+    <p class="hint">Files are served at <code>/obs/media/</code>. An empty YAML path skips matching; a bad file fails Start.</p>
   {/if}
-</label>
-{#if selected}
-  <p class="hint voice-meta">
-    {#if selected.languages}
-      <span>Languages: {selected.languages}</span>
-    {/if}
-    {#if selected.gender}
-      <span>Gender: {selected.gender}</span>
-    {/if}
-    {#if selected.details}
-      <span class="voice-details">{selected.details}</span>
-    {/if}
-  </p>
-{:else}
-  <p class="hint">Empty voice uses the OS default.</p>
-{/if}
+</section>
 
-<h2>HTTP API</h2>
-<label class="toggle">
-  <input bind:checked={webhookEnabled} type="checkbox" />
-  Enable POST /api/webhook and /api/interrupt
-</label>
-<p class="hint">For external automation. The Test pane does not need this.</p>
+<section class="card" class:card-compact={!ttsEnabled}>
+  <header class="card-head">
+    <h2>Text to speech</h2>
+    <label class="toggle toggle-head">
+      {ttsEnabled ? 'On' : 'Off'}
+      <input bind:checked={ttsEnabled} type="checkbox" />
+    </label>
+  </header>
+  {#if ttsEnabled}
+    <label class="field">
+      Voice
+      {#if voices.length > 0}
+        <select bind:value={ttsVoiceName}>
+          <option value="">System default</option>
+          {#if ttsVoiceName && !voices.some((v) => v.name === ttsVoiceName)}
+            <option value={ttsVoiceName}>{ttsVoiceName}</option>
+          {/if}
+          {#each voices as v}
+            <option value={v.name}>{voiceLabel(v)}</option>
+          {/each}
+        </select>
+      {:else}
+        <input autocomplete="off" bind:value={ttsVoiceName} placeholder="System default" spellcheck="false" type="text" />
+      {/if}
+    </label>
+    {#if selected}
+      <p class="hint voice-meta">
+        {#if selected.languages}
+          <span>{selected.languages}</span>
+        {/if}
+        {#if selected.gender}
+          <span>{selected.gender}</span>
+        {/if}
+        {#if selected.details}
+          <span class="voice-details">{selected.details}</span>
+        {/if}
+      </p>
+    {:else}
+      <p class="hint">Leave empty for the operating-system default voice.</p>
+    {/if}
+  {/if}
+</section>
+
+<section class="card">
+  <header class="card-head">
+    <h2>HTTP API</h2>
+  </header>
+  <label class="toggle">
+    Enable /api/webhook and /api/interrupt
+    <input bind:checked={webhookEnabled} type="checkbox" />
+  </label>
+  <p class="hint">For external automation. The Test pane does not require this.</p>
+</section>
 
 <div class="actions">
-  <button class="btn" disabled={saving} type="button" on:click={onSave}>
-    {saving ? 'Saving…' : 'Save'}
+  <button class="btn btn-primary" disabled={saving} type="button" on:click={onSave}>
+    {saving ? 'Saving…' : 'Save changes'}
   </button>
 </div>
 
 {#if obs}
-  <h2>OBS Browser Sources</h2>
-  {#if obs.listening}
-    <p class="ok">HTTP listening</p>
-  {:else}
-    <p class="err">HTTP not listening{obs.error ? ': ' + obs.error : ''}</p>
-  {/if}
-  <p class="url-row">
-    <span>Chat</span>
-    <code>{obs.chatUrl}</code>
-    <button class="btn btn-small" type="button" on:click={onCopyChat}>Copy</button>
-  </p>
-  <p class="url-row">
-    <span>Overlay</span>
-    <code>{obs.overlayUrl}</code>
-    <button class="btn btn-small" type="button" on:click={onCopyOverlay}>Copy</button>
-  </p>
-  <p class="hint">Index (not for OBS): <code>{obs.indexUrl}</code></p>
+  <section class="card">
+    <header class="card-head">
+      <h2>OBS Browser Sources</h2>
+      <span class="badge {obs.listening ? 'badge-ok' : 'badge-danger'}">{obs.listening ? 'Listening' : 'Offline'}</span>
+    </header>
+    {#if !obs.listening && obs.error}
+      <p class="err">{obs.error}</p>
+    {/if}
+    <p class="url-row">
+      <span>Chat</span>
+      <code>{obs.chatUrl}</code>
+      <button class="btn btn-small" type="button" on:click={onCopyChat}>Copy</button>
+    </p>
+    <p class="url-row">
+      <span>Overlay</span>
+      <code>{obs.overlayUrl}</code>
+      <button class="btn btn-small" type="button" on:click={onCopyOverlay}>Copy</button>
+    </p>
+    <p class="hint">Do not use the index URL as an OBS source: <code>{obs.indexUrl}</code></p>
+  </section>
 {/if}
 {#if configPath}
-  <p class="path">File: <code>{configPath}</code></p>
+  <p class="path">Settings file <code>{configPath}</code></p>
 {/if}

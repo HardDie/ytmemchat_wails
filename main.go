@@ -20,13 +20,15 @@ func main() {
 	app := NewApp()
 
 	err := wails.Run(&options.App{
-		Title:  "ytmemchat",
-		Width:  560,
-		Height: 640,
+		Title:     "ytmemchat",
+		Width:     760,
+		Height:    680,
+		MinWidth:  640,
+		MinHeight: 520,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
+		BackgroundColour: &options.RGBA{R: 18, G: 21, B: 26, A: 1},
 		OnStartup:        app.startup,
 		OnShutdown:       app.shutdown,
 		Bind: []interface{}{

@@ -11,36 +11,55 @@
   $: youtubeLabel = !run
     ? 'Unknown'
     : run.connecting
-      ? 'Connecting…'
+      ? 'Connecting'
       : run.running
-        ? (run.usingApiKey ? 'Running (YouTube API key)' : 'Running (no API key)')
+        ? 'Connected'
         : 'Stopped'
+
+  $: youtubeBadge = !run
+    ? ''
+    : run.connecting
+      ? 'badge-warn'
+      : run.running
+        ? 'badge-ok'
+        : ''
+
+  $: youtubeDetail = run && run.running
+    ? (run.usingApiKey ? 'YouTube Data API v3' : 'No API key')
+    : 'Start uses the stream ID saved in Configuration.'
 </script>
 
-<h1>ytmemchat</h1>
-<p class="lead">This window is setup only. Chat and alerts play in OBS, not here.</p>
+<section class="card">
+  <header class="card-head">
+    <h2>YouTube live chat</h2>
+    <span class="badge {youtubeBadge}">{youtubeLabel}</span>
+  </header>
+  <p class="hint">{youtubeDetail}</p>
+  {#if run && run.error}
+    <p class="err">{run.error}</p>
+  {/if}
+  <div class="actions">
+    <button class="btn btn-primary" disabled={starting || (run && (run.running || run.connecting))} type="button" on:click={onStart}>
+      {run && run.connecting ? 'Connecting…' : 'Start'}
+    </button>
+    <button class="btn" disabled={!run || (!run.running && !run.connecting)} type="button" on:click={onStop}>
+      Stop
+    </button>
+  </div>
+</section>
 
-<h2>YouTube</h2>
-<p class={run && run.running ? 'ok' : 'hint'}>{youtubeLabel}</p>
-{#if run && run.error}
-  <p class="err">{run.error}</p>
-{/if}
-<div class="actions">
-  <button class="btn" disabled={starting || (run && (run.running || run.connecting))} type="button" on:click={onStart}>
-    {run && run.connecting ? 'Connecting…' : 'Start'}
-  </button>
-  <button class="btn" disabled={!run || (!run.running && !run.connecting)} type="button" on:click={onStop}>
-    Stop
-  </button>
-</div>
-
-<h2>Audio</h2>
-<p class="hint">Stops overlay speech in OBS. Silent if nothing is playing. Does not stop meme alerts.</p>
-<div class="actions">
-  <button class="btn" disabled={!obs || !obs.listening} type="button" on:click={onInterrupt}>
-    Interrupt
-  </button>
-</div>
-{#if obs && !obs.listening}
-  <p class="err">OBS HTTP is not listening{obs.error ? ': ' + obs.error : ''}.</p>
-{/if}
+<section class="card">
+  <header class="card-head">
+    <h2>Overlay speech</h2>
+    <span class="badge {obs && obs.listening ? 'badge-ok' : 'badge-danger'}">{obs && obs.listening ? 'OBS ready' : 'OBS offline'}</span>
+  </header>
+  <p class="hint">Stops current and queued TTS in the OBS overlay. Does not stop meme alerts.</p>
+  <div class="actions">
+    <button class="btn" disabled={!obs || !obs.listening} type="button" on:click={onInterrupt}>
+      Interrupt speech
+    </button>
+  </div>
+  {#if obs && !obs.listening}
+    <p class="err">HTTP listener is down{obs.error ? ': ' + obs.error : ''}.</p>
+  {/if}
+</section>

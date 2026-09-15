@@ -6,20 +6,24 @@
   export let onSend: () => Promise<void>
 </script>
 
-<h1>Test message</h1>
-<p class="lead">Sends a fake chat line through alerts and TTS, same as live chat. YouTube Start is not required.</p>
+<p class="lead">Injects one chat line into the same alerts and TTS path as YouTube. Start is not required.</p>
 
-<label>
-  Message
-  <input autocomplete="off" bind:value={testMessage} placeholder="@jump or hello" spellcheck="false" type="text" />
-</label>
-<p class="hint">Use the command token plus a YAML name to test an alert, or plain text to test TTS.</p>
-
-<div class="actions">
-  <button class="btn" disabled={!obs || !obs.listening || !testMessage.trim()} type="button" on:click={onSend}>
-    Send
-  </button>
-</div>
-{#if obs && !obs.listening}
-  <p class="err">OBS HTTP is not listening{obs.error ? ': ' + obs.error : ''}.</p>
-{/if}
+<section class="card">
+  <header class="card-head">
+    <h2>Payload</h2>
+    <span class="badge {obs && obs.listening ? 'badge-ok' : 'badge-danger'}">{obs && obs.listening ? 'Ready' : 'OBS offline'}</span>
+  </header>
+  <label class="field">
+    Message
+    <input autocomplete="off" bind:value={testMessage} placeholder="@jump or hello" spellcheck="false" type="text" />
+  </label>
+  <p class="hint">Token plus a YAML command name tests an alert. Any other text tests TTS.</p>
+  <div class="actions">
+    <button class="btn btn-primary" disabled={!obs || !obs.listening || !testMessage.trim()} type="button" on:click={onSend}>
+      Send
+    </button>
+  </div>
+  {#if obs && !obs.listening}
+    <p class="err">HTTP listener is down{obs.error ? ': ' + obs.error : ''}.</p>
+  {/if}
+</section>
