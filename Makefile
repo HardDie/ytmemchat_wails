@@ -8,6 +8,9 @@ GO           := go
 WAILS        := wails
 PKG          ?= ./internal/tts
 PKGSITE_ADDR ?= localhost:8081
+# Exact git tag when HEAD is tagged, otherwise the short commit. Override with BUILD_VERSION=…
+BUILD_VERSION ?= $(shell git describe --tags --exact-match 2>/dev/null || git rev-parse --short=12 HEAD 2>/dev/null || echo dev)
+VERSION_LDFLAGS := -X main.buildVersion=$(BUILD_VERSION)
 
 .DEFAULT_GOAL := help
 
@@ -23,11 +26,11 @@ help:
 
 ## dev: Run the Wails app with frontend hot reload
 dev: require-wails
-	$(WAILS) dev
+	$(WAILS) dev -ldflags "$(VERSION_LDFLAGS)"
 
 ## build: Production binary for this machine (build/bin)
 build: require-wails
-	$(WAILS) build -clean -trimpath
+	$(WAILS) build -clean -trimpath -ldflags "$(VERSION_LDFLAGS)"
 
 ## generate: Regenerate frontend/wailsjs bindings from Go
 generate: require-wails

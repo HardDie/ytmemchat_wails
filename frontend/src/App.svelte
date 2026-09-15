@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import {
+    AppVersion,
     ConfigPath,
     GetOBSStatus,
     GetRunStatus,
@@ -58,6 +59,7 @@
   let commandRows: Array<{ name: string; file: string; volume: string; scale: string }> = []
   let obs: main.OBSStatus | null = null
   let run: main.RunStatus | null = null
+  let appVersion = ''
 
   function applyForm(s: main.SettingsForm): void {
     streamId = s.streamId ?? ''
@@ -100,9 +102,10 @@
       run = s
     })
     try {
-      const [s, path] = await Promise.all([GetSettings(), ConfigPath()])
+      const [s, path, ver] = await Promise.all([GetSettings(), ConfigPath(), AppVersion()])
       applyForm(s)
       configPath = path
+      appVersion = ver || 'dev'
       await refreshOBS()
       await refreshRun()
     } catch (e) {
@@ -380,6 +383,9 @@
       <button class="pane-btn" class:active={page === 'commands'} type="button" on:click={openCommands}>Commands</button>
       <button class="pane-btn" class:active={page === 'test'} type="button" on:click={() => { page = 'test' }}>Test</button>
     </nav>
+    {#if appVersion}
+      <div class="sidebar-version" title={appVersion}>{appVersion}</div>
+    {/if}
   </aside>
 
   <div class="workspace">

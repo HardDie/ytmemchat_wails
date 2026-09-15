@@ -305,3 +305,10 @@ func TestGetSaveAlertCommands(t *testing.T) {
 		t.Fatalf("%+v %v", again, err)
 	}
 }
+
+func TestAppVersion_defaultDev(t *testing.T) {
+	a := newAppWithStore(config.NewStore(filepath.Join(t.TempDir(), "config.json")))
+	if a.AppVersion() != "dev" {
+		t.Fatalf("version = %q", a.AppVersion())
+	}
+}

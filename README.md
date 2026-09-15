@@ -37,7 +37,7 @@ cd ytmemchat_wails
 make build
 ```
 
-Tagged versions also publish archives on GitHub Releases (Linux amd64/arm64, Windows amd64, macOS universal).
+Tagged versions also publish archives on GitHub Releases (Linux amd64/arm64, Windows amd64, macOS universal). The sidebar shows the git tag when HEAD is tagged, otherwise the short commit the binary was built from.
 
 During development:
 

@@ -38,6 +38,8 @@ jobs:
             artifact: ytmemchat-darwin-universal.zip
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Require Wails project
         shell: bash
@@ -72,7 +74,9 @@ jobs:
 
       - name: Build
         shell: bash
-        run: wails build -clean -trimpath -platform "${{ matrix.wails_platform }}"
+        run: |
+          VERSION="$(git describe --tags --exact-match 2>/dev/null || git rev-parse --short=12 HEAD)"
+          wails build -clean -trimpath -platform "${{ matrix.wails_platform }}" -ldflags "-X main.buildVersion=${VERSION}"
 
       - name: Package (Unix)
         if: runner.os != 'Windows'
