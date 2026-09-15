@@ -9,13 +9,14 @@
 ## Main scenario (happy path)
 
 1. The window calls `GetAlertCommands`. A missing file yields an empty list (path is still returned).
-2. The operator adds a command with `name` and `file`. Volume and scale may be left empty.
+2. The operator adds a command with `name` and `file` (typed, or the folder icon on File to pick a file inside the Config media folder; the stored value is relative and has the media-folder prefix removed). Volume and scale may be left empty.
 3. `SaveAlertCommands` writes YAML. Nil volume and scale keys are omitted. Duplicate names (case-insensitive) are rejected. Volume and scale, when set, must be non-negative with at most two decimal digits.
 4. The matcher is reloaded if OBS HTTP is running (YouTube Start is not required).
 
 ## Alternative scenarios and errors
 
-* **1a. Empty path:** error telling the operator to set the path in Configuration.
+* **1a. Empty commands.yaml path:** error telling the operator to set the path in Configuration.
+* **2a. Browse outside the media folder:** picker returns an error; the row is unchanged.
 * **3a. Empty name or file:** save rejected; the previous file is left unchanged.
 * **3b. Volume or scale has more than two decimal digits, is negative, or is not a number:** save rejected.
 * **3c. Invalid YAML on load:** Get returns the decode error.

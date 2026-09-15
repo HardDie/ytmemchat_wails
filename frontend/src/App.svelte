@@ -10,6 +10,7 @@
     LookupLatestStream,
     PickCommandsFile,
     PickMediaDirectory,
+    PickAlertMediaFile,
     SaveSettings,
     SendTestMessage,
     InterruptTTS,
@@ -222,6 +223,20 @@
     }
   }
 
+  async function pickCommandFile(index: number): Promise<void> {
+    error = ''
+    status = ''
+    try {
+      const p = await PickAlertMediaFile(alertsMediaPath)
+      if (!p) {
+        return
+      }
+      commandRows = commandRows.map((row, i) => (i === index ? { ...row, file: p } : row))
+    } catch (e) {
+      error = String(e)
+    }
+  }
+
   async function pickMedia(): Promise<void> {
     try {
       const p = await PickMediaDirectory()
@@ -386,6 +401,8 @@
           onReorder={reorderCommands}
           onSave={saveCommands}
           onReload={loadCommands}
+          mediaPath={alertsMediaPath}
+          onPickFile={pickCommandFile}
         />
       {:else if page === 'test'}
         <TestPane bind:testMessage {obs} onSend={sendTest} />

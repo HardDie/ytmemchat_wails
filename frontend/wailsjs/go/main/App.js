@@ -34,6 +34,10 @@ export function LookupLatestStream(arg1, arg2) {
   return window['go']['main']['App']['LookupLatestStream'](arg1, arg2);
 }
 
+export function PickAlertMediaFile(arg1) {
+  return window['go']['main']['App']['PickAlertMediaFile'](arg1);
+}
+
 export function PickCommandsFile() {
   return window['go']['main']['App']['PickCommandsFile']();
 }

@@ -18,6 +18,8 @@ export function InterruptTTS():Promise<void>;
 
 export function LookupLatestStream(arg1:string,arg2:string):Promise<main.StreamLookup>;
 
+export function PickAlertMediaFile(arg1:string):Promise<string>;
+
 export function PickCommandsFile():Promise<string>;
 
 export function PickMediaDirectory():Promise<string>;
