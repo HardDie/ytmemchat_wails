@@ -20,7 +20,7 @@ The project needs a user README ([Make a README](https://www.makeareadme.com/)),
 
 Use option 3. All long-form product/architecture docs besides README and CURSOR.md live under `docs/`.
 
-**README** stays the short entry (what the app is, install, OBS URLs). Step-by-step operator guides live in **`docs/wiki/`**, using GitHub wiki file names (`Getting-Started.md` → page “Getting Started”). Copy those files into the GitHub wiki as-is.
+**README** stays the short entry (what the app is, install, OBS URLs, status). Step-by-step operator guides live in **`docs/wiki/`** and the GitHub wiki. Do not duplicate wiki how-tos (YAML examples, curl, quota, config paths) in the README.
 
 Inside wiki pages:
 

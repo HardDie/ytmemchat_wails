@@ -32,15 +32,11 @@ Click **Interact** on that source once and use the page’s enable-audio control
 
 Required to **Start**. This is the YouTube video ID (`v=` in the watch URL, or the last segment of a `/live/…` URL), not the full URL. The video must be live with chat enabled when you Start.
 
-**Find latest** (same row) replaces the ID with that channel’s current live stream, or the next upcoming one if nothing is live. VODs are skipped. It needs a YouTube API key and a video ID already in the field (any recent video from the channel is enough). It does not save until you click Save or Start.
+**Find latest** (same row) replaces the ID with that channel’s current live stream, or the next upcoming one if nothing is live. VODs are skipped. It needs a [YouTube API key](YouTube-API-key) and a video ID already in the field (any recent video from the channel is enough). It does not save until you click Save or Start.
 
 ### YouTube API key
 
-Optional. Leave empty to read the public live chat page (no-key client). A non-empty key uses [YouTube Data API v3](https://developers.google.com/youtube/v3) only. A wrong or disabled key does **not** fall back to the no-key client; Home shows that the key is invalid and you must clear or fix it.
-
-Without a key, YouTube may hide messages it marks as spam or otherwise “bad”. Those lines never reach ytmemchat. Details are on [Getting Started](Getting-Started#which-messages-you-will-see).
-
-The key is stored in the local settings file (mode `0600`). It is never logged.
+Optional. Empty uses the public live chat page. See [YouTube API key](YouTube-API-key) for what this token is, how to create one, and the default quota.
 
 ### HTTP port
 
@@ -62,32 +58,7 @@ If the token is present but the name is not in `commands.yaml`, that is not an a
 
 ### commands.yaml
 
-Path to the YAML file of command names. Edit the file in the **Commands** pane after this path is saved. An empty path skips matching (Start still works). A missing, unreadable, or invalid file **fails Start**. Saving commands in the Commands pane reloads the matcher without needing YouTube Start.
-
-![Commands pane](https://raw.githubusercontent.com/HardDie/ytmemchat_wails/main/docs/screenshots/commands.png)
-
-Each command:
-
-| Field | Meaning |
-|---|---|
-| **Name** | Trigger after the token (`jump` for `@jump`). Must be unique ignoring case. |
-| **File** | Media file relative to the media folder (`jump.webm`, or `clips/jump.mp4`). The folder icon picks a file inside that folder and stores the path without the folder prefix. |
-| **Volume** | Overlay playback gain. Leave blank to omit it; playback uses `1`. When set: non-negative, at most two decimal digits. |
-| **Scale** | Visual size multiplier. Same rules as volume; omitted means `1`. |
-
-Example after Save YAML:
-
-```yaml
-commands:
-  - name: "jump"
-    file: "jump.webm"
-    volume: 0.5
-  - name: "dance"
-    file: "dancing_cat.gif"
-    scale: 1.2
-```
-
-Use **Add command** / **Save YAML** on Commands. **Reload** discards unsaved edits. The per-row test control sends that clip to the overlay without a live chat line.
+Path to the YAML file of command names. Edit it in the **Commands** pane after this path is saved. See [Commands](Commands).
 
 ### Media folder
 

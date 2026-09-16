@@ -1,3 +1,5 @@
 * [Home](Home)
 * [Getting Started](Getting-Started)
 * [Configuration](Configuration)
+* [Commands](Commands)
+* [YouTube API key](YouTube-API-key)

@@ -2,6 +2,7 @@
   "name": "ytmemchat-screenshots",
   "private": true,
   "type": "module",
+  "license": "GPL-3.0-or-later",
   "devDependencies": {
     "gifenc": "^1.0.3",
     "playwright": "^1.55.0",

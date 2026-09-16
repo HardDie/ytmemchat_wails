@@ -159,11 +159,11 @@ YouTube Data API v3 is only required when the user saves an API key. After start
 
 ## Where things live
 
-This file stays lean. **[README.md](README.md)** is the user-facing entry (what the app is, install, OBS URLs). This file is the agent/implementation spec. Keep them consistent; do not let either rot.
+This file stays lean. **[README.md](README.md)** is the short user entry (what the app is, install, OBS URLs, status). Operator how-tos are the [wiki](https://github.com/HardDie/ytmemchat_wails/wiki) (`docs/wiki/`). This file is the agent/implementation spec. Keep them consistent; do not let either rot.
 
 | If you need… | Read |
 |---|---|
-| What the product is, install, OBS setup, test API (users) | **[README.md](README.md)** — keep current |
+| What the product is, install, OBS URLs, status | **[README.md](README.md)** — keep short |
 | Step-by-step operator guides | **[docs/wiki](docs/wiki/Home.md)** (copy to [GitHub wiki](https://github.com/HardDie/ytmemchat_wails/wiki); page links omit `.md`, screenshots use raw `main` URLs) |
 | Architecture decisions (ADRs) | **[docs/architecture](docs/architecture/INDEX.md)** |
 | Use cases (after a module is ported) | **[docs/use-cases](docs/use-cases/INDEX.md)** |
@@ -339,8 +339,8 @@ The console tree splits HTTP into `server` + `chat`, YouTube into `clients/youtu
 
 - Match existing Go style in the console repo (`slog`, small `internal/` packages, interfaces at the package boundary).
 - Keep this file updated when routes, payloads, stack, or directory layout change.
-- **Keep [README.md](README.md) up to date in the same change** whenever user-visible facts move: features, project status, requirements, install/run, config path, OBS URLs, webhook examples, TTS OS notes, license, contributing commands, the package `go doc` table, CI, or release artifacts. README follows [Make a README](https://www.makeareadme.com/): name, description, install, usage, contributing, license, and honest **project status**. Do not dump this file into the README; deep contracts stay here.
-- **Keep [docs/wiki](docs/wiki/Getting-Started.md) in the same change** when operator first-run or Configuration fields move (stream ID, no-key chat, default alerts/TTS, OBS URLs, alert-before-TTS).
+- **Keep [README.md](README.md) short.** Update it in the same change when product status, install, OBS URLs, license, contributing commands, the package `go doc` table, CI, or release artifacts change. README follows [Make a README](https://www.makeareadme.com/): name, description, install, usage, contributing, license, and honest **project status**. Do not put operator how-tos here (alerts YAML, HTTP curl, API quota, config path, TTS engines) — those live in [docs/wiki](docs/wiki/Home.md). Do not dump this file into the README; deep contracts stay here.
+- **Keep [docs/wiki](docs/wiki/Home.md) in the same change** when operator steps or settings move (stream ID, no-key chat, default alerts/TTS, OBS URLs, alert-before-TTS, API key/quota, Commands pane).
 - **Window pane GIF.** After changing Svelte panes (`App.svelte`, `frontend/src/lib/*`, `style.css`), refresh locally with `make screenshots`. `README.md` loads it from `docs/screenshots/window.gif`. Do not hand-edit the GIF.
 - **Use cases only after porting.** When a module is first added under `internal/` (or `app.go` for UC-11), write `docs/use-cases/<module>/uc-NN-….md` from `docs/use-cases/_TEMPLATE.md` and set the row to Ported in `docs/use-cases/INDEX.md`. Do not invent UC files for code that is not in this repo.
 - **Godoc on every Go package.** Package comment plus comments on all exports. After porting, add a `go doc ./…` row for that package in README (Package documentation). Verify with `go doc -all` before considering the port done.

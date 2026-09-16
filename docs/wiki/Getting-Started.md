@@ -67,7 +67,7 @@ Without an API key (token), ytmemchat reads the **public** live chat page — th
 
 YouTube does not put every line on that page. If YouTube marks a message as spam or otherwise “bad”, it never reaches ytmemchat, so it will not appear in our chat overlay. That is YouTube filtering the public feed, not the overlay dropping a message.
 
-Studio chat (and a later setup that uses a YouTube API key) can show a fuller feed. For this getting-started path, expect some messages that you see as the channel owner to be missing here.
+Studio chat (and a [YouTube API key](YouTube-API-key)) can show a fuller feed. For this getting-started path, expect some messages that you see as the channel owner to be missing here. A new Google key has a small daily limit; it is still enough for **Find latest**. See [YouTube API key](YouTube-API-key#default-quota-why-a-long-stream-may-run-out).
 
 ## If Start fails
 
@@ -81,4 +81,4 @@ Studio chat (and a later setup that uses a YouTube API key) can show a fuller fe
 
 ## Next
 
-When you want meme alerts, TTS, an API key, or the interrupt shortcut, see [Configuration](Configuration). Alert matches play on the overlay and are not spoken.
+When you want meme alerts, TTS, a [YouTube API key](YouTube-API-key), or the interrupt shortcut, see [Configuration](Configuration). Edit alert clips on [Commands](Commands). Alert matches play on the overlay and are not spoken.

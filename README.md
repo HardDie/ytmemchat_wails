@@ -6,200 +6,91 @@
 
 ytmemchat is a desktop companion for [YouTube](https://www.youtube.com/) Live. It reads live chat and drives an [OBS](https://obsproject.com/) overlay: on-stream messages, meme alerts, and text-to-speech.
 
-This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) desktop app. You configure and start the pipeline in a native window. OBS Browser Sources load local HTTP pages that update over WebSocket.
+This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) desktop app. You configure and start the pipeline in a native window. OBS Browser Sources load local HTTP pages that update over WebSocket. The Wails window is a control panel; it is not the on-stream chat renderer.
 
-**Project status:** early development. The Wails window is setup only (Home / Config / Commands / Test). OBS shows chat and overlay. Start/Stop YouTube chat from Home; alerts and TTS go to the overlay.
+**Project status:** early development. Start/Stop YouTube chat from Home. Alerts and TTS play on the overlay.
+
+## Operator wiki
+
+Step-by-step setup lives in the [wiki](https://github.com/HardDie/ytmemchat_wails/wiki), not in this file:
+
+| Page | What it covers |
+|---|---|
+| [Getting Started](https://github.com/HardDie/ytmemchat_wails/wiki/Getting-Started) | Stream ID only, see chat (no API key) |
+| [Configuration](https://github.com/HardDie/ytmemchat_wails/wiki/Configuration) | Each settings field, OBS URLs, HTTP API |
+| [Commands](https://github.com/HardDie/ytmemchat_wails/wiki/Commands) | Commands pane / `commands.yaml` |
+| [YouTube API key](https://github.com/HardDie/ytmemchat_wails/wiki/YouTube-API-key) | Google token, how to create one, default quota |
 
 ## Features
 
-- Live YouTube chat with history skipped on connect
-- Optional [YouTube Data API v3](https://developers.google.com/youtube/v3) key; empty key uses the no-key live chat client
-- Desktop settings window (API key, stream ID, Find latest live/upcoming stream, port, start/stop, alerts/TTS/webhook)
-- OBS chat page and alert/TTS overlay over HTTP + WebSocket
-- Alert commands from `commands.yaml` (for example `@jump`)
-- TTS on macOS (`say`), Windows (PowerShell), and Linux (`espeak`)
-- Optional HTTP API to inject a test message or interrupt TTS
-
-The Wails window is a control panel. It is not the on-stream chat renderer.
-
-## Window panes
+- Live YouTube chat (history skipped on connect); optional [Data API v3](https://developers.google.com/youtube/v3) key
+- Home / Configuration / Commands / Test window
+- OBS chat and alert/TTS overlay over HTTP + WebSocket
+- Alert commands (for example `@jump`) and TTS (macOS `say`, Windows PowerShell, Linux `espeak`)
+- Optional HTTP API and a Test pane to inject a fake chat line
 
 <p align="center">
   <img src="docs/screenshots/window.gif" alt="Home, Configuration, Commands, and Test panes" width="760">
 </p>
 
-The operator window cycles through four panes: **Home** (Start/Stop, interrupt speech, OBS URLs), **Configuration** (stream, API key, alerts, TTS, shortcut), **Commands** (`commands.yaml`), and **Test** (inject a fake chat line).
-
-## Requirements
-
-- [Go](https://go.dev/dl/) 1.25 or later
-- [Node.js](https://nodejs.org/) (npm)
-- [Wails CLI](https://wails.io/docs/gettingstarted/installation): `go install github.com/wailsapp/wails/v2/cmd/wails@latest`
-- macOS: Xcode Command Line Tools. Windows: WebView2. Linux: Wails system packages plus `espeak` for TTS
-- A YouTube live video ID (the `v=` value in the watch URL). After one ID is saved, **Find latest** (API key required) can replace it with the channel’s current live stream or next upcoming stream, not a VOD.
-- Optional: a Google Cloud API key with **YouTube Data API v3** enabled. Leave the key empty to use the no-key client. A **wrong** key does not fall back; the window reports that the key is invalid
-
 ## Installation
 
-From source:
+Download a tagged archive from [GitHub Releases](https://github.com/HardDie/ytmemchat_wails/releases) (Linux amd64/arm64, Windows amd64, macOS universal). Binaries are not code-signed yet. The window sidebar shows the git tag, or the short commit the binary was built from.
+
+From source (Go 1.25+, Node/npm, [Wails CLI](https://wails.io/docs/gettingstarted/installation); macOS Xcode CLT, Windows WebView2, Linux Wails packages):
 
 ```bash
-git clone <this-repo>
+git clone https://github.com/HardDie/ytmemchat_wails.git
 cd ytmemchat_wails
 make build
 ```
 
-Tagged versions also publish archives on GitHub Releases (Linux amd64/arm64, Windows amd64, macOS universal). The sidebar shows the git tag when HEAD is tagged, otherwise the short commit the binary was built from.
-
-During development:
-
-```bash
-make dev
-```
-
-Settings are stored in a local JSON file (mode `0600`), not in the repo:
-
-| OS | Path |
-|---|---|
-| macOS | `~/Library/Application Support/ytmemchat/config.json` |
-| Windows | `%AppData%\ytmemchat\config.json` |
-| Linux | `~/.config/ytmemchat/config.json` |
+`make dev` runs the app with frontend hot reload.
 
 ## Usage
 
-1. Open the app. This window is setup only; OBS shows chat and overlay. On **Config**, set the **stream/video ID**. Leave the API key empty for the no-key client. Alerts and TTS are off until you enable them. Copy the OBS URLs on **Home** (default port `8080`). For the chat-only first run, see [Getting Started](https://github.com/HardDie/ytmemchat_wails/wiki/Getting-Started).
-2. In OBS, add two **Browser Sources**:
+Follow [Getting Started](https://github.com/HardDie/ytmemchat_wails/wiki/Getting-Started). In short: set a live **stream/video ID** on Configuration, copy the Browser Source URLs from Home, then **Start**.
 
-| Source | URL (port `8080`) |
+| OBS source | URL (default port `8080`) |
 |---|---|
 | Chat | `http://127.0.0.1:8080/obs/chat` |
 | Alerts + TTS | `http://127.0.0.1:8080/obs/overlay` |
 
-3. Size each source to your canvas (for example `1920x1080`).
-4. On the overlay source, click **Interact** once and allow audio so TTS and alert sounds can autoplay.
-5. On **Home**, click **Start** to pull live chat onto `/obs/chat`. Matching `@command` lines play on `/obs/overlay`; other lines are spoken when TTS is enabled. **Stop** ends YouTube polling; OBS sources stay connected. **Interrupt** cuts current overlay audio. Default global shortcut **Ctrl+Shift+I** does the same even when OBS is fullscreen (change it on Config). Linux needs X11.
-6. Use **Test** to send a fake chat line without going live. **HTTP API** on Config is optional, for curl/automation.
+Do not use `http://127.0.0.1:8080/` as an OBS source. Transparent chat: `…/obs/chat?transparent=1`. Overlay needs **Interact** once so audio can autoplay.
 
-Chat with a transparent background: `http://127.0.0.1:8080/obs/chat?transparent=1`.
-
-The config window can copy these URLs for the current port. Opening `http://127.0.0.1:8080/` in a browser lists them; do not use `/` as an OBS source.
-
-### Alert commands
-
-Point the app at a media folder and a YAML file from **Config**. Edit the file in the **Commands** pane (add rows; leave volume/scale blank so those keys are not written). Overlay playback uses 1 when a key is omitted:
-
-```yaml
-commands:
-  - name: "jump"
-    file: "mario_jump.mp3"
-    volume: 0.5
-  - name: "dance"
-    file: "dancing_cat.gif"
-    scale: 1.2
-```
-
-Chat messages that contain the command token (default `@`) plus a command name play that file on the overlay. Messages that do not match a command can be spoken by TTS when TTS is enabled.
-
-### Test API
-
-With the app open and **HTTP API** enabled on Config (YouTube Start is not required):
-
-```bash
-curl -X POST http://127.0.0.1:8080/api/webhook \
-     -H 'Content-Type: application/json' \
-     -d '{"message": "@jump"}'
-
-curl -X POST http://127.0.0.1:8080/api/interrupt
-```
-
-## How it works
-
-1. Go polls YouTube live chat (Data API v3 if a key is set, otherwise the no-key client), or an operator POSTs `/api/webhook`.
-2. Each message is sent to the chat WebSocket (`/obs/chat/ws`).
-3. If the text matches an alert command, the overlay WebSocket (`/obs/overlay/ws`) gets an alert. Otherwise, if TTS is on, the overlay gets speech audio.
-4. OBS Browser Sources render those pages.
-
-## Roadmap
-
-- Scaffold Wails v2 + Svelte, persist settings, serve OBS HTTP, Start/Stop chat overlay (done)
-- Wire alert commands and TTS onto the overlay (done)
-- Settings window panes: Home (status, interrupt), Config, Test (done)
-- Wire `POST /api/webhook` into the same overlay path (done)
-- GitHub Actions: tests on push; tagged releases with Linux (amd64, arm64), Windows, and macOS binaries
-- Later: OS keychain for the API key; code-signed installers
-
-See [CURSOR.md](CURSOR.md) for layout, routes, and implementation rules. Architecture decisions are in [docs/architecture](docs/architecture/INDEX.md). Use cases are added under [docs/use-cases](docs/use-cases/INDEX.md) after each module is ported.
+Alerts and TTS are off until you enable them. See [Configuration](https://github.com/HardDie/ytmemchat_wails/wiki/Configuration), [Commands](https://github.com/HardDie/ytmemchat_wails/wiki/Commands), and [YouTube API key](https://github.com/HardDie/ytmemchat_wails/wiki/YouTube-API-key).
 
 ## Documentation
 
 | Doc | Audience |
 |---|---|
-| [README.md](README.md) | Users: install, OBS, status |
-| [Getting Started](https://github.com/HardDie/ytmemchat_wails/wiki/Getting-Started) | Operators: chat-only first run |
-| [Configuration](https://github.com/HardDie/ytmemchat_wails/wiki/Configuration) | Operators: each Configuration setting |
+| This README | Product, install, OBS URLs, status |
+| [Wiki](https://github.com/HardDie/ytmemchat_wails/wiki) | Operator how-tos (source: `docs/wiki/`) |
 | [CURSOR.md](CURSOR.md) | Contributors/agents: contracts |
 | [docs/architecture](docs/architecture/INDEX.md) | ADRs |
 | [docs/use-cases](docs/use-cases/INDEX.md) | Scenarios for ported modules |
 
 ## Contributing
 
-The Wails window saves settings, serves OBS HTTP, and can Start/Stop YouTube chat. Live lines go to the chat overlay; alert matches and TTS go to the overlay socket. When you change **user-facing** behavior (features, install steps, OBS URLs, settings location, status, CI, releases), update this README in the same change. When the **window UI** changes, run `make screenshots` so the pane images stay current. When you **port a module**, add a use-case file under `docs/use-cases/<module>/`, set its row to Ported in [docs/use-cases/INDEX.md](docs/use-cases/INDEX.md), give the package complete [Go documentation](https://go.dev/doc/comment), add a `go doc` command for it in the table below, and add unit tests (plus integration tests when the package hits HTTP, disk, or the OS). New architecture choices get an ADR in [docs/architecture](docs/architecture/INDEX.md).
-
-Developer-oriented contracts live in [CURSOR.md](CURSOR.md). Match Go style in [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat). Day-to-day commands:
+When **user-facing** behavior changes, update this README (short facts only) and the matching [wiki](https://github.com/HardDie/ytmemchat_wails/wiki) page. When the **window UI** changes, run `make screenshots`. Porting a module, tests, godoc, and ADRs are described in [CURSOR.md](CURSOR.md). Match Go style in [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat).
 
 ```bash
 make help              # all targets
-make dev               # wails dev (needs scaffold)
-make build             # local production binary
-make screenshots       # refresh README window.gif
+make dev
+make build
+make screenshots       # refresh docs/screenshots/window.gif
 make test              # unit tests (race), same as CI
-make test-integration  # integration tests
-make test-all          # unit then integration
+make test-integration
+make test-all
 make doc PKG=./internal/tts
 make doc-all PKG=./internal/tts
 ```
 
-Unit tests are `*_test.go` in the same package. `make test` also runs package main with `-tags=nomain` so Wails CGO is skipped. Integration tests use `//go:build integration`. If a test is tied to one OS, add that GOOS to the tag (`integration && darwin`, `integration && linux`, `integration && windows`) so it is not compiled elsewhere. Skip only when the platform matches but an optional binary is missing. Keep `internal/` free of Wails/CGO so CI does not need WebKit. Integration tests must not require YouTube credentials.
-
-GitHub Actions ([`.github/workflows/test.yml`](.github/workflows/test.yml)) runs those two test commands on every **push** and **pull request** (skipped until `go.mod` exists).
-
-### Releases
-
-Push a semver tag with a `v` prefix:
-
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-[`.github/workflows/release.yml`](.github/workflows/release.yml) publishes a GitHub Release with:
-
-| File | Platform |
-|---|---|
-| `ytmemchat-linux-amd64.tar.gz` | Linux x86_64 |
-| `ytmemchat-linux-arm64.tar.gz` | Linux ARM64 |
-| `ytmemchat-windows-amd64.zip` | Windows x86_64 |
-| `ytmemchat-darwin-universal.zip` | macOS Intel + Apple Silicon |
-| `SHA256SUMS.txt` | checksums |
-
-Requires `wails.json`. Binaries are not code-signed yet.
+GitHub Actions (`.github/workflows/test.yml`) runs `make test` then integration tests on every push and pull request. Push a `vMAJOR.MINOR.PATCH` tag to publish release archives (`.github/workflows/release.yml`).
 
 ### Package documentation
 
-Each Go package must have a package comment and comments on all exported names. After a package is ported, check it from the **repository root**:
-
-```bash
-make doc PKG=./internal/<package>
-make doc-all PKG=./internal/<package>
-```
-
-Optional HTML browse of the whole module:
-
-```bash
-go run golang.org/x/pkgsite/cmd/pkgsite@latest -http localhost:8081
-```
-
-Then open `http://localhost:8081` and select this module.
+Each Go package needs a package comment and comments on all exports. Check from the repository root with `make doc-all PKG=./internal/<package>`. Optional HTML: `go run golang.org/x/pkgsite/cmd/pkgsite@latest -http localhost:8081`.
 
 | Package | Status | Check docs |
 |---|---|---|
@@ -212,13 +103,11 @@ Then open `http://localhost:8081` and select this module.
 | `internal/hotkey` | Ported | `go doc -all ./internal/hotkey` |
 | `package main` (bindings façade) | Chat Start/Stop | `go doc -all .` |
 
-Set **Status** to Ported in this table when `go doc -all` prints a real package comment and every export is described.
-
-Pull requests are welcome once the project is public. For large changes, open an issue first.
+Pull requests are welcome. For large changes, open an issue first.
 
 ## Support
 
-Use the GitHub issue tracker on this repository (when a remote exists). The original console app is [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat).
+Use the GitHub issue tracker. The original console app is [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat).
 
 ## Authors
 
@@ -226,4 +115,4 @@ Desktop port of [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat).
 
 ## License
 
-License not chosen yet. Do not assume MIT or any other terms until a `LICENSE` file is added.
+This project is licensed under the GNU General Public License v3.0 — see the [LICENSE](LICENSE) file for details.
