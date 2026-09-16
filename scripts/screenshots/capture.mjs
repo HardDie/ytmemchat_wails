@@ -122,11 +122,14 @@ async function main() {
       console.log('wrote', dest)
     }
   } finally {
-    await browser.close()
-    vite.child.kill('SIGTERM')
+    await browser.close().catch(() => {})
+    if (vite.child) {
+      vite.child.kill('SIGKILL')
+    }
   }
   writeGif(pngPaths, gifPath)
   console.log('wrote', gifPath)
+  process.exit(0)
 }
 
 main().catch((err) => {
