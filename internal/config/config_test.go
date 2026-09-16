@@ -17,8 +17,11 @@ func TestDefaults(t *testing.T) {
 	if d.Server.Port != "8080" {
 		t.Fatalf("port = %q", d.Server.Port)
 	}
-	if d.Alerts.Token != "@" || !d.Alerts.Enabled {
+	if d.Alerts.Token != "@" || d.Alerts.Enabled {
 		t.Fatalf("alerts = %+v", d.Alerts)
+	}
+	if d.TTS.Enabled {
+		t.Fatal("tts must be off on first launch")
 	}
 	if d.Youtube.APIKey != "" || d.Youtube.StreamID != "" {
 		t.Fatal("youtube fields must be empty on first launch")
@@ -65,6 +68,7 @@ func TestValidateAndParsePort(t *testing.T) {
 		t.Fatalf("Validate = %v", err)
 	}
 	s.Server.Port = "8080"
+	s.Alerts.Enabled = true
 	s.Alerts.Token = "@@"
 	if err := s.Validate(); !errors.Is(err, ErrAlertToken) {
 		t.Fatalf("token = %v", err)

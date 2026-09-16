@@ -109,13 +109,14 @@ type Window struct {
 }
 
 // Defaults returns first-launch settings (empty stream ID and API key).
+// Alerts and TTS stay off until the operator enables them.
 func Defaults() Settings {
 	return Settings{
 		Version: CurrentVersion,
 		Server:  Server{Port: "8080"},
-		TTS:     TTS{Enabled: true},
+		TTS:     TTS{Enabled: false},
 		Alerts: Alerts{
-			Enabled: true,
+			Enabled: false,
 			Token:   "@",
 		},
 		Webhook: Webhook{Enabled: false},

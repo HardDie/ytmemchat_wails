@@ -39,9 +39,9 @@
   let streamId = ''
   let apiKey = ''
   let port = '8080'
-  let ttsEnabled = true
+  let ttsEnabled = false
   let ttsVoiceName = ''
-  let alertsEnabled = true
+  let alertsEnabled = false
   let alertsToken = '@'
   let alertsMediaPath = ''
   let alertsCommandsFilePath = ''

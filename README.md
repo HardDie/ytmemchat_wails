@@ -67,7 +67,7 @@ Settings are stored in a local JSON file (mode `0600`), not in the repo:
 
 ## Usage
 
-1. Open the app. This window is setup only; OBS shows chat and overlay. On **Config**, set the **stream/video ID**, optional API key, alerts, TTS, and copy the OBS URLs (default port `8080`).
+1. Open the app. This window is setup only; OBS shows chat and overlay. On **Config**, set the **stream/video ID**. Leave the API key empty for the no-key client. Alerts and TTS are off until you enable them. Copy the OBS URLs on **Home** (default port `8080`). For the chat-only first run, see [Getting Started](docs/wiki/Getting-Started.md).
 2. In OBS, add two **Browser Sources**:
 
 | Source | URL (port `8080`) |
@@ -135,6 +135,7 @@ See [CURSOR.md](CURSOR.md) for layout, routes, and implementation rules. Archite
 | Doc | Audience |
 |---|---|
 | [README.md](README.md) | Users: install, OBS, status |
+| [docs/wiki/Getting-Started.md](docs/wiki/Getting-Started.md) | Operators: chat-only first run |
 | [CURSOR.md](CURSOR.md) | Contributors/agents: contracts |
 | [docs/architecture](docs/architecture/INDEX.md) | ADRs |
 | [docs/use-cases](docs/use-cases/INDEX.md) | Scenarios for ported modules |

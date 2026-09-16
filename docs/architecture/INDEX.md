@@ -10,6 +10,6 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [004](004-youtube-client-by-api-key.md) | Choose YouTube client by API key; never fall back on invalid key | Accepted |
 | [005](005-wails-svelte-ts-layout.md) | Official `svelte-ts` layout; `package main` at repo root | Accepted |
 | [006](006-internal-packages-by-surface.md) | Collapse console packages into `youtube`, `youtube/nokey`, `obs` | Accepted |
-| [007](007-docs-layout.md) | README, CURSOR.md, and `docs/` | Accepted |
+| [007](007-docs-layout.md) | README, CURSOR.md, `docs/` (ADRs, use cases, wiki) | Accepted |
 | [008](008-github-actions-test-and-release.md) | GitHub Actions: tests on push, binaries on tag | Accepted |
 | [010](010-global-interrupt-hotkey.md) | OS-level interrupt hotkey | Accepted |

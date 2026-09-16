@@ -97,7 +97,7 @@ Wails has **no built-in settings store** in v2 (maintainers point at XDG / the O
 4. **Format**: one JSON document with defaults in code. Missing file = first launch, use defaults. Unknown fields ignored (`json` unmarshal). Include a `version` field if we need migrations later.
 5. **Lifecycle**: load in `OnStartup`. **Save on every successful settings change** from `SaveSettings` — do not rely on `OnShutdown` alone (force-quit / crash skips it). Atomic write: temp file in the same dir, `fsync`, then `Rename`. File mode `0600` because the file holds `YOUTUBE_API_KEY`.
 6. **Bindings**: `GetSettings` / `SaveSettings`, `GetOBSStatus`, `Start` / `Stop` / `GetRunStatus`, `GetTTSVoices`, `LookupLatestStream`, `GetAlertCommands` / `SaveAlertCommands`, `SendTestMessage`, `InterruptTTS`, `PreviewAlert`, `AppVersion`, file/folder pickers (`PickAlertMediaFile` returns a path relative to the Config media folder; files outside that tree are rejected). `AppVersion` is the git tag or short commit stamped at link time (`-X main.buildVersion`); unset is `dev`. Start uses saved settings (window saves the form first). Empty API key → `nokey`; non-empty → v3 only. Never fall back on invalid key. Connect runs in a goroutine. After each chat line (YouTube, `POST /api/webhook`, or **Send** in the window): overlay `alert` on a command match, else TTS when enabled. Inject/test run while OBS HTTP is up; YouTube Start is not required. Empty `commandsFilePath` skips the matcher; a bad file fails Start (inject logs and skips the matcher). `SaveAlertCommands` writes `commands.yaml` (omits unset `volume`/`scale`) and reloads the matcher without YouTube Start.
-7. **What belongs here**: stream ID (required to Start), optional YouTube API key, listen port, TTS on/off + voice, alerts on/off + command token + media/commands paths, webhook on/off, interrupt hotkey on/off + chord (default `Ctrl+Shift+I`, OS-global), optional window size. The window is setup only (not on stream). **Home**: YouTube status, Start/Stop, interrupt overlay audio, Find latest stream, OBS Browser Source URLs. **Config**: all settings including the interrupt shortcut; Find latest fills stream ID from the channel of a known video (live, else upcoming; not VOD). Requires a Data API key. Does not save until Save/Start. **Commands**: edit `commands.yaml` (add rows; blank volume/scale are not written). **Test**: send a fake chat line. **What does not**: chat history, live iterator state.
+7. **What belongs here**: stream ID (required to Start), optional YouTube API key, listen port, TTS on/off + voice, alerts on/off + command token + media/commands paths, webhook on/off, interrupt hotkey on/off + chord (default `Ctrl+Shift+I`, OS-global), optional window size. The window is setup only (not on stream). First launch: alerts and TTS off, API key empty. **Home**: YouTube status, Start/Stop, interrupt overlay audio, Find latest stream, OBS Browser Source URLs. **Config**: all settings including the interrupt shortcut; Find latest fills stream ID from the channel of a known video (live, else upcoming; not VOD). Requires a Data API key. Does not save until Save/Start. **Commands**: edit `commands.yaml` (add rows; blank volume/scale are not written). **Test**: send a fake chat line. **What does not**: chat history, live iterator state.
 8. **API key**: optional. Empty means use `youtube/nokey`. When set, store in this `0600` JSON. OS keychain is a later hardening step. Never log the key.
 
 Do not panic if config is missing (unlike console `config.Get()`). Start is allowed without an API key if a stream ID is set. Show a clear “not configured” state when the stream ID is empty.
@@ -164,6 +164,7 @@ This file stays lean. **[README.md](README.md)** is the user-facing entry (what 
 | If you need… | Read |
 |---|---|
 | What the product is, install, OBS setup, test API (users) | **[README.md](README.md)** — keep current |
+| Step-by-step operator guides | **[docs/wiki](docs/wiki/Getting-Started.md)** (GitHub wiki source) |
 | Architecture decisions (ADRs) | **[docs/architecture](docs/architecture/INDEX.md)** |
 | Use cases (after a module is ported) | **[docs/use-cases](docs/use-cases/INDEX.md)** |
 | Console behavior and historical overlay URLs | [HardDie/ytmemchat README](https://github.com/HardDie/ytmemchat) and local `../ytmemchat` |
@@ -187,7 +188,8 @@ Official Wails layout is a **Vite Svelte app in `frontend/`** plus **`package ma
 ├── docs/
 │   ├── architecture/         # ADRs
 │   ├── screenshots/          # README window.gif (`make screenshots`)
-│   └── use-cases/            # UC files only after the module is ported
+│   ├── use-cases/            # UC files only after the module is ported
+│   └── wiki/                 # operator how-tos (GitHub wiki source)
 ├── .github/workflows/
 │   ├── test.yml              # go test on every push/PR
 │   └── release.yml           # binaries on v* tags
@@ -338,6 +340,7 @@ The console tree splits HTTP into `server` + `chat`, YouTube into `clients/youtu
 - Match existing Go style in the console repo (`slog`, small `internal/` packages, interfaces at the package boundary).
 - Keep this file updated when routes, payloads, stack, or directory layout change.
 - **Keep [README.md](README.md) up to date in the same change** whenever user-visible facts move: features, project status, requirements, install/run, config path, OBS URLs, webhook examples, TTS OS notes, license, contributing commands, the package `go doc` table, CI, or release artifacts. README follows [Make a README](https://www.makeareadme.com/): name, description, install, usage, contributing, license, and honest **project status**. Do not dump this file into the README; deep contracts stay here.
+- **Keep [docs/wiki](docs/wiki/Getting-Started.md) in the same change** when operator first-run steps move (stream ID, no-key chat, default alerts/TTS, OBS chat URL).
 - **Window pane GIF.** After changing Svelte panes (`App.svelte`, `frontend/src/lib/*`, `style.css`), test locally with `make screenshots`. During release, CI generates `window.gif` and uploads it to GitHub Release assets; `README.md` loads it from `https://github.com/HardDie/ytmemchat_wails/releases/latest/download/window.gif`. Do not hand-edit the GIF.
 - **Use cases only after porting.** When a module is first added under `internal/` (or `app.go` for UC-11), write `docs/use-cases/<module>/uc-NN-….md` from `docs/use-cases/_TEMPLATE.md` and set the row to Ported in `docs/use-cases/INDEX.md`. Do not invent UC files for code that is not in this repo.
 - **Godoc on every Go package.** Package comment plus comments on all exports. After porting, add a `go doc ./…` row for that package in README (Package documentation). Verify with `go doc -all` before considering the port done.

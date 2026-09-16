@@ -34,7 +34,7 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 	if got.Port != "8080" || got.StreamID != "" || got.APIKey != "" {
 		t.Fatalf("%+v", got)
 	}
-	if !got.TTSEnabled || !got.AlertsEnabled || got.AlertsToken != "@" || got.WebhookEnabled {
+	if got.TTSEnabled || got.AlertsEnabled || got.AlertsToken != "@" || got.WebhookEnabled {
 		t.Fatalf("defaults %+v", got)
 	}
 	if !got.InterruptHotkeyEnabled || got.InterruptHotkeyChord != "Ctrl+Shift+I" {
