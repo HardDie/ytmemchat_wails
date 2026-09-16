@@ -164,7 +164,7 @@ This file stays lean. **[README.md](README.md)** is the user-facing entry (what 
 | If you need… | Read |
 |---|---|
 | What the product is, install, OBS setup, test API (users) | **[README.md](README.md)** — keep current |
-| Step-by-step operator guides | **[docs/wiki](docs/wiki/Getting-Started.md)** (GitHub wiki source) |
+| Step-by-step operator guides | **[docs/wiki](docs/wiki/Home.md)** (copy to [GitHub wiki](https://github.com/HardDie/ytmemchat_wails/wiki); page links omit `.md`, screenshots use raw `main` URLs) |
 | Architecture decisions (ADRs) | **[docs/architecture](docs/architecture/INDEX.md)** |
 | Use cases (after a module is ported) | **[docs/use-cases](docs/use-cases/INDEX.md)** |
 | Console behavior and historical overlay URLs | [HardDie/ytmemchat README](https://github.com/HardDie/ytmemchat) and local `../ytmemchat` |
@@ -340,8 +340,8 @@ The console tree splits HTTP into `server` + `chat`, YouTube into `clients/youtu
 - Match existing Go style in the console repo (`slog`, small `internal/` packages, interfaces at the package boundary).
 - Keep this file updated when routes, payloads, stack, or directory layout change.
 - **Keep [README.md](README.md) up to date in the same change** whenever user-visible facts move: features, project status, requirements, install/run, config path, OBS URLs, webhook examples, TTS OS notes, license, contributing commands, the package `go doc` table, CI, or release artifacts. README follows [Make a README](https://www.makeareadme.com/): name, description, install, usage, contributing, license, and honest **project status**. Do not dump this file into the README; deep contracts stay here.
-- **Keep [docs/wiki](docs/wiki/Getting-Started.md) in the same change** when operator first-run steps move (stream ID, no-key chat, default alerts/TTS, OBS chat URL).
-- **Window pane GIF.** After changing Svelte panes (`App.svelte`, `frontend/src/lib/*`, `style.css`), test locally with `make screenshots`. During release, CI generates `window.gif` and uploads it to GitHub Release assets; `README.md` loads it from `https://github.com/HardDie/ytmemchat_wails/releases/latest/download/window.gif`. Do not hand-edit the GIF.
+- **Keep [docs/wiki](docs/wiki/Getting-Started.md) in the same change** when operator first-run or Configuration fields move (stream ID, no-key chat, default alerts/TTS, OBS URLs, alert-before-TTS).
+- **Window pane GIF.** After changing Svelte panes (`App.svelte`, `frontend/src/lib/*`, `style.css`), refresh locally with `make screenshots`. `README.md` loads it from `docs/screenshots/window.gif`. Do not hand-edit the GIF.
 - **Use cases only after porting.** When a module is first added under `internal/` (or `app.go` for UC-11), write `docs/use-cases/<module>/uc-NN-….md` from `docs/use-cases/_TEMPLATE.md` and set the row to Ported in `docs/use-cases/INDEX.md`. Do not invent UC files for code that is not in this repo.
 - **Godoc on every Go package.** Package comment plus comments on all exports. After porting, add a `go doc ./…` row for that package in README (Package documentation). Verify with `go doc -all` before considering the port done.
 - **Tests on every ported package.** Unit tests always; integration tests (`//go:build integration`) when the package hits HTTP, disk, or OS APIs. Platform-specific integration files also tag GOOS (`integration && darwin`). Keep `internal/` CGO-free. CI must stay green.

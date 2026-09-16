@@ -25,7 +25,7 @@ The Wails window is a control panel. It is not the on-stream chat renderer.
 ## Window panes
 
 <p align="center">
-  <img src="https://github.com/HardDie/ytmemchat_wails/releases/latest/download/window.gif" alt="Home, Configuration, Commands, and Test panes" width="760">
+  <img src="docs/screenshots/window.gif" alt="Home, Configuration, Commands, and Test panes" width="760">
 </p>
 
 The operator window cycles through four panes: **Home** (Start/Stop, interrupt speech, OBS URLs), **Configuration** (stream, API key, alerts, TTS, shortcut), **Commands** (`commands.yaml`), and **Test** (inject a fake chat line).
@@ -67,7 +67,7 @@ Settings are stored in a local JSON file (mode `0600`), not in the repo:
 
 ## Usage
 
-1. Open the app. This window is setup only; OBS shows chat and overlay. On **Config**, set the **stream/video ID**. Leave the API key empty for the no-key client. Alerts and TTS are off until you enable them. Copy the OBS URLs on **Home** (default port `8080`). For the chat-only first run, see [Getting Started](docs/wiki/Getting-Started.md).
+1. Open the app. This window is setup only; OBS shows chat and overlay. On **Config**, set the **stream/video ID**. Leave the API key empty for the no-key client. Alerts and TTS are off until you enable them. Copy the OBS URLs on **Home** (default port `8080`). For the chat-only first run, see [Getting Started](https://github.com/HardDie/ytmemchat_wails/wiki/Getting-Started).
 2. In OBS, add two **Browser Sources**:
 
 | Source | URL (port `8080`) |
@@ -135,7 +135,8 @@ See [CURSOR.md](CURSOR.md) for layout, routes, and implementation rules. Archite
 | Doc | Audience |
 |---|---|
 | [README.md](README.md) | Users: install, OBS, status |
-| [docs/wiki/Getting-Started.md](docs/wiki/Getting-Started.md) | Operators: chat-only first run |
+| [Getting Started](https://github.com/HardDie/ytmemchat_wails/wiki/Getting-Started) | Operators: chat-only first run |
+| [Configuration](https://github.com/HardDie/ytmemchat_wails/wiki/Configuration) | Operators: each Configuration setting |
 | [CURSOR.md](CURSOR.md) | Contributors/agents: contracts |
 | [docs/architecture](docs/architecture/INDEX.md) | ADRs |
 | [docs/use-cases](docs/use-cases/INDEX.md) | Scenarios for ported modules |

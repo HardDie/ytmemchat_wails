@@ -20,7 +20,13 @@ The project needs a user README ([Make a README](https://www.makeareadme.com/)),
 
 Use option 3. All long-form product/architecture docs besides README and CURSOR.md live under `docs/`.
 
-**README** stays the short entry (what the app is, install, OBS URLs). Step-by-step operator guides live in **`docs/wiki/`**, using GitHub wiki file names (`Getting-Started.md` → page “Getting Started”). Those files are the source we can copy to the GitHub wiki.
+**README** stays the short entry (what the app is, install, OBS URLs). Step-by-step operator guides live in **`docs/wiki/`**, using GitHub wiki file names (`Getting-Started.md` → page “Getting Started”). Copy those files into the GitHub wiki as-is.
+
+Inside wiki pages:
+
+* Link other wiki pages **without** `.md`: `[Configuration](Configuration)`, `[Getting Started](Getting-Started#which-messages-you-will-see)`.
+* Link screenshots with raw URLs on `main` (`https://raw.githubusercontent.com/HardDie/ytmemchat_wails/main/docs/screenshots/home.png`). Relative `../screenshots/` paths do not resolve on the wiki.
+* `_Sidebar.md` and `Home.md` are GitHub wiki special pages (sidebar + landing).
 
 Write a use-case file **only after** that module exists in this repo. Until then, list the scenario in `docs/use-cases/INDEX.md` as Planned. When a module is ported, add `uc-NN-….md` and set the index status to Ported.
 
@@ -38,5 +44,5 @@ Write a use-case file **only after** that module exists in this repo. Until then
 ### Neutral
 
 * Use-case prose follows the template in `docs/use-cases/_TEMPLATE.md` (actors, goal, preconditions, happy path, alternatives, postconditions).
-* Operator how-tos in `docs/wiki/` use GitHub wiki file names (`Getting-Started.md`).
-* README window showcase is `window.gif`, generated on release CI (and locally with `make screenshots`) via Playwright + gifenc and displayed from `https://github.com/HardDie/ytmemchat_wails/releases/latest/download/window.gif`.
+* Operator how-tos in `docs/wiki/` use GitHub wiki file names (`Getting-Started.md`). Page links omit `.md`. Screenshots use `raw.githubusercontent.com/.../main/docs/screenshots/`.
+* README window showcase is `window.gif`, generated locally with `make screenshots` via Playwright + gifenc and displayed from `docs/screenshots/window.gif`.

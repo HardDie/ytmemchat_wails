@@ -14,7 +14,7 @@ The desktop window is only the operator console. Chat is a local web page that O
 
 Unpack the release and start ytmemchat. The window opens on **Home**. The local chat server starts with the app, even before you click Start.
 
-![Home pane: Start/Stop, interrupt, and OBS Browser Source URLs](../screenshots/home.png)
+![Home pane: Start/Stop, interrupt, and OBS Browser Source URLs](https://raw.githubusercontent.com/HardDie/ytmemchat_wails/main/docs/screenshots/home.png)
 
 ## 2. Paste the stream ID
 
@@ -31,7 +31,7 @@ Unpack the release and start ytmemchat. The window opens on **Home**. The local 
 5. Leave **HTTP port** at `8080` unless that port is already in use.
 6. Click **Save changes**.
 
-![Configuration pane: Connection card with Stream / video ID](../screenshots/config.png)
+![Configuration pane: Connection card with Stream / video ID](https://raw.githubusercontent.com/HardDie/ytmemchat_wails/main/docs/screenshots/config.png)
 
 The screenshot above is a populated demo. On first launch **Alerts** is Off, so you will not see `commands.yaml` until you turn alerts on later.
 
@@ -81,4 +81,4 @@ Studio chat (and a later setup that uses a YouTube API key) can show a fuller fe
 
 ## Next
 
-When you want the official YouTube Data API feed, meme alerts, or TTS, enable those on **Configuration**. Wiki pages for those setups come next.
+When you want meme alerts, TTS, an API key, or the interrupt shortcut, see [Configuration](Configuration). Alert matches play on the overlay and are not spoken.

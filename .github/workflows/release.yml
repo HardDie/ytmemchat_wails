@@ -144,19 +144,6 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: Generate window.gif for release
-        run: |
-          npm install --prefix frontend
-          cd scripts/screenshots
-          npm install
-          npx playwright install --with-deps chromium
-          node capture.mjs
-          cp ../../docs/screenshots/window.gif ../../dist/window.gif
-
       - name: Checksums
         run: |
           cd dist
