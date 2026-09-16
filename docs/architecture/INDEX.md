@@ -13,3 +13,4 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [007](007-docs-layout.md) | README, CURSOR.md, `docs/` (ADRs, use cases, wiki) | Accepted |
 | [008](008-github-actions-test-and-release.md) | GitHub Actions: tests on push, binaries on tag | Accepted |
 | [010](010-global-interrupt-hotkey.md) | OS-level interrupt hotkey | Accepted |
+| [011](011-local-youtube-quota-estimate.md) | Local YouTube Data API quota estimate | Accepted |

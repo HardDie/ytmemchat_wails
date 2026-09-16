@@ -25,3 +25,4 @@
 ## Postconditions
 
 * On success the form stream ID is a live or upcoming video, not a recording. Disk is unchanged until Save/Start.
+* `videos.list` is counted in the default unit bucket; each `search.list` is counted in the separate search bucket (`internal/youtube/quota`).

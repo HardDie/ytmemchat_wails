@@ -117,6 +117,8 @@ The console app has two implementations of `youtube.Client` (`GetMessageIterator
 
 **Invalid key: no fallback.** If a key is present, only the v3 client runs. If YouTube rejects it (typical API `401` / `403` / `invalidApiKey` / disabled API), **Stop the iterator, keep using v3, and show a distinct error in the Wails window** (e.g. “YouTube API key is invalid”). Do **not** silently start `youtube/nokey`. The user must clear the key (to use the no-key client) or fix the key.
 
+**Local quota estimate:** the v3 client wraps its HTTP transport with `internal/youtube/quota` (one call in the constructor). That counts units from requests already made. Do not add extra Data API or Cloud calls to read remaining quota. Do not wrap `youtube/nokey`.
+
 **Do not treat every v3 failure as a bad key.** “Video is not live”, missing `activeLiveChatId`, quota exceeded, and network errors get their own messages. Fallback is still forbidden in all of those cases when a key was provided.
 
 Both clients must keep emitting the same `ChatMessage` shape and skip history on connect. The rest of the pipeline (chat WS, alerts, TTS) must not care which client produced the message.
@@ -171,6 +173,7 @@ This file stays lean. **[README.md](README.md)** is the short user entry (what t
 | Persisted settings JSON | `internal/config` |
 | HTTP mux, overlay + chat WS, OBS HTML | `internal/obs` (console: `internal/server` + `internal/chat`) |
 | Normalized chat event + v3 iterator | `internal/youtube` (console: `internal/clients/youtube`) |
+| Local Data API unit estimate | `internal/youtube/quota` (HTTP wrap on the v3 client only; no extra Google calls) |
 | No-key live chat client | `internal/youtube/nokey` (console: `internal/clients/youtubev1`) |
 | Alert token matching + `commands.yaml` | `internal/alerts` |
 | TTS drivers | `internal/tts` |
@@ -216,6 +219,7 @@ Official Wails layout is a **Vite Svelte app in `frontend/`** plus **`package ma
 ├── internal/
 │   ├── config/               # JSON under UserConfigDir
 │   ├── youtube/              # ChatMessage, Client, Data API v3
+│   │   ├── quota/            # local Data API unit estimate (no extra Google calls)
 │   │   └── nokey/            # former youtubev1 (no API key)
 │   ├── obs/                  # one HTTP server: /obs/*, /api/*, both WS hubs, embed HTML
 │   ├── alerts/               # command match + media file server

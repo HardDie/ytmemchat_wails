@@ -12,6 +12,8 @@ import (
 	"time"
 
 	yt "google.golang.org/api/youtube/v3"
+
+	"github.com/HardDie/ytmemchat_wails/internal/youtube/quota"
 )
 
 func TestNew_emptyKey(t *testing.T) {
@@ -156,6 +158,74 @@ func TestGetMessageIterator_happySkipHistory(t *testing.T) {
 		t.Fatalf("%+v", msg)
 	}
 	cancel()
+}
+
+func TestGetMessageIterator_recordsQuota(t *testing.T) {
+	tr := quota.NewTracker()
+	var chatLists int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch {
+		case strings.Contains(r.URL.Path, "videos"):
+			_, _ = io.WriteString(w, `{"items":[{"liveStreamingDetails":{"activeLiveChatId":"chat1"}}]}`)
+		case strings.Contains(r.URL.Path, "liveChat/messages") || strings.Contains(r.URL.Path, "liveChatMessages"):
+			chatLists++
+			if chatLists == 1 {
+				_, _ = io.WriteString(w, `{"nextPageToken":"p2","pollingIntervalMillis":1,"items":[{"id":"old","snippet":{"type":"textMessageEvent","displayMessage":"history"}}]}`)
+				return
+			}
+			_, _ = io.WriteString(w, `{"nextPageToken":"p3","pollingIntervalMillis":1,"items":[{"id":"n1","snippet":{"type":"textMessageEvent","displayMessage":"live","publishedAt":"2026-01-01T00:00:00Z"},"authorDetails":{"displayName":"Cam"}}]}`)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	t.Cleanup(srv.Close)
+	c, err := newAPIClientTracked(context.Background(), "k", srv.Client(), srv.URL+"/", tr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+	it, err := c.GetMessageIterator(ctx, "vid")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := it.Next(); !ok {
+		t.Fatal("expected a live message")
+	}
+	got := tr.Snapshot()
+	if got.Units != 3 {
+		t.Fatalf("units = %d, want 3 (videos.list + 2 liveChatMessages.list)", got.Units)
+	}
+	if got.Search != 0 {
+		t.Fatalf("search = %d, want 0", got.Search)
+	}
+	cancel()
+}
+
+func TestGetMessageIterator_recordsQuotaOnNotLive(t *testing.T) {
+	tr := quota.NewTracker()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if strings.Contains(r.URL.Path, "videos") {
+			_, _ = io.WriteString(w, `{"items":[]}`)
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	t.Cleanup(srv.Close)
+	c, err := newAPIClientTracked(context.Background(), "k", srv.Client(), srv.URL+"/", tr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = c.GetMessageIterator(context.Background(), "vid")
+	if !errors.Is(err, ErrNotLive) {
+		t.Fatalf("err = %v", err)
+	}
+	got := tr.Snapshot()
+	if got.Units != 1 {
+		t.Fatalf("units = %d, want 1 for videos.list", got.Units)
+	}
 }
 
 func TestGetChan_select(t *testing.T) {

@@ -7,4 +7,8 @@
 //
 // [LookupLatestBroadcast] uses videos.list then search.list (live, then upcoming)
 // so a previous video ID can be replaced without copying a new watch URL.
+//
+// The v3 HTTP client is wrapped with [quota.WrapClient] so this process can
+// estimate Data API spend locally. That estimate does not call Google for
+// remaining quota and does not add extra units.
 package youtube

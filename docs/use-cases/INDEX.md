@@ -22,6 +22,7 @@ Copy [\_TEMPLATE.md](_TEMPLATE.md) when a module is ported.
 | UC-12 | Find latest live or upcoming stream | `internal/youtube` | Ported | [youtube/uc-12-find-latest-stream.md](youtube/uc-12-find-latest-stream.md) |
 | UC-13 | Edit commands.yaml from the window | `internal/alerts` | Ported | [alerts/uc-13-edit-commands-yaml.md](alerts/uc-13-edit-commands-yaml.md) |
 | UC-14 | Global interrupt shortcut | `internal/hotkey` | Ported | [app/uc-14-global-interrupt-hotkey.md](app/uc-14-global-interrupt-hotkey.md) |
+| UC-15 | Estimate Data API quota spend locally | `internal/youtube/quota` | Ported | [youtube/uc-15-local-quota-estimate.md](youtube/uc-15-local-quota-estimate.md) |
 
 ## Layout (after porting)
 
@@ -35,7 +36,8 @@ docs/use-cases/
 │   ├── uc-01-start-chat-without-api-key.md
 │   ├── uc-02-start-chat-with-api-key.md
 │   ├── uc-03-invalid-api-key.md
-│   └── uc-12-find-latest-stream.md
+│   ├── uc-12-find-latest-stream.md
+│   └── uc-15-local-quota-estimate.md
 ├── obs/
 │   ├── uc-05-obs-live-chat.md
 │   ├── uc-06-obs-overlay.md

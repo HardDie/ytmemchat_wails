@@ -9,13 +9,20 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/HardDie/ytmemchat_wails/internal/youtube/quota"
 )
 
 func lookupTestClient(t *testing.T, h http.HandlerFunc) *apiClient {
 	t.Helper()
+	return lookupTestClientTracked(t, h, quota.NewTracker())
+}
+
+func lookupTestClientTracked(t *testing.T, h http.HandlerFunc, tr *quota.Tracker) *apiClient {
+	t.Helper()
 	srv := httptest.NewServer(h)
 	t.Cleanup(srv.Close)
-	c, err := newAPIClient(context.Background(), "k", srv.Client(), srv.URL+"/")
+	c, err := newAPIClientTracked(context.Background(), "k", srv.Client(), srv.URL+"/", tr)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -154,5 +161,82 @@ func TestLookupLatestBroadcast_emptyKey(t *testing.T) {
 	_, err := LookupLatestBroadcast(context.Background(), "  ", "vid")
 	if !errors.Is(err, ErrEmptyAPIKey) {
 		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestLookupLatest_recordsQuotaLiveSeed(t *testing.T) {
+	tr := quota.NewTracker()
+	c := lookupTestClientTracked(t, func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if strings.Contains(r.URL.Path, "search") {
+			t.Fatal("must not search when the seed video is still live")
+		}
+		if strings.Contains(r.URL.Path, "videos") {
+			_, _ = io.WriteString(w, `{"items":[{"snippet":{"channelId":"UCabc"},"liveStreamingDetails":{"activeLiveChatId":"chat1"}}]}`)
+			return
+		}
+		http.NotFound(w, r)
+	}, tr)
+	if _, err := c.lookupLatestBroadcast(context.Background(), "oldvid"); err != nil {
+		t.Fatal(err)
+	}
+	got := tr.Snapshot()
+	if got.Units != 1 || got.Search != 0 {
+		t.Fatalf("snapshot = %+v, want 1 unit and 0 search", got)
+	}
+}
+
+func TestLookupLatest_recordsQuotaSearch(t *testing.T) {
+	tr := quota.NewTracker()
+	c := lookupTestClientTracked(t, func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch {
+		case strings.Contains(r.URL.Path, "search"):
+			if r.URL.Query().Get("eventType") == "live" {
+				_, _ = io.WriteString(w, `{"items":[]}`)
+				return
+			}
+			_, _ = io.WriteString(w, `{"items":[{"id":{"videoId":"soon"}}]}`)
+		case strings.Contains(r.URL.Path, "videos"):
+			_, _ = io.WriteString(w, `{"items":[{"snippet":{"channelId":"UCabc"}}]}`)
+		default:
+			http.NotFound(w, r)
+		}
+	}, tr)
+	if _, err := c.lookupLatestBroadcast(context.Background(), "vod"); err != nil {
+		t.Fatal(err)
+	}
+	got := tr.Snapshot()
+	if got.Units != 1 {
+		t.Fatalf("units = %d, want 1 for videos.list", got.Units)
+	}
+	if got.Search != 2 {
+		t.Fatalf("search = %d, want 2 (live then upcoming)", got.Search)
+	}
+}
+
+func TestLookupLatest_recordsQuotaOnInvalidKey(t *testing.T) {
+	tr := quota.NewTracker()
+	body, _ := json.Marshal(map[string]any{
+		"error": map[string]any{
+			"code":    400,
+			"message": "API key not valid. Please pass a valid API key.",
+			"errors": []map[string]any{
+				{"reason": "keyInvalid", "message": "API key not valid. Please pass a valid API key."},
+			},
+		},
+	})
+	c := lookupTestClientTracked(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write(body)
+	}, tr)
+	_, err := c.lookupLatestBroadcast(context.Background(), "vid")
+	if !IsInvalidAPIKey(err) {
+		t.Fatalf("err = %v", err)
+	}
+	got := tr.Snapshot()
+	if got.Units != 1 {
+		t.Fatalf("units = %d, want 1 (invalid requests still cost quota)", got.Units)
 	}
 }

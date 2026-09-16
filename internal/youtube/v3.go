@@ -11,6 +11,8 @@ import (
 
 	"google.golang.org/api/option"
 	yt "google.golang.org/api/youtube/v3"
+
+	"github.com/HardDie/ytmemchat_wails/internal/youtube/quota"
 )
 
 const defaultPollDelay = 5 * time.Second
@@ -26,14 +28,20 @@ func New(apiKey string) (Client, error) {
 }
 
 func newAPIClient(ctx context.Context, apiKey string, hc *http.Client, endpoint string) (Client, error) {
+	return newAPIClientTracked(ctx, apiKey, hc, endpoint, quota.Default)
+}
+
+func newAPIClientTracked(ctx context.Context, apiKey string, hc *http.Client, endpoint string, tr *quota.Tracker) (Client, error) {
 	apiKey = strings.TrimSpace(apiKey)
 	if apiKey == "" {
 		return nil, ErrEmptyAPIKey
 	}
-	opts := []option.ClientOption{option.WithAPIKey(apiKey)}
-	if hc != nil {
-		opts = append(opts, option.WithHTTPClient(hc))
+	if tr == nil {
+		tr = quota.Default
 	}
+	// Local spend estimate only; does not call Google for remaining quota.
+	hc = quota.WrapClient(hc, tr)
+	opts := []option.ClientOption{option.WithAPIKey(apiKey), option.WithHTTPClient(hc)}
 	if endpoint != "" {
 		opts = append(opts, option.WithEndpoint(endpoint))
 	}

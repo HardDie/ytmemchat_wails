@@ -23,3 +23,4 @@
 ## Postconditions
 
 * The iterator stops when the context is cancelled or YouTube reports `liveChatEnded`.
+* Each `videos.list` / `liveChatMessages.list` HTTP response is counted in `internal/youtube/quota` (this process, Pacific day). No extra Data API call is made to read remaining quota.

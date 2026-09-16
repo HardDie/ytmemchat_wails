@@ -96,6 +96,7 @@ Each Go package needs a package comment and comments on all exports. Check from 
 |---|---|---|
 | `internal/config` | Ported | `go doc -all ./internal/config` |
 | `internal/youtube` | Ported | `go doc -all ./internal/youtube` |
+| `internal/youtube/quota` | Ported | `go doc -all ./internal/youtube/quota` |
 | `internal/youtube/nokey` | Ported | `go doc -all ./internal/youtube/nokey` |
 | `internal/obs` | Ported | `go doc -all ./internal/obs` |
 | `internal/alerts` | Ported | `go doc -all ./internal/alerts` |
