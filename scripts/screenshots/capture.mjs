@@ -53,26 +53,26 @@ function startVite(port) {
   child.stderr.on('data', (b) => {
     output += b.toString()
   })
-  const ready = new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      reject(new Error(`vite did not start:\n${output}`))
-    }, 30000)
-    const onChunk = () => {
-      if (output.includes('Local:')) {
-        clearTimeout(timer)
-        resolve()
+
+  const ready = (async () => {
+    const start = Date.now()
+    while (Date.now() - start < 30000) {
+      if (child.exitCode !== null) {
+        throw new Error(`vite exited ${child.exitCode}:\n${output}`)
       }
+      try {
+        const res = await fetch(`http://127.0.0.1:${port}/`)
+        if (res.ok || res.status === 404) {
+          return
+        }
+      } catch {
+        // Not ready yet
+      }
+      await new Promise((r) => setTimeout(r, 100))
     }
-    child.stdout.on('data', onChunk)
-    child.stderr.on('data', onChunk)
-    child.on('error', reject)
-    child.on('exit', (code) => {
-      if (code) {
-        clearTimeout(timer)
-        reject(new Error(`vite exited ${code}:\n${output}`))
-      }
-    })
-  })
+    throw new Error(`vite did not start within 30s:\n${output}`)
+  })()
+
   return { child, ready }
 }
 

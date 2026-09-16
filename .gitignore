@@ -5,3 +5,4 @@ scripts/screenshots/node_modules
 docs/screenshots/*.png
 node_modules
 .idea/
+docs/screenshots/window.gif
