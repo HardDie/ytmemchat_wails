@@ -1,6 +1,7 @@
 * [Home](Home)
 * [Getting Started](Getting-Started)
 * [Running on macOS](Running-on-macOS)
+* [Chat URL](Chat-URL)
 * [Configuration](Configuration)
 * [Commands](Commands)
 * [YouTube API key](YouTube-API-key)

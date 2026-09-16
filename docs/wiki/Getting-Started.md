@@ -53,6 +53,8 @@ To drop the dark background when the source sits over gameplay, use:
 http://127.0.0.1:8080/obs/chat?transparent=1
 ```
 
+Font size, text color, and other chat query parameters are on [Chat URL](Chat-URL).
+
 You can ignore the **Overlay** URL for this guide. Do not use the index URL (`http://127.0.0.1:8080/`) as an OBS source.
 
 ## 4. Start live chat

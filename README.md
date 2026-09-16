@@ -18,6 +18,7 @@ Step-by-step setup lives in the [wiki](https://github.com/HardDie/ytmemchat_wail
 |---|---|
 | [Getting Started](https://github.com/HardDie/ytmemchat_wails/wiki/Getting-Started) | Stream ID only, see chat (no API key) |
 | [Running on macOS](https://github.com/HardDie/ytmemchat_wails/wiki/Running-on-macOS) | Open the unsigned `.app` (Gatekeeper) |
+| [Chat URL](https://github.com/HardDie/ytmemchat_wails/wiki/Chat-URL) | OBS chat query parameters |
 | [Configuration](https://github.com/HardDie/ytmemchat_wails/wiki/Configuration) | Each settings field, OBS URLs, HTTP API |
 | [Commands](https://github.com/HardDie/ytmemchat_wails/wiki/Commands) | Commands pane / `commands.yaml` |
 | [YouTube API key](https://github.com/HardDie/ytmemchat_wails/wiki/YouTube-API-key) | Google token, how to create one, default quota |
@@ -57,7 +58,7 @@ Follow [Getting Started](https://github.com/HardDie/ytmemchat_wails/wiki/Getting
 | Chat | `http://127.0.0.1:8080/obs/chat` |
 | Alerts + TTS | `http://127.0.0.1:8080/obs/overlay` |
 
-Do not use `http://127.0.0.1:8080/` as an OBS source. Transparent chat: `…/obs/chat?transparent=1`. Overlay needs **Interact** once so audio can autoplay.
+Do not use `http://127.0.0.1:8080/` as an OBS source. Chat query parameters (`transparent`, `fontSize`, `textColor`) are on [Chat URL](https://github.com/HardDie/ytmemchat_wails/wiki/Chat-URL). Overlay needs **Interact** once so audio can autoplay.
 
 Alerts and TTS are off until you enable them. See [Configuration](https://github.com/HardDie/ytmemchat_wails/wiki/Configuration), [Commands](https://github.com/HardDie/ytmemchat_wails/wiki/Commands), and [YouTube API key](https://github.com/HardDie/ytmemchat_wails/wiki/YouTube-API-key).
 

@@ -22,7 +22,7 @@ Alerts and TTS both play on the overlay page, not in the operator window. Add an
 http://127.0.0.1:8080/obs/overlay
 ```
 
-Click **Interact** on that source once and use the page’s enable-audio control so the browser is allowed to autoplay sound.
+Click **Interact** on that source once and use the page’s enable-audio control so the browser is allowed to autoplay sound. Chat Browser Source query parameters are on [Chat URL](Chat-URL).
 
 ---
 
