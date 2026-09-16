@@ -92,6 +92,31 @@ func TestGetMessageIterator_notLive(t *testing.T) {
 	}
 }
 
+func TestGetMessageIterator_sendsAPIKey(t *testing.T) {
+	var gotKey string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotKey = r.URL.Query().Get("key")
+		w.Header().Set("Content-Type", "application/json")
+		if strings.Contains(r.URL.Path, "videos") {
+			_, _ = io.WriteString(w, `{"items":[]}`)
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	t.Cleanup(srv.Close)
+	c, err := newAPIClient(context.Background(), "test-key", srv.Client(), srv.URL+"/")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = c.GetMessageIterator(context.Background(), "vid")
+	if !errors.Is(err, ErrNotLive) {
+		t.Fatalf("err = %v", err)
+	}
+	if gotKey != "test-key" {
+		t.Fatal("videos.list missing API key (WithHTTPClient must not drop identity)")
+	}
+}
+
 func TestGetMessageIterator_invalidAPIKey(t *testing.T) {
 	body, _ := json.Marshal(map[string]any{
 		"error": map[string]any{

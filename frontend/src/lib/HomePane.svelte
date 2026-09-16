@@ -42,6 +42,17 @@
   $: youtubeDetail = run && run.running
     ? (run.usingApiKey ? 'YouTube Data API v3' : 'No API key')
     : 'Start uses the stream ID saved in Configuration.'
+
+  $: quotaUnits = run && run.quotaUnits ? run.quotaUnits : 0
+  $: quotaUnitsLimit = run && run.quotaUnitsLimit ? run.quotaUnitsLimit : 10000
+  $: quotaSearch = run && run.quotaSearch ? run.quotaSearch : 0
+  $: quotaSearchLimit = run && run.quotaSearchLimit ? run.quotaSearchLimit : 100
+  $: quotaRemaining = Math.max(0, quotaUnitsLimit - quotaUnits)
+  $: quotaClass = quotaRemaining === 0 ? 'quota-danger' : quotaRemaining < 720 ? 'quota-warn' : ''
+
+  function fmtQuota(n: number): string {
+    return n.toLocaleString('en-US')
+  }
 </script>
 
 <section class="card">
@@ -53,6 +64,12 @@
     </div>
   </header>
   <p class="hint">{youtubeDetail}</p>
+  {#if hasApiKey}
+    <p class="hint quota {quotaClass}">
+      Spent this stream: {fmtQuota(quotaUnits)} / {fmtQuota(quotaUnitsLimit)} units{#if quotaSearch > 0} · search {fmtQuota(quotaSearch)} / {fmtQuota(quotaSearchLimit)}{/if}
+    </p>
+    <p class="hint">Local estimate for this stream. Resets at midnight Pacific Time and when the stream ID changes.</p>
+  {/if}
   {#if run && run.error}
     <p class="err">{run.error}</p>
   {/if}

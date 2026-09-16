@@ -74,6 +74,10 @@ export namespace main {
 	    running: boolean;
 	    connecting: boolean;
 	    usingApiKey: boolean;
+	    quotaUnits: number;
+	    quotaUnitsLimit: number;
+	    quotaSearch: number;
+	    quotaSearchLimit: number;
 	    error: string;
 	
 	    static createFrom(source: any = {}) {
@@ -85,6 +89,10 @@ export namespace main {
 	        this.running = source["running"];
 	        this.connecting = source["connecting"];
 	        this.usingApiKey = source["usingApiKey"];
+	        this.quotaUnits = source["quotaUnits"];
+	        this.quotaUnitsLimit = source["quotaUnitsLimit"];
+	        this.quotaSearch = source["quotaSearch"];
+	        this.quotaSearchLimit = source["quotaSearchLimit"];
 	        this.error = source["error"];
 	    }
 	}

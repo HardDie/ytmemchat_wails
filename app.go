@@ -42,6 +42,7 @@ type App struct {
 	runRunning     bool
 	runUsingKey    bool
 	runError       string
+	quotaStreamID  string
 	emit           func(string, any)
 	lookupLatest   func(context.Context, string, string) (youtube.LatestBroadcast, error)
 	hk             interruptHotkey
@@ -102,6 +103,7 @@ func (a *App) startup(ctx context.Context) {
 	if err := a.startHTTPLocked(); err != nil {
 		slog.Error("obs listen failed", "err", err)
 	}
+	a.quotaStreamID = strings.TrimSpace(a.settings.Youtube.StreamID)
 	a.mu.Unlock()
 	a.syncInterruptHotkey()
 }
@@ -201,6 +203,10 @@ func (a *App) LookupLatestStream(streamID, apiKey string) (StreamLookup, error) 
 	if err != nil {
 		return StreamLookup{}, err
 	}
+	a.mu.Lock()
+	a.resetQuotaIfStreamIDChangedLocked(got.VideoID)
+	a.emitRunLocked()
+	a.mu.Unlock()
 	return StreamLookup{StreamID: got.VideoID, ChannelID: got.ChannelID, Kind: string(got.Kind)}, nil
 }
 
@@ -225,6 +231,10 @@ func (a *App) SaveSettings(in SettingsForm) error {
 	}
 	old := a.settings
 	a.loadLocked()
+	if strings.TrimSpace(old.Youtube.StreamID) != strings.TrimSpace(a.settings.Youtube.StreamID) {
+		a.resetQuotaIfStreamIDChangedLocked(a.settings.Youtube.StreamID)
+		a.emitRunLocked()
+	}
 	skip := a.skipHTTP
 	var httpErr error
 	if !skip {

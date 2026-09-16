@@ -32,7 +32,7 @@ ytmemchat asks for new messages about every **5 seconds** while Start is running
 
 So the default key is enough for about a **typical long stream**, not a full day of 24-hour chat with the official API. If YouTube asks to poll more often, the budget runs out sooner. Home then shows that quota was exceeded; wait for the daily reset or request more quota from the [YouTube Data API overview](https://developers.google.com/youtube/v3/getting-started#quota-usage). Chat without a key does not use this budget.
 
-The Data API does **not** return leftover units, and asking Google Cloud for them needs extra credentials (not this API key). ytmemchat only **counts units from the v3 requests it already makes** (this process, reset at midnight Pacific Time). That count does not spend extra quota. It can be lower than the Cloud Console if another tool shares the project, or if you already used the key before launching the app today.
+The Data API does **not** return leftover units, and asking Google Cloud for them needs extra credentials (not this API key). Home shows **spent units this stream** from the v3 requests ytmemchat already makes (this process). That count does not spend extra quota. It resets at **midnight Pacific Time** and when you **change the stream ID** (Save, Start, or Find latest that picks a different video). It can be lower than the Cloud Console if another tool shares the project, or if you already used the key before launching the app today.
 
 ## Find latest still fits the default key
 

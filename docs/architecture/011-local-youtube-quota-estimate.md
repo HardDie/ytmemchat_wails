@@ -23,10 +23,10 @@ Counting by adding extra YouTube or Cloud API calls would itself spend quota (or
 
 Use option 4.
 
-* All estimator logic lives in **`internal/youtube/quota`**. The Data API v3 client only wraps its `http.Client` (`quota.WrapClient`). The no-key HTML client is not wrapped.
+* The Data API v3 client wraps its `http.Client` (`quota.WrapClient`). Because `option.WithHTTPClient` skips `option.WithAPIKey`, the v3 constructor then attaches the key on that client (`key` query param). The no-key HTML client is not wrapped.
 * Count **after an HTTP response**, including 4xx/5xx (Google bills invalid requests at least 1 unit). Do **not** count transport errors with no response (the request may never have reached Google).
 * Use Google’s published costs for methods this app actually calls: `videos.list` and `liveChatMessages.list` go to the default unit bucket (1 each); `search.list` goes to the separate search bucket (1 each, default 100/day). Unknown `/youtube/v3/…` paths count **1** in the default bucket.
-* Counters are **in-memory for this process**, shared across Start and Find latest via `quota.Default`. They reset at midnight Pacific Time if the process is still running. They are not Google’s remaining quota: other tools on the same Cloud project, and spend from a previous run today, are invisible.
+* Counters are **in-memory for this process**, shared across Start and Find latest via `quota.Default`. They reset at midnight Pacific Time if the process is still running, and when the **stream ID changes** (Save, Start, or Find latest that returns a different video). They are not Google’s remaining quota: other tools on the same Cloud project, and spend from a previous run today, are invisible.
 
 ## Consequences
 
@@ -44,4 +44,4 @@ Use option 4.
 
 ### Neutral
 
-* The window may later read `quota.Default.Snapshot()`. That is display only; it must not add Data API calls.
+* Home reads `quota.Default.Snapshot()` via `GetRunStatus` (polled). Display only; it must not add Data API calls.

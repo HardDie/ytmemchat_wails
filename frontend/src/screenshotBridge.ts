@@ -9,7 +9,7 @@ function ok<T>(value: T): Fn {
 
 const settings = {
   streamId: 'xxxxxxxxxxx',
-  apiKey: '',
+  apiKey: 'demo-key-not-real',
   port: '8080',
   ttsEnabled: true,
   ttsVoiceName: '',
@@ -35,6 +35,10 @@ const run = {
   running: false,
   connecting: false,
   usingApiKey: false,
+  quotaUnits: 720,
+  quotaUnitsLimit: 10000,
+  quotaSearch: 1,
+  quotaSearchLimit: 100,
   error: '',
 }
 
@@ -81,3 +85,5 @@ w.runtime = {
   EventsOnMultiple: () => () => {},
   ClipboardSetText: () => Promise.resolve(),
 }
+
+export {}

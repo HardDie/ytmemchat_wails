@@ -5,12 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 	"sync"
 
 	"github.com/HardDie/ytmemchat_wails/internal/config"
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
 	"github.com/HardDie/ytmemchat_wails/internal/youtube"
 	"github.com/HardDie/ytmemchat_wails/internal/youtube/nokey"
+	"github.com/HardDie/ytmemchat_wails/internal/youtube/quota"
 )
 
 type clientFactory func(config.Settings) (youtube.Client, error)
@@ -23,6 +25,14 @@ type RunStatus struct {
 	Connecting bool `json:"connecting"`
 	// UsingAPIKey is true when the v3 client was selected (key present).
 	UsingAPIKey bool `json:"usingApiKey"`
+	// QuotaUnits is this process’s estimated spend in the default Data API bucket.
+	QuotaUnits int `json:"quotaUnits"`
+	// QuotaUnitsLimit is the documented default daily unit budget (not Cloud-approved quota).
+	QuotaUnitsLimit int `json:"quotaUnitsLimit"`
+	// QuotaSearch is this process’s estimated search.list spend.
+	QuotaSearch int `json:"quotaSearch"`
+	// QuotaSearchLimit is the documented default daily search.list budget.
+	QuotaSearchLimit int `json:"quotaSearchLimit"`
 	// Error is a user-facing failure; empty when ok. Never includes the API key.
 	Error string `json:"error"`
 }
@@ -78,12 +88,28 @@ func (a *App) emitRunLocked() {
 }
 
 func (a *App) runStatusLocked() RunStatus {
+	snap := quota.Default.Snapshot()
 	return RunStatus{
-		Running:     a.runRunning,
-		Connecting:  a.runConnecting,
-		UsingAPIKey: a.runUsingKey,
-		Error:       a.runError,
+		Running:          a.runRunning,
+		Connecting:       a.runConnecting,
+		UsingAPIKey:      a.runUsingKey,
+		QuotaUnits:       snap.Units,
+		QuotaUnitsLimit:  snap.UnitsLimit,
+		QuotaSearch:      snap.Search,
+		QuotaSearchLimit: snap.SearchLimit,
+		Error:            a.runError,
 	}
+}
+
+// resetQuotaIfStreamIDChangedLocked zeros the local estimate when next is a
+// different stream ID than the one the counters currently apply to.
+func (a *App) resetQuotaIfStreamIDChangedLocked(next string) {
+	next = strings.TrimSpace(next)
+	if next == a.quotaStreamID {
+		return
+	}
+	quota.Default.Reset()
+	a.quotaStreamID = next
 }
 
 // GetRunStatus returns whether YouTube chat ingest is running.
@@ -128,6 +154,7 @@ func (a *App) Start() error {
 	a.runRunning = false
 	a.runUsingKey = settings.HasAPIKey()
 	a.runError = ""
+	a.resetQuotaIfStreamIDChangedLocked(settings.Youtube.StreamID)
 	a.runGen++
 	gen := a.runGen
 	wg := &sync.WaitGroup{}

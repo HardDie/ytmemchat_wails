@@ -85,6 +85,18 @@ func (t *Tracker) Record(m Method) {
 	t.units += n
 }
 
+// Reset zeros the unit and search counters for the current Pacific day.
+func (t *Tracker) Reset() {
+	if t == nil {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.day = pacificDay(t.now())
+	t.units = 0
+	t.search = 0
+}
+
 // Snapshot returns today’s totals. It may roll the Pacific day without recording.
 func (t *Tracker) Snapshot() Snapshot {
 	if t == nil {

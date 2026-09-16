@@ -36,7 +36,7 @@ Required to **Start**. This is the YouTube video ID (`v=` in the watch URL, or t
 
 ### YouTube API key
 
-Optional. Empty uses the public live chat page. See [YouTube API key](YouTube-API-key) for what this token is, how to create one, and the default quota.
+Optional. Empty uses the public live chat page. See [YouTube API key](YouTube-API-key) for what this token is, how to create one, and the default quota. With a key, **Home** shows spent units for the current stream (this app’s count; it resets when the stream ID changes).
 
 ### HTTP port
 

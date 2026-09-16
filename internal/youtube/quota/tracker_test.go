@@ -33,6 +33,7 @@ func TestTracker_recordAndSnapshot(t *testing.T) {
 func TestTracker_nilSafe(t *testing.T) {
 	var tr *Tracker
 	tr.Record(VideosList)
+	tr.Reset()
 	got := tr.Snapshot()
 	if got.Units != 0 || got.UnitsLimit != DefaultUnitsPerDay {
 		t.Fatalf("%+v", got)
@@ -65,6 +66,24 @@ func TestTracker_resetsAtPacificMidnight(t *testing.T) {
 	got := tr.Snapshot()
 	if got.Units != 1 || got.Search != 0 {
 		t.Fatalf("next day record = %+v", got)
+	}
+}
+
+func TestTracker_reset(t *testing.T) {
+	tr := NewTracker()
+	tr.Record(VideosList)
+	tr.Record(SearchList)
+	tr.Reset()
+	got := tr.Snapshot()
+	if got.Units != 0 || got.Search != 0 {
+		t.Fatalf("after reset %+v", got)
+	}
+	if got.Day == "" {
+		t.Fatal("empty day")
+	}
+	tr.Record(LiveChatMessagesList)
+	if tr.Snapshot().Units != 1 {
+		t.Fatalf("record after reset %+v", tr.Snapshot())
 	}
 }
 

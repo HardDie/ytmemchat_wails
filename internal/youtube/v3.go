@@ -40,8 +40,9 @@ func newAPIClientTracked(ctx context.Context, apiKey string, hc *http.Client, en
 		tr = quota.Default
 	}
 	// Local spend estimate only; does not call Google for remaining quota.
-	hc = quota.WrapClient(hc, tr)
-	opts := []option.ClientOption{option.WithAPIKey(apiKey), option.WithHTTPClient(hc)}
+	// WithHTTPClient skips option.WithAPIKey, so the key is set on the transport.
+	hc = withAPIKey(quota.WrapClient(hc, tr), apiKey)
+	opts := []option.ClientOption{option.WithHTTPClient(hc)}
 	if endpoint != "" {
 		opts = append(opts, option.WithEndpoint(endpoint))
 	}

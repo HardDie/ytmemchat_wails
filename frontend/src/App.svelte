@@ -109,6 +109,15 @@
     EventsOn('pipeline', (s: main.RunStatus) => {
       run = s
     })
+    const quotaTick = window.setInterval(() => {
+      GetRunStatus()
+        .then((s) => {
+          run = s
+        })
+        .catch(() => {
+          /* keep last status */
+        })
+    }, 2000)
     try {
       const [s, path, ver] = await Promise.all([GetSettings(), ConfigPath(), AppVersion()])
       applyForm(s)
@@ -118,6 +127,9 @@
       await refreshRun()
     } catch (e) {
       error = String(e)
+    }
+    return () => {
+      window.clearInterval(quotaTick)
     }
   })
 
@@ -129,6 +141,7 @@
       await SaveSettings(formPayload())
       applyForm(await GetSettings())
       await refreshOBS()
+      await refreshRun()
       status = 'Settings saved'
     } catch (e) {
       error = String(e)
@@ -215,6 +228,7 @@
         const kind = got.kind === 'upcoming' ? 'upcoming' : 'live'
         status = `Latest ${kind} stream: ${got.streamId}`
       }
+      await refreshRun()
     } catch (e) {
       error = String(e)
     } finally {
