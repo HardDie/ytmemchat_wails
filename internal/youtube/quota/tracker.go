@@ -20,6 +20,9 @@ func mustPacific() *time.Location {
 	return loc
 }
 
+// PersistFunc is called after counters change. It must not call back into the tracker.
+type PersistFunc func(Snapshot)
+
 // Snapshot is a copy of today’s local estimate (Pacific Time calendar day).
 type Snapshot struct {
 	// Units is spend in the default bucket (videos.list, liveChatMessages.list, unknown).
@@ -54,16 +57,46 @@ func remaining(limit, used int) int {
 
 // Tracker is a thread-safe local unit counter. Zero value is not ready; use [NewTracker].
 type Tracker struct {
-	mu     sync.Mutex
-	now    func() time.Time
-	day    string
-	units  int
-	search int
+	mu      sync.Mutex
+	now     func() time.Time
+	day     string
+	units   int
+	search  int
+	persist PersistFunc
 }
 
 // NewTracker returns an empty estimator for the current Pacific day.
 func NewTracker() *Tracker {
 	return &Tracker{now: time.Now}
+}
+
+// SetPersist registers a function invoked after Record, Reset, or a Pacific-day roll.
+func (t *Tracker) SetPersist(fn PersistFunc) {
+	if t == nil {
+		return
+	}
+	t.mu.Lock()
+	t.persist = fn
+	t.mu.Unlock()
+}
+
+// Restore loads counters when s.Day is today (Pacific). Other days are ignored.
+func (t *Tracker) Restore(s Snapshot) {
+	if t == nil {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	today := pacificDay(t.now())
+	if s.Day != today {
+		t.day = today
+		t.units = 0
+		t.search = 0
+		return
+	}
+	t.day = s.Day
+	t.units = s.Units
+	t.search = s.Search
 }
 
 // Record adds the published cost of m. Empty m is treated as [Unknown].
@@ -76,13 +109,18 @@ func (t *Tracker) Record(m Method) {
 	}
 	n := Cost(m)
 	t.mu.Lock()
-	defer t.mu.Unlock()
 	t.rollLocked(t.now())
 	if searchBucket(m) {
 		t.search += n
-		return
+	} else {
+		t.units += n
 	}
-	t.units += n
+	snap := t.snapshotLocked()
+	persist := t.persist
+	t.mu.Unlock()
+	if persist != nil {
+		persist(snap)
+	}
 }
 
 // Reset zeros the unit and search counters for the current Pacific day.
@@ -91,10 +129,15 @@ func (t *Tracker) Reset() {
 		return
 	}
 	t.mu.Lock()
-	defer t.mu.Unlock()
 	t.day = pacificDay(t.now())
 	t.units = 0
 	t.search = 0
+	snap := t.snapshotLocked()
+	persist := t.persist
+	t.mu.Unlock()
+	if persist != nil {
+		persist(snap)
+	}
 }
 
 // Snapshot returns today’s totals. It may roll the Pacific day without recording.
@@ -103,9 +146,19 @@ func (t *Tracker) Snapshot() Snapshot {
 		return emptySnapshot(time.Now())
 	}
 	t.mu.Lock()
-	defer t.mu.Unlock()
 	now := t.now()
+	rolled := t.day != "" && t.day != pacificDay(now)
 	t.rollLocked(now)
+	snap := t.snapshotLocked()
+	persist := t.persist
+	t.mu.Unlock()
+	if rolled && persist != nil {
+		persist(snap)
+	}
+	return snap
+}
+
+func (t *Tracker) snapshotLocked() Snapshot {
 	return Snapshot{
 		Units:       t.units,
 		Search:      t.search,

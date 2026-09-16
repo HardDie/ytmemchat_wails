@@ -48,7 +48,7 @@
   $: quotaSearch = run && run.quotaSearch ? run.quotaSearch : 0
   $: quotaSearchLimit = run && run.quotaSearchLimit ? run.quotaSearchLimit : 100
   $: quotaRemaining = Math.max(0, quotaUnitsLimit - quotaUnits)
-  $: quotaClass = quotaRemaining === 0 ? 'quota-danger' : quotaRemaining < 720 ? 'quota-warn' : ''
+  $: quotaClass = quotaRemaining === 0 ? 'quota-danger' : quotaRemaining < 3600 ? 'quota-warn' : ''
 
   function fmtQuota(n: number): string {
     return n.toLocaleString('en-US')
@@ -66,9 +66,9 @@
   <p class="hint">{youtubeDetail}</p>
   {#if hasApiKey}
     <p class="hint quota {quotaClass}">
-      Spent this stream: {fmtQuota(quotaUnits)} / {fmtQuota(quotaUnitsLimit)} units{#if quotaSearch > 0} · search {fmtQuota(quotaSearch)} / {fmtQuota(quotaSearchLimit)}{/if}
+      Spent today: {fmtQuota(quotaUnits)} / {fmtQuota(quotaUnitsLimit)} units{#if quotaSearch > 0} · search {fmtQuota(quotaSearch)} / {fmtQuota(quotaSearchLimit)}{/if}
     </p>
-    <p class="hint">Local estimate for this stream. Resets at midnight Pacific Time and when the stream ID changes.</p>
+    <p class="hint">This app’s Data API calls today. liveChatMessages.list costs 5 units. Resets at midnight Pacific Time. Other tools on the same Google Cloud project are not included.</p>
   {/if}
   {#if run && run.error}
     <p class="err">{run.error}</p>

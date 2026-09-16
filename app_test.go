@@ -330,82 +330,6 @@ func TestAppVersion_defaultDev(t *testing.T) {
 	}
 }
 
-func TestResetQuotaIfStreamIDChanged(t *testing.T) {
-	quota.Default.Reset()
-	t.Cleanup(quota.Default.Reset)
-	a := newAppWithStore(config.NewStore(filepath.Join(t.TempDir(), "config.json")))
-	quota.Default.Record(quota.VideosList)
-	a.resetQuotaIfStreamIDChangedLocked("live1")
-	if quota.Default.Snapshot().Units != 0 {
-		t.Fatal("first stream should reset")
-	}
-	quota.Default.Record(quota.VideosList)
-	quota.Default.Record(quota.SearchList)
-	a.resetQuotaIfStreamIDChangedLocked("live1")
-	got := quota.Default.Snapshot()
-	if got.Units != 1 || got.Search != 1 {
-		t.Fatalf("same stream must keep spend %+v", got)
-	}
-	a.resetQuotaIfStreamIDChangedLocked("live2")
-	got = quota.Default.Snapshot()
-	if got.Units != 0 || got.Search != 0 {
-		t.Fatalf("new stream must reset %+v", got)
-	}
-}
-
-func TestSaveSettings_resetsQuotaWhenStreamIDChanges(t *testing.T) {
-	quota.Default.Reset()
-	t.Cleanup(quota.Default.Reset)
-	a := newAppWithStore(config.NewStore(filepath.Join(t.TempDir(), "config.json")))
-	savePatched(t, a, func(f *SettingsForm) {
-		f.StreamID = "vid-a"
-		f.Port = "8080"
-	})
-	quota.Default.Record(quota.VideosList)
-	if quota.Default.Snapshot().Units != 1 {
-		t.Fatal("expected recorded unit")
-	}
-	savePatched(t, a, func(f *SettingsForm) {
-		f.Port = "8081"
-	})
-	if quota.Default.Snapshot().Units != 1 {
-		t.Fatal("port change must not reset quota")
-	}
-	savePatched(t, a, func(f *SettingsForm) {
-		f.StreamID = "vid-b"
-	})
-	if quota.Default.Snapshot().Units != 0 {
-		t.Fatal("stream ID change must reset quota")
-	}
-}
-
-func TestLookupLatestStream_resetsQuotaOnNewVideo(t *testing.T) {
-	quota.Default.Reset()
-	t.Cleanup(quota.Default.Reset)
-	a := newAppWithStore(config.NewStore(filepath.Join(t.TempDir(), "config.json")))
-	savePatched(t, a, func(f *SettingsForm) {
-		f.StreamID = "oldvid"
-		f.APIKey = "secret"
-	})
-	quota.Default.Record(quota.VideosList)
-	a.lookupLatest = func(_ context.Context, _, _ string) (youtube.LatestBroadcast, error) {
-		return youtube.LatestBroadcast{VideoID: "newlive", Kind: youtube.BroadcastLive}, nil
-	}
-	if _, err := a.LookupLatestStream("", ""); err != nil {
-		t.Fatal(err)
-	}
-	if quota.Default.Snapshot().Units != 0 {
-		t.Fatal("new video from lookup must reset quota")
-	}
-	quota.Default.Record(quota.LiveChatMessagesList)
-	if _, err := a.LookupLatestStream("", ""); err != nil {
-		t.Fatal(err)
-	}
-	if quota.Default.Snapshot().Units != 1 {
-		t.Fatal("same video from lookup must keep spend")
-	}
-}
-
 func TestGetRunStatus_includesQuotaSnapshot(t *testing.T) {
 	quota.Default.Reset()
 	t.Cleanup(quota.Default.Reset)
@@ -418,5 +342,32 @@ func TestGetRunStatus_includesQuotaSnapshot(t *testing.T) {
 	}
 	if st.QuotaUnitsLimit != quota.DefaultUnitsPerDay || st.QuotaSearchLimit != quota.DefaultSearchPerDay {
 		t.Fatalf("limits %+v", st)
+	}
+}
+
+func TestSetupQuota_restoresFile(t *testing.T) {
+	quota.Default.Reset()
+	t.Cleanup(func() {
+		quota.Default.SetPersist(nil)
+		quota.Default.Reset()
+	})
+	dir := t.TempDir()
+	a := newAppWithStore(config.NewStore(filepath.Join(dir, "config.json")))
+	day := quota.Default.Snapshot().Day
+	if err := quota.WriteFile(filepath.Join(dir, quota.FileName), quota.Snapshot{Day: day, Units: 126, Search: 2}); err != nil {
+		t.Fatal(err)
+	}
+	a.setupQuotaLocked()
+	got := quota.Default.Snapshot()
+	if got.Units != 126 || got.Search != 2 {
+		t.Fatalf("restored %+v", got)
+	}
+	quota.Default.Record(quota.VideosList)
+	saved, err := quota.ReadFile(filepath.Join(dir, quota.FileName))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if saved.Units != 127 {
+		t.Fatalf("persisted %+v", saved)
 	}
 }

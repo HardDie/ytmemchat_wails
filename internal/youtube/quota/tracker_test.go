@@ -13,8 +13,8 @@ func TestTracker_recordAndSnapshot(t *testing.T) {
 	tr.Record(SearchList)
 	tr.Record("")
 	got := tr.Snapshot()
-	if got.Units != 3 {
-		t.Fatalf("units = %d, want 3 (videos + chat + unknown empty)", got.Units)
+	if got.Units != 7 {
+		t.Fatalf("units = %d, want 7 (videos 1 + chat 5 + unknown 1)", got.Units)
 	}
 	if got.Search != 1 {
 		t.Fatalf("search = %d, want 1", got.Search)
@@ -25,7 +25,7 @@ func TestTracker_recordAndSnapshot(t *testing.T) {
 	if got.Day == "" {
 		t.Fatal("empty day")
 	}
-	if got.RemainingUnits() != DefaultUnitsPerDay-3 {
+	if got.RemainingUnits() != DefaultUnitsPerDay-7 {
 		t.Fatalf("remaining units = %d", got.RemainingUnits())
 	}
 }
@@ -64,7 +64,7 @@ func TestTracker_resetsAtPacificMidnight(t *testing.T) {
 	}
 	tr.Record(LiveChatMessagesList)
 	got := tr.Snapshot()
-	if got.Units != 1 || got.Search != 0 {
+	if got.Units != 5 || got.Search != 0 {
 		t.Fatalf("next day record = %+v", got)
 	}
 }
@@ -82,7 +82,7 @@ func TestTracker_reset(t *testing.T) {
 		t.Fatal("empty day")
 	}
 	tr.Record(LiveChatMessagesList)
-	if tr.Snapshot().Units != 1 {
+	if tr.Snapshot().Units != 5 {
 		t.Fatalf("record after reset %+v", tr.Snapshot())
 	}
 }

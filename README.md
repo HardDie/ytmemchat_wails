@@ -17,6 +17,7 @@ Step-by-step setup lives in the [wiki](https://github.com/HardDie/ytmemchat_wail
 | Page | What it covers |
 |---|---|
 | [Getting Started](https://github.com/HardDie/ytmemchat_wails/wiki/Getting-Started) | Stream ID only, see chat (no API key) |
+| [Running on macOS](https://github.com/HardDie/ytmemchat_wails/wiki/Running-on-macOS) | Open the unsigned `.app` (Gatekeeper) |
 | [Configuration](https://github.com/HardDie/ytmemchat_wails/wiki/Configuration) | Each settings field, OBS URLs, HTTP API |
 | [Commands](https://github.com/HardDie/ytmemchat_wails/wiki/Commands) | Commands pane / `commands.yaml` |
 | [YouTube API key](https://github.com/HardDie/ytmemchat_wails/wiki/YouTube-API-key) | Google token, how to create one, default quota |
@@ -35,7 +36,7 @@ Step-by-step setup lives in the [wiki](https://github.com/HardDie/ytmemchat_wail
 
 ## Installation
 
-Download a tagged archive from [GitHub Releases](https://github.com/HardDie/ytmemchat_wails/releases) (Linux amd64/arm64, Windows amd64, macOS universal). Binaries are not code-signed yet. The window sidebar shows the git tag, or the short commit the binary was built from.
+Download a tagged archive from [GitHub Releases](https://github.com/HardDie/ytmemchat_wails/releases) (Linux amd64/arm64, Windows amd64, macOS universal). Binaries are not code-signed yet. On macOS, [open the unsigned app](https://github.com/HardDie/ytmemchat_wails/wiki/Running-on-macOS). The window sidebar shows the git tag, or the short commit the binary was built from.
 
 From source (Go 1.25+, Node/npm, [Wails CLI](https://wails.io/docs/gettingstarted/installation); macOS Xcode CLT, Windows WebView2, Linux Wails packages):
 

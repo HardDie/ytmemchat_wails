@@ -219,8 +219,8 @@ func TestGetMessageIterator_recordsQuota(t *testing.T) {
 		t.Fatal("expected a live message")
 	}
 	got := tr.Snapshot()
-	if got.Units != 3 {
-		t.Fatalf("units = %d, want 3 (videos.list + 2 liveChatMessages.list)", got.Units)
+	if got.Units != 11 {
+		t.Fatalf("units = %d, want 11 (videos.list 1 + 2 liveChatMessages.list × 5)", got.Units)
 	}
 	if got.Search != 0 {
 		t.Fatalf("search = %d, want 0", got.Search)

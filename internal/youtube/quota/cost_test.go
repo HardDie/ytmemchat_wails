@@ -2,8 +2,11 @@ package quota
 
 import "testing"
 
-func TestCost_knownMethodsAreOne(t *testing.T) {
-	for _, m := range []Method{VideosList, LiveChatMessagesList, SearchList, Unknown, Method("channels.list")} {
+func TestCost(t *testing.T) {
+	if g := Cost(LiveChatMessagesList); g != 5 {
+		t.Fatalf("chat list cost = %d", g)
+	}
+	for _, m := range []Method{VideosList, SearchList, Unknown, Method("channels.list")} {
 		if g := Cost(m); g != 1 {
 			t.Fatalf("Cost(%q) = %d, want 1", m, g)
 		}

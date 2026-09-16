@@ -20,7 +20,7 @@ ytmemchat is a YouTube Live companion: it reads live chat and reacts in realtime
 - Configuration window: persist optional API key, stream/video ID, listen port; **Start / Stop the YouTube iterator** without restarting the process (OBS HTTP stays up).
 - HTTP server with the nested `/obs/…` Browser Source URLs (see contract below).
 - Live chat HTML page that updates over WebSocket as messages arrive.
-- Connection / quota / error state visible in the Wails window (and logs). Home shows this process’s spent Data API units when a key is set (local estimate; resets at midnight Pacific Time and when the stream ID changes).
+- Connection / quota / error state visible in the Wails window (and logs). Home shows today’s spent Data API units when a key is set (`liveChatMessages.list` is 5 units; persisted in `quota.json`; resets at midnight Pacific Time).
 - Home copies the two OBS URLs (`/obs/chat`, `/obs/overlay`) for the current listen port.
 
 **Port from console app (with the HTTP layer, not after a desktop chat UI)**
@@ -117,7 +117,7 @@ The console app has two implementations of `youtube.Client` (`GetMessageIterator
 
 **Invalid key: no fallback.** If a key is present, only the v3 client runs. If YouTube rejects it (typical API `401` / `403` / `invalidApiKey` / disabled API), **Stop the iterator, keep using v3, and show a distinct error in the Wails window** (e.g. “YouTube API key is invalid”). Do **not** silently start `youtube/nokey`. The user must clear the key (to use the no-key client) or fix the key.
 
-**Local quota estimate:** the v3 client wraps its HTTP transport with `internal/youtube/quota` (one call in the constructor) and attaches the API key on that client (`WithHTTPClient` skips `WithAPIKey`). That counts units from requests already made. Do not add extra Data API or Cloud calls to read remaining quota. Do not wrap `youtube/nokey`.
+**Local quota estimate:** the v3 client wraps its HTTP transport with `internal/youtube/quota` (one call in the constructor) and attaches the API key on that client (`WithHTTPClient` skips `WithAPIKey`). Count billed units (`liveChatMessages.list` is 5). Persist `quota.json` next to `config.json` for the Pacific day. Do not add extra Data API or Cloud calls to read remaining quota. Do not wrap `youtube/nokey`.
 
 **Do not treat every v3 failure as a bad key.** “Video is not live”, missing `activeLiveChatId`, quota exceeded, and network errors get their own messages. Fallback is still forbidden in all of those cases when a key was provided.
 

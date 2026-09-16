@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -15,6 +16,7 @@ import (
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
 	"github.com/HardDie/ytmemchat_wails/internal/tts"
 	"github.com/HardDie/ytmemchat_wails/internal/youtube"
+	"github.com/HardDie/ytmemchat_wails/internal/youtube/quota"
 )
 
 // App is the Wails bindings façade (settings, OBS HTTP, YouTube chat Start/Stop).
@@ -42,7 +44,6 @@ type App struct {
 	runRunning     bool
 	runUsingKey    bool
 	runError       string
-	quotaStreamID  string
 	emit           func(string, any)
 	lookupLatest   func(context.Context, string, string) (youtube.LatestBroadcast, error)
 	hk             interruptHotkey
@@ -103,7 +104,7 @@ func (a *App) startup(ctx context.Context) {
 	if err := a.startHTTPLocked(); err != nil {
 		slog.Error("obs listen failed", "err", err)
 	}
-	a.quotaStreamID = strings.TrimSpace(a.settings.Youtube.StreamID)
+	a.setupQuotaLocked()
 	a.mu.Unlock()
 	a.syncInterruptHotkey()
 }
@@ -118,6 +119,23 @@ func (a *App) loadLocked() {
 		return
 	}
 	a.settings = s
+}
+
+func (a *App) setupQuotaLocked() {
+	if a.store == nil {
+		return
+	}
+	path := filepath.Join(filepath.Dir(a.store.Path()), quota.FileName)
+	if snap, err := quota.ReadFile(path); err != nil {
+		slog.Error("quota load failed", "err", err)
+	} else {
+		quota.Default.Restore(snap)
+	}
+	quota.Default.SetPersist(func(s quota.Snapshot) {
+		if err := quota.WriteFile(path, s); err != nil {
+			slog.Error("quota persist failed", "err", err)
+		}
+	})
 }
 
 func formFrom(s config.Settings, hotkeyErr string) SettingsForm {
@@ -204,7 +222,6 @@ func (a *App) LookupLatestStream(streamID, apiKey string) (StreamLookup, error) 
 		return StreamLookup{}, err
 	}
 	a.mu.Lock()
-	a.resetQuotaIfStreamIDChangedLocked(got.VideoID)
 	a.emitRunLocked()
 	a.mu.Unlock()
 	return StreamLookup{StreamID: got.VideoID, ChannelID: got.ChannelID, Kind: string(got.Kind)}, nil
@@ -231,10 +248,6 @@ func (a *App) SaveSettings(in SettingsForm) error {
 	}
 	old := a.settings
 	a.loadLocked()
-	if strings.TrimSpace(old.Youtube.StreamID) != strings.TrimSpace(a.settings.Youtube.StreamID) {
-		a.resetQuotaIfStreamIDChangedLocked(a.settings.Youtube.StreamID)
-		a.emitRunLocked()
-	}
 	skip := a.skipHTTP
 	var httpErr error
 	if !skip {

@@ -20,12 +20,19 @@ const (
 	DefaultUnitsPerDay = 10_000
 	// DefaultSearchPerDay is Google’s documented default for search.list calls.
 	DefaultSearchPerDay = 100
+	// LiveChatMessagesListCost is what Cloud Console bills per liveChatMessages.list.
+	// The public calculator table currently lists 1; measured project usage is 5.
+	LiveChatMessagesListCost = 5
 )
 
-// Cost is the published quota cost for m. Methods this app uses all cost 1.
-// Unknown methods also cost 1 (Google’s minimum per request).
+// Cost is the quota cost for m. Unknown or empty methods cost 1 (Google’s minimum).
 func Cost(m Method) int {
-	return 1
+	switch m {
+	case LiveChatMessagesList:
+		return LiveChatMessagesListCost
+	default:
+		return 1
+	}
 }
 
 // searchBucket reports whether m spends the separate search.list quota.

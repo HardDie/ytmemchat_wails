@@ -29,4 +29,4 @@
 ## Postconditions
 
 * At most one live iterator. Force-quit skips `app_closed` as before. `POST /api/webhook` uses the same overlay fan-out while HTTP is up, including when the iterator is stopped.
-* Home `GetRunStatus` includes the local Data API spend estimate (see UC-15). Start resets that estimate only when the stream ID changed.
+* Home `GetRunStatus` includes the local Data API spend estimate for the Pacific day (see UC-15).

@@ -6,13 +6,13 @@ The desktop window is only the operator console. Chat is a local web page that O
 
 ## What you need
 
-- ytmemchat (a [GitHub Release](https://github.com/HardDie/ytmemchat_wails/releases) for your OS, or a binary you built)
+- ytmemchat (a [GitHub Release](https://github.com/HardDie/ytmemchat_wails/releases) for your OS, or a binary you built). On macOS the release is unsigned: [Running on macOS](Running-on-macOS).
 - A YouTube video that is **live right now**, with live chat enabled
 - Optional: [OBS Studio](https://obsproject.com/), if you want that chat on stream
 
 ## 1. Open the app
 
-Unpack the release and start ytmemchat. The window opens on **Home**. The local chat server starts with the app, even before you click Start.
+Unpack the release and start ytmemchat. The window opens on **Home**. The local chat server starts with the app, even before you click Start. macOS may block the first launch; see [Running on macOS](Running-on-macOS).
 
 ![Home pane: Start/Stop, interrupt, and OBS Browser Source URLs](https://raw.githubusercontent.com/HardDie/ytmemchat_wails/main/docs/screenshots/home.png)
 

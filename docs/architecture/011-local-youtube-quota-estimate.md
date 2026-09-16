@@ -25,8 +25,8 @@ Use option 4.
 
 * The Data API v3 client wraps its `http.Client` (`quota.WrapClient`). Because `option.WithHTTPClient` skips `option.WithAPIKey`, the v3 constructor then attaches the key on that client (`key` query param). The no-key HTML client is not wrapped.
 * Count **after an HTTP response**, including 4xx/5xx (Google bills invalid requests at least 1 unit). Do **not** count transport errors with no response (the request may never have reached Google).
-* Use Google’s published costs for methods this app actually calls: `videos.list` and `liveChatMessages.list` go to the default unit bucket (1 each); `search.list` goes to the separate search bucket (1 each, default 100/day). Unknown `/youtube/v3/…` paths count **1** in the default bucket.
-* Counters are **in-memory for this process**, shared across Start and Find latest via `quota.Default`. They reset at midnight Pacific Time if the process is still running, and when the **stream ID changes** (Save, Start, or Find latest that returns a different video). They are not Google’s remaining quota: other tools on the same Cloud project, and spend from a previous run today, are invisible.
+* Use Google’s billed costs for methods this app actually calls: `videos.list` costs **1**; `liveChatMessages.list` costs **5** (Cloud Console usage; the public calculator table currently lists 1). `search.list` goes to the separate search bucket (1 each, default 100/day). Unknown `/youtube/v3/…` paths count **1** in the default bucket.
+* Counters are **per Pacific day**, shared across Start and Find latest via `quota.Default`, and persisted as `quota.json` next to `config.json` so a restart does not drop today’s total. They are not Google’s remaining quota: other tools on the same Cloud project are invisible.
 
 ## Consequences
 
@@ -38,7 +38,7 @@ Use option 4.
 
 ### Negative and risks
 
-* The number can be **below** real project spend (other apps, earlier process today).
+* The number can be **below** real project spend (other apps on the same Cloud project).
 * The default 10,000 / 100 limits are Google’s documented defaults, not a project’s approved quota if the owner requested more.
 * A response from a proxy that Google never billed would over-count (unusual).
 

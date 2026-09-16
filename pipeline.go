@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"strings"
 	"sync"
 
 	"github.com/HardDie/ytmemchat_wails/internal/config"
@@ -25,7 +24,7 @@ type RunStatus struct {
 	Connecting bool `json:"connecting"`
 	// UsingAPIKey is true when the v3 client was selected (key present).
 	UsingAPIKey bool `json:"usingApiKey"`
-	// QuotaUnits is this process’s estimated spend in the default Data API bucket.
+	// QuotaUnits is this app’s estimated spend in the default Data API bucket today.
 	QuotaUnits int `json:"quotaUnits"`
 	// QuotaUnitsLimit is the documented default daily unit budget (not Cloud-approved quota).
 	QuotaUnitsLimit int `json:"quotaUnitsLimit"`
@@ -101,17 +100,6 @@ func (a *App) runStatusLocked() RunStatus {
 	}
 }
 
-// resetQuotaIfStreamIDChangedLocked zeros the local estimate when next is a
-// different stream ID than the one the counters currently apply to.
-func (a *App) resetQuotaIfStreamIDChangedLocked(next string) {
-	next = strings.TrimSpace(next)
-	if next == a.quotaStreamID {
-		return
-	}
-	quota.Default.Reset()
-	a.quotaStreamID = next
-}
-
 // GetRunStatus returns whether YouTube chat ingest is running.
 func (a *App) GetRunStatus() RunStatus {
 	a.mu.Lock()
@@ -154,7 +142,6 @@ func (a *App) Start() error {
 	a.runRunning = false
 	a.runUsingKey = settings.HasAPIKey()
 	a.runError = ""
-	a.resetQuotaIfStreamIDChangedLocked(settings.Youtube.StreamID)
 	a.runGen++
 	gen := a.runGen
 	wg := &sync.WaitGroup{}

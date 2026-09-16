@@ -20,19 +20,19 @@ You can restrict the key to YouTube Data API v3 so it cannot call other Google A
 
 ## Default quota (why a long stream may run out)
 
-A new Google Cloud project gets a **small daily budget**. Google currently gives **10,000 units per day** for most YouTube Data API calls (quota resets at midnight Pacific Time). Costs are listed in the [quota calculator](https://developers.google.com/youtube/v3/determine_quota_cost). Reading live chat (`liveChatMessages.list`) costs **1 unit per request**.
+A new Google Cloud project gets a **small daily budget**. Google currently gives **10,000 units per day** for most YouTube Data API calls (quota resets at midnight Pacific Time). The [quota calculator](https://developers.google.com/youtube/v3/determine_quota_cost) table lists `liveChatMessages.list` at 1, but **Cloud Console usage bills it at 5 units per request** (same as measured project metrics). `videos.list` is 1 unit. ytmemchat uses those billed costs on Home.
 
 ytmemchat asks for new messages about every **5 seconds** while Start is running (or a bit faster/slower if YouTube sends a polling interval).
 
 | | Amount |
 |---|---|
 | Requests per minute | 60 ÷ 5 = **12** |
-| Units per hour | 12 × 60 = **720** |
-| Hours on 10,000 units | 10,000 ÷ 720 ≈ **14 hours** of continuous Start |
+| Units per hour | 12 × 5 × 60 = **3,600** |
+| Hours on 10,000 units | 10,000 ÷ 3,600 ≈ **2.8 hours** of continuous Start |
 
-So the default key is enough for about a **typical long stream**, not a full day of 24-hour chat with the official API. If YouTube asks to poll more often, the budget runs out sooner. Home then shows that quota was exceeded; wait for the daily reset or request more quota from the [YouTube Data API overview](https://developers.google.com/youtube/v3/getting-started#quota-usage). Chat without a key does not use this budget.
+So the default key is enough for a **short-to-medium stream** with the official API, not a full day of chat. If YouTube asks to poll more often, the budget runs out sooner. Home then shows that quota was exceeded; wait for the daily reset or request more quota from the [YouTube Data API overview](https://developers.google.com/youtube/v3/getting-started#quota-usage). Chat without a key does not use this budget.
 
-The Data API does **not** return leftover units, and asking Google Cloud for them needs extra credentials (not this API key). Home shows **spent units this stream** from the v3 requests ytmemchat already makes (this process). That count does not spend extra quota. It resets at **midnight Pacific Time** and when you **change the stream ID** (Save, Start, or Find latest that picks a different video). It can be lower than the Cloud Console if another tool shares the project, or if you already used the key before launching the app today.
+The Data API does **not** return leftover units, and asking Google Cloud for them needs extra credentials (not this API key). Home shows **spent units today** from the v3 requests ytmemchat already makes. That count does not spend extra quota. It resets at **midnight Pacific Time** and is saved next to the settings file so a restart keeps today’s total. It can still be lower than the Cloud Console if another tool shares the project.
 
 ## Find latest still fits the default key
 
