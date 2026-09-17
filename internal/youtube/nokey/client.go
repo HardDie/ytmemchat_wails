@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -143,7 +144,7 @@ func (it *htmlIterator) startPolling() {
 			continue
 		}
 		for _, action := range result.ContinuationContents.LiveChatContinuation.Actions {
-			chatMsg := convertToChatMessage(action.AddChatItemAction.Item.LiveChatTextMessageRenderer)
+			chatMsg := convertChatItem(action.AddChatItemAction.Item)
 			if chatMsg.Message == "" {
 				continue
 			}
@@ -247,15 +248,82 @@ func parseContinuationFromHTML(html string) (string, error) {
 	return token, nil
 }
 
-func convertToChatMessage(renderer liveChatTextMessageRenderer) *youtube.ChatMessage {
-	var b strings.Builder
-	for _, run := range renderer.Message.Runs {
-		b.WriteString(run.Text)
+func convertChatItem(item chatItem) *youtube.ChatMessage {
+	switch {
+	case item.LiveChatPaidMessageRenderer != nil:
+		return convertRenderer(item.LiveChatPaidMessageRenderer, "superChatEvent", true)
+	case item.LiveChatPaidStickerRenderer != nil:
+		return convertRenderer(item.LiveChatPaidStickerRenderer, "superStickerEvent", true)
+	case item.LiveChatTextMessageRenderer != nil:
+		return convertRenderer(item.LiveChatTextMessageRenderer, "textMessageEvent", false)
+	default:
+		return &youtube.ChatMessage{}
+	}
+}
+
+func convertRenderer(r *liveChatMessageRenderer, typ string, paid bool) *youtube.ChatMessage {
+	if r == nil {
+		return &youtube.ChatMessage{}
+	}
+	msg := messageFromRuns(r.Message.Runs)
+	if paid {
+		amount := strings.TrimSpace(r.PurchaseAmountText.SimpleText)
+		if amount != "" {
+			if msg == "" {
+				msg = "[" + amount + "]"
+			} else {
+				msg = fmt.Sprintf("[%s] %s", amount, msg)
+			}
+		}
 	}
 	return &youtube.ChatMessage{
-		Author:  renderer.AuthorName.SimpleText,
-		Message: b.String(),
+		ID:        r.ID,
+		Author:    r.AuthorName.SimpleText,
+		ImgURL:    avatarURL(r.AuthorPhoto.Thumbnails),
+		Message:   msg,
+		Type:      typ,
+		Timestamp: parseTimestampUsec(r.TimestampUsec),
 	}
+}
+
+func messageFromRuns(runs []messageRun) string {
+	var b strings.Builder
+	for _, run := range runs {
+		if run.Text != "" {
+			b.WriteString(run.Text)
+			continue
+		}
+		if run.Emoji != nil && len(run.Emoji.Shortcuts) > 0 {
+			b.WriteString(run.Emoji.Shortcuts[0])
+		}
+	}
+	return b.String()
+}
+
+func avatarURL(thumbs []thumbnail) string {
+	best := ""
+	bestW := -1
+	for _, t := range thumbs {
+		if t.URL == "" {
+			continue
+		}
+		if t.Width >= bestW {
+			bestW = t.Width
+			best = t.URL
+		}
+	}
+	if strings.HasPrefix(best, "//") {
+		return "https:" + best
+	}
+	return best
+}
+
+func parseTimestampUsec(s string) time.Time {
+	usec, err := strconv.ParseInt(s, 10, 64)
+	if err != nil || usec <= 0 {
+		return time.Time{}
+	}
+	return time.UnixMicro(usec).UTC()
 }
 
 type ytInternalResponse struct {
@@ -273,22 +341,45 @@ type ytInternalResponse struct {
 			} `json:"continuations"`
 			Actions []struct {
 				AddChatItemAction struct {
-					Item struct {
-						LiveChatTextMessageRenderer liveChatTextMessageRenderer `json:"liveChatTextMessageRenderer"`
-					} `json:"item"`
+					Item chatItem `json:"item"`
 				} `json:"addChatItemAction"`
 			} `json:"actions"`
 		} `json:"liveChatContinuation"`
 	} `json:"continuationContents"`
 }
 
-type liveChatTextMessageRenderer struct {
-	AuthorName struct {
+type chatItem struct {
+	LiveChatTextMessageRenderer *liveChatMessageRenderer `json:"liveChatTextMessageRenderer"`
+	LiveChatPaidMessageRenderer *liveChatMessageRenderer `json:"liveChatPaidMessageRenderer"`
+	LiveChatPaidStickerRenderer *liveChatMessageRenderer `json:"liveChatPaidStickerRenderer"`
+}
+
+type liveChatMessageRenderer struct {
+	ID            string `json:"id"`
+	TimestampUsec string `json:"timestampUsec"`
+	AuthorName    struct {
 		SimpleText string `json:"simpleText"`
 	} `json:"authorName"`
+	AuthorPhoto struct {
+		Thumbnails []thumbnail `json:"thumbnails"`
+	} `json:"authorPhoto"`
 	Message struct {
-		Runs []struct {
-			Text string `json:"text"`
-		} `json:"runs"`
+		Runs []messageRun `json:"runs"`
 	} `json:"message"`
+	PurchaseAmountText struct {
+		SimpleText string `json:"simpleText"`
+	} `json:"purchaseAmountText"`
+}
+
+type thumbnail struct {
+	URL    string `json:"url"`
+	Width  int    `json:"width"`
+	Height int    `json:"height"`
+}
+
+type messageRun struct {
+	Text  string `json:"text"`
+	Emoji *struct {
+		Shortcuts []string `json:"shortcuts"`
+	} `json:"emoji"`
 }
