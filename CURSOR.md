@@ -263,7 +263,7 @@ make doc-all PKG=./internal/tts
 
 `-all` must show the package comment and every export. If `go doc` prints `no Go files` or only a name with no prose, the port is incomplete.
 
-After porting a package, add (or mark Ported) its `go doc` command in [README.md](README.md) under Contributing → Package documentation.
+After porting a package, add (or mark Ported) its `go doc` command on the [Contributing](docs/wiki/Contributing.md) wiki page under Package documentation.
 
 ### Tests
 
@@ -282,7 +282,7 @@ Every ported Go package **must** have unit tests. Add integration tests when the
 - Integration tests use `httptest`, temp dirs, and fakes. They **skip** (`t.Skip`) if a real YouTube key or live stream is required; they must not fail CI for missing secrets. Never commit API keys.
 - **OS-specific integration tests use GOOS build tags**, not `runtime.GOOS` branches that skip. Example: `//go:build integration && darwin` so Linux/Windows do not compile `say` tests. Skip only when this OS is correct but the tool is missing (`espeak` not installed on Linux CI). Shared helpers may use `//go:build integration` with no GOOS.
 - A package with no integration surface (for example pure token matching) does not need an integration file; say so in the package comment if it is unclear.
-- Porting is incomplete without tests, godoc, a use-case file, and a README `go doc` row.
+- Porting is incomplete without tests, godoc, a use-case file, and a wiki `go doc` row ([Contributing](docs/wiki/Contributing.md)).
 
 CI (every push and pull request): `go test -race -tags=nomain .` then `go test -race ./internal/...` then `go test -tags=integration ./internal/...`. See [ADR 008](docs/architecture/008-github-actions-test-and-release.md). The `nomain` tag skips `main.go` (Wails CGO) so App/pipeline tests run on Ubuntu.
 
@@ -343,11 +343,11 @@ The console tree splits HTTP into `server` + `chat`, YouTube into `clients/youtu
 
 - Match existing Go style in the console repo (`slog`, small `internal/` packages, interfaces at the package boundary).
 - Keep this file updated when routes, payloads, stack, or directory layout change.
-- **Keep [README.md](README.md) short.** Update it in the same change when product status, install, OBS URLs, license, contributing commands, the package `go doc` table, CI, or release artifacts change. README follows [Make a README](https://www.makeareadme.com/): name, description, install, usage, contributing, license, and honest **project status**. Do not put operator how-tos here (alerts YAML, HTTP curl, API quota, config path, TTS engines) — those live in [docs/wiki](docs/wiki/Home.md). Do not dump this file into the README; deep contracts stay here.
+- **Keep [README.md](README.md) short.** Update it in the same change when product status, install, OBS URLs, license, CI, or release artifacts change. README follows [Make a README](https://www.makeareadme.com/): name, description, install, usage, license, and honest **project status**. Do not put operator how-tos here (alerts YAML, HTTP curl, API quota, config path, TTS engines) — those live in [docs/wiki](docs/wiki/Home.md). Contributor make targets and the package `go doc` table live on [Contributing](docs/wiki/Contributing.md). Do not dump this file into the README; deep contracts stay here.
 - **Keep [docs/wiki](docs/wiki/Home.md) in the same change** when operator steps or settings move (stream ID, no-key chat, default alerts/TTS, OBS URLs, alert-before-TTS, API key/quota, Commands pane).
 - **Window pane GIF.** After changing Svelte panes (`App.svelte`, `frontend/src/lib/*`, `style.css`), refresh locally with `make screenshots`. `README.md` loads it from `docs/screenshots/window.gif`. Do not hand-edit the GIF.
 - **Use cases only after porting.** When a module is first added under `internal/` (or `app.go` for UC-11), write `docs/use-cases/<module>/uc-NN-….md` from `docs/use-cases/_TEMPLATE.md` and set the row to Ported in `docs/use-cases/INDEX.md`. Do not invent UC files for code that is not in this repo.
-- **Godoc on every Go package.** Package comment plus comments on all exports. After porting, add a `go doc ./…` row for that package in README (Package documentation). Verify with `go doc -all` before considering the port done.
+- **Godoc on every Go package.** Package comment plus comments on all exports. After porting, add a `go doc ./…` row for that package on [Contributing](docs/wiki/Contributing.md) (Package documentation). Verify with `go doc -all` before considering the port done.
 - **Tests on every ported package.** Unit tests always; integration tests (`//go:build integration`) when the package hits HTTP, disk, or OS APIs. Platform-specific integration files also tag GOOS (`integration && darwin`). Keep `internal/` CGO-free. CI must stay green.
 - **New core decisions get an ADR** in `docs/architecture/` (next number, update `docs/architecture/INDEX.md`). Do not leave accepted decisions only in chat.
 - Prefer the smallest change that ports one behavior correctly over a large rewrite.
