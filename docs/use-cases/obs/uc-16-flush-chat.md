@@ -1,7 +1,7 @@
 # UC-16: Flush OBS chat from the Test pane
 
 **Module:** `internal/obs`  
-**Status:** Ported  
+**Status:** Implemented  
 **Actors:** Operator (Test pane)  
 **Goal:** Clear every on-screen chat line without stopping YouTube or overlay  
 **Preconditions:** OBS HTTP is listening. Chat page is open.  

@@ -51,6 +51,7 @@ Use cases:
 1. Write a use-case file **only after** that module exists in this repo.
 2. Until then, list the scenario in `docs/use-cases/INDEX.md` as Planned.
 3. When a module is ported, add `uc-NN-….md` and set the index status to Ported.
+4. Features first built here use Implemented, not Ported.
 
 ## Consequences
 

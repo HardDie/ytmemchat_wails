@@ -1,7 +1,7 @@
 # UC-15: Estimate Data API quota spend locally
 
 **Module:** `internal/youtube/quota` (wrapped from `internal/youtube` v3 client)  
-**Status:** Ported  
+**Status:** Implemented  
 **Actors:** Data API v3 client (Start chat or Find latest)  
 **Goal:** Count units this process spent without extra Google requests  
 **Preconditions:** A non-empty API key so the v3 client is used  

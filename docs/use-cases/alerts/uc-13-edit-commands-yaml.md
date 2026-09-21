@@ -1,7 +1,7 @@
 # UC-13: Edit commands.yaml from the window
 
 **Module:** `internal/alerts` (`LoadFile` / `SaveFile`) and Wails `GetAlertCommands` / `SaveAlertCommands`  
-**Status:** Ported  
+**Status:** Implemented  
 **Actors:** Operator in the Commands pane  
 **Goal:** Add and edit alert commands, writing volume and scale only when set  
 **Preconditions:** A `commands.yaml` path is saved in Configuration  

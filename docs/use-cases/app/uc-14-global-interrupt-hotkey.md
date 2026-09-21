@@ -1,7 +1,7 @@
 # UC-14: Global interrupt shortcut
 
 **Module:** `internal/hotkey`  
-**Status:** Ported  
+**Status:** Implemented  
 **Actors:** Operator at the desk (OBS often fullscreen)  
 **Goal:** Stop overlay TTS with a keyboard combination even when the ytmemchat window is not focused  
 **Preconditions:** App is running so OBS HTTP is up; interrupt shortcut enabled in settings (default on)  

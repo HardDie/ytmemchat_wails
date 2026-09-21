@@ -26,14 +26,14 @@ Each Go package needs a package comment and comments on all exports. Check from 
 
 | Package | Status | Check docs |
 |---|---|---|
-| `internal/config` | Ported | `go doc -all ./internal/config` |
+| `internal/config` | Implemented | `go doc -all ./internal/config` |
 | `internal/youtube` | Ported | `go doc -all ./internal/youtube` |
-| `internal/youtube/quota` | Ported | `go doc -all ./internal/youtube/quota` |
+| `internal/youtube/quota` | Implemented | `go doc -all ./internal/youtube/quota` |
 | `internal/youtube/nokey` | Ported | `go doc -all ./internal/youtube/nokey` |
 | `internal/obs` | Ported | `go doc -all ./internal/obs` |
 | `internal/alerts` | Ported | `go doc -all ./internal/alerts` |
 | `internal/tts` | Ported | `go doc -all ./internal/tts` |
-| `internal/hotkey` | Ported | `go doc -all ./internal/hotkey` |
-| `internal/secret` | Ported | `go doc -all ./internal/secret` |
-| `internal/update` | Ported | `go doc -all ./internal/update` |
-| `package main` (App core) | Start/Stop, OBS HTTP | `go doc -all .` |
+| `internal/hotkey` | Implemented | `go doc -all ./internal/hotkey` |
+| `internal/secret` | Implemented | `go doc -all ./internal/secret` |
+| `internal/update` | Implemented | `go doc -all ./internal/update` |
+| `package main` (App core) | Implemented | `go doc -all .` |

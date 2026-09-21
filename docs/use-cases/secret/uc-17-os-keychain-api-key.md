@@ -1,7 +1,7 @@
 # UC-17: Store the YouTube API key in the OS keychain
 
 **Module:** `internal/secret`  
-**Status:** Ported  
+**Status:** Implemented  
 **Actors:** Operator (Configuration pane), `config.Store`  
 **Goal:** Keep the Data API key out of `config.json` when the OS vault works  
 **Preconditions:** Settings can be saved. Vault may or may not be available.  

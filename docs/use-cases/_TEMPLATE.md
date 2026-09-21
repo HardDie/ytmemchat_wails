@@ -1,7 +1,7 @@
 # UC-NN: Short name
 
 **Module:** `internal/…` (port this file only after that package exists in this repo)  
-**Status:** Planned | In progress | Ported  
+**Status:** Planned | In progress | Ported | Implemented  
 **Actors:** Who starts the scenario  
 **Goal:** What success looks like  
 **Preconditions:** What must already be true  

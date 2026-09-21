@@ -1,7 +1,7 @@
 # UC-11: Start and stop YouTube chat ingest
 
 **Module:** `app.go` / `pipeline.go`  
-**Status:** Ported  
+**Status:** Implemented  
 **Actors:** Operator in the Wails window  
 **Goal:** Start polling live chat, push lines to `/obs/chat/ws`, and fan each line to overlay alerts or TTS; Stop cancels the iterator  
 **Preconditions:** Settings saved with a stream ID; OBS HTTP is listening  

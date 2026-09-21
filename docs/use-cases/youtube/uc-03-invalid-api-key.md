@@ -1,7 +1,7 @@
 # UC-03: Invalid API key does not fall back
 
 **Module:** `internal/youtube`  
-**Status:** Ported  
+**Status:** Implemented  
 **Actors:** Pipeline at Start when the user saved a non-empty API key that YouTube rejects  
 **Goal:** Fail with `ErrInvalidAPIKey` so the UI can show “invalid API key”  
 **Preconditions:** API key field is non-empty after trim  

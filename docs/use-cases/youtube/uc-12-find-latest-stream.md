@@ -1,7 +1,7 @@
 # UC-12: Find latest live or upcoming stream
 
 **Module:** `internal/youtube` (`LookupLatestBroadcast`) and Wails `LookupLatestStream`  
-**Status:** Ported  
+**Status:** Implemented  
 **Actors:** Operator in the Wails window  
 **Goal:** Fill stream ID from a previous video without copying a new watch URL  
 **Preconditions:** A Data API v3 key is set (form or saved). A previous video ID from the same channel is set.  

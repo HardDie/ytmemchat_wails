@@ -666,11 +666,12 @@ The console tree splits more packages than behaviors.
    1. After changing Svelte panes (`App.svelte`, `frontend/src/lib/*`, `style.css`), refresh locally with `make screenshots`.
    2. `README.md` loads it from `docs/screenshots/window.gif`.
    3. Do not hand-edit the GIF.
-7. **Use cases only after porting.**
+7. **Use cases only after the module exists.**
    1. When a module is first added under `internal/` (or `app.go` for UC-11), write a use-case file.
    2. Path: `docs/use-cases/<module>/uc-NN-….md` from `docs/use-cases/_TEMPLATE.md`.
-   3. Set the row to Ported in `docs/use-cases/INDEX.md`.
+   3. Set the row to Ported in `docs/use-cases/INDEX.md` if it came from the console app.
    4. Do not invent UC files for code that is not in this repo.
+   5. Set the row to Implemented if the feature was first built here.
 8. **Godoc on every Go package.**
    1. Package comment plus comments on all exports.
    2. After porting, add a `go doc ./…` row for that package on [Contributing](docs/wiki/Contributing.md) (Package documentation).

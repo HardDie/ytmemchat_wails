@@ -1,7 +1,7 @@
 # UC-04: Save and reload settings
 
 **Module:** `internal/config`  
-**Status:** Ported  
+**Status:** Implemented  
 **Actors:** Settings UI (Wails `GetSettings` / `SaveSettings`)  
 **Goal:** Persist user settings on disk and get the same values back after restart  
 **Preconditions:** Process can create the config directory (or a test uses a temp path)  

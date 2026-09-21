@@ -1,7 +1,7 @@
 # UC-18: Check GitHub for a newer app build
 
 **Module:** `internal/update`  
-**Status:** Ported  
+**Status:** Implemented  
 **Actors:** Operator (Update pane)  
 **Goal:** See if a newer GitHub Release exists, verify its archive, then quit and replace this install  
 **Preconditions:** Network to api.github.com. A tagged release with SHA256SUMS.txt.  
