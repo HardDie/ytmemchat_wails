@@ -16,7 +16,7 @@ var ErrOBSNotListening = fmt.Errorf("OBS HTTP is not listening")
 // ErrMessageEmpty is returned when the test payload is blank.
 var ErrMessageEmpty = fmt.Errorf("test message is empty")
 
-// Test exposes injecting a fake chat line into alerts and TTS.
+// Test exposes injecting a fake chat line and flushing the OBS chat page.
 type Test struct {
 	app api
 }
@@ -44,5 +44,16 @@ func (t *Test) SendTestMessage(text string) error {
 		return ErrOBSNotListening
 	}
 	t.app.DispatchChat(srv, testAuthor, text)
+	return nil
+}
+
+// FlushChat tells the OBS chat page to remove every on-screen line.
+// Overlay alerts and TTS are not affected. YouTube Start is not required.
+func (t *Test) FlushChat() error {
+	srv := t.app.OverlayServer()
+	if srv == nil {
+		return ErrOBSNotListening
+	}
+	srv.PublishChat(obs.FlushChat())
 	return nil
 }

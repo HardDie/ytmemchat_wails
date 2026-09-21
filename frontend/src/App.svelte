@@ -22,7 +22,7 @@
     PreviewAlert,
     SaveAlertCommands,
   } from '../wailsjs/go/commands/Commands.js'
-  import { SendTestMessage } from '../wailsjs/go/test/Test.js'
+  import { FlushChat, SendTestMessage } from '../wailsjs/go/test/Test.js'
   import { commands as cmdModels, configuration, home } from '../wailsjs/go/models'
   import { ClipboardSetText, EventsOn } from '../wailsjs/runtime/runtime'
   import HomePane from './lib/HomePane.svelte'
@@ -206,6 +206,17 @@
     try {
       await SendTestMessage(testMessage)
       status = 'Test message sent'
+    } catch (e) {
+      error = String(e)
+    }
+  }
+
+  async function flushChat(): Promise<void> {
+    error = ''
+    status = ''
+    try {
+      await FlushChat()
+      status = 'Chat flushed'
     } catch (e) {
       error = String(e)
     }
@@ -461,7 +472,7 @@
           canTest={!!(obs && obs.listening)}
         />
       {:else if page === 'test'}
-        <TestPane bind:testMessage {obs} onSend={sendTest} />
+        <TestPane bind:testMessage {obs} onSend={sendTest} onFlush={flushChat} />
       {:else}
         <HomePane {run} {obs} {streamId} {apiKey} {starting} {lookingUp} interruptHotkeyEnabled={interruptHotkeyEnabled} interruptHotkeyChord={interruptHotkeyChord} interruptHotkeyError={interruptHotkeyError} onStart={start} onStop={stop} onInterrupt={interruptTTS} onLookup={lookupLatest} onCopyChat={copyChat} onCopyOverlay={copyOverlay} />
       {/if}

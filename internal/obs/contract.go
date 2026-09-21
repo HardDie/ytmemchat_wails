@@ -15,7 +15,7 @@ const (
 	PathFavicon   = "/favicon.ico"
 )
 
-// PayloadType is the overlay WebSocket "type" field.
+// PayloadType is a WebSocket "type" value for overlay or chat control.
 type PayloadType string
 
 const (
@@ -28,6 +28,8 @@ const (
 	// PayloadTypeAppClosed is sent on graceful process exit so OBS pages can
 	// show that ytmemchat closed instead of a generic socket drop.
 	PayloadTypeAppClosed PayloadType = "app_closed"
+	// PayloadTypeChatFlush tells the chat page to remove every on-screen line.
+	PayloadTypeChatFlush PayloadType = "chat_flush"
 )
 
 // OverlayEvent is JSON sent to /obs/overlay/ws (same fields as the console overlay).
@@ -66,7 +68,9 @@ func AppClosedOverlay() OverlayEvent {
 
 // ChatEvent is JSON sent to /obs/chat/ws (same fields as the console chat overlay).
 type ChatEvent struct {
-	// Type is empty for chat lines. "app_closed" is a graceful process exit.
+	// Type is empty for chat lines.
+	// "app_closed" is a graceful process exit.
+	// "chat_flush" clears every on-screen line.
 	Type string `json:"type,omitempty"`
 	// AuthorName is the sender display name.
 	AuthorName string `json:"authorName"`
@@ -98,6 +102,11 @@ func NewChatEvent(author, picture, text string, published time.Time) ChatEvent {
 // AppClosedChat tells chat clients the Wails process is exiting.
 func AppClosedChat() ChatEvent {
 	return ChatEvent{Type: string(PayloadTypeAppClosed)}
+}
+
+// FlushChat tells chat clients to remove every on-screen line.
+func FlushChat() ChatEvent {
+	return ChatEvent{Type: string(PayloadTypeChatFlush)}
 }
 
 // InjectedMessage is a fake chat line from POST /api/webhook.

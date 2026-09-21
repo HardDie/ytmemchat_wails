@@ -82,6 +82,7 @@ const commands: Record<string, Fn> = {
 
 const testPane: Record<string, Fn> = {
   SendTestMessage: ok(undefined),
+  FlushChat: ok(undefined),
 }
 
 const w = window as unknown as {

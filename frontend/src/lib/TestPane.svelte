@@ -4,8 +4,10 @@
   export let testMessage: string
   export let obs: home.OBSStatus | null
   export let onSend: () => Promise<void>
+  export let onFlush: () => Promise<void>
 
   $: canSend = !!(obs && obs.listening && testMessage.trim())
+  $: canFlush = !!(obs && obs.listening)
 
   function submit(): void {
     if (!canSend) {
@@ -27,10 +29,13 @@
       Message
       <input autocomplete="off" bind:value={testMessage} placeholder="@jump or hello" spellcheck="false" type="text" />
     </label>
-    <p class="hint">Token plus a YAML command name tests an alert. Any other text tests TTS. Press Enter to send.</p>
+    <p class="hint">Token plus a YAML command name tests an alert. Any other text tests TTS. Press Enter to send. Flush chat clears OBS chat lines only.</p>
     <div class="actions">
       <button class="btn btn-primary" disabled={!canSend} type="submit">
         Send
+      </button>
+      <button class="btn" disabled={!canFlush} on:click={() => void onFlush()} type="button">
+        Flush chat
       </button>
     </div>
   </form>

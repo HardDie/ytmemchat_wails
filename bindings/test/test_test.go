@@ -1,8 +1,10 @@
 package test
 
 import (
+	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
 )
@@ -39,5 +41,23 @@ func TestSendTestMessage_dispatches(t *testing.T) {
 	}
 	if st.author != testAuthor || st.text != "hello" {
 		t.Fatalf("author=%q text=%q", st.author, st.text)
+	}
+}
+
+func TestFlushChat_requiresHTTP(t *testing.T) {
+	if err := New(&testStub{}).FlushChat(); !errors.Is(err, ErrOBSNotListening) {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestFlushChat_publishes(t *testing.T) {
+	srv := obs.New(obs.Config{})
+	t.Cleanup(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		_ = srv.Shutdown(ctx)
+	})
+	if err := New(&testStub{overlay: srv}).FlushChat(); err != nil {
+		t.Fatal(err)
 	}
 }

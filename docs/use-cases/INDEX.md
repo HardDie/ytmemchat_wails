@@ -23,6 +23,7 @@ Copy [\_TEMPLATE.md](_TEMPLATE.md) when a module is ported.
 | UC-13 | Edit commands.yaml from the window | `internal/alerts` | Ported | [alerts/uc-13-edit-commands-yaml.md](alerts/uc-13-edit-commands-yaml.md) |
 | UC-14 | Global interrupt shortcut | `internal/hotkey` | Ported | [app/uc-14-global-interrupt-hotkey.md](app/uc-14-global-interrupt-hotkey.md) |
 | UC-15 | Estimate Data API quota spend locally | `internal/youtube/quota` | Ported | [youtube/uc-15-local-quota-estimate.md](youtube/uc-15-local-quota-estimate.md) |
+| UC-16 | Flush OBS chat from the Test pane | `internal/obs` | Ported | [obs/uc-16-flush-chat.md](obs/uc-16-flush-chat.md) |
 
 ## Layout (after porting)
 
@@ -42,7 +43,8 @@ docs/use-cases/
 │   ├── uc-05-obs-live-chat.md
 │   ├── uc-06-obs-overlay.md
 │   ├── uc-09-inject-webhook.md
-│   └── uc-10-interrupt-tts.md
+│   ├── uc-10-interrupt-tts.md
+│   └── uc-16-flush-chat.md
 ├── alerts/
 │   ├── uc-07-alert-command.md
 │   └── uc-13-edit-commands-yaml.md

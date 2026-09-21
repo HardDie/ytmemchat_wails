@@ -59,6 +59,9 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(string(cb), "app_closed") {
 		t.Fatal("chat html must handle graceful app_closed")
 	}
+	if !strings.Contains(string(cb), "chat_flush") {
+		t.Fatal("chat html must handle chat_flush")
+	}
 
 	ov, err := http.Get(ts.URL + PathOverlay)
 	if err != nil {
@@ -186,6 +189,26 @@ func TestChatWebSocket(t *testing.T) {
 	}
 	if got.PublishedAt != "2026-01-02T03:04:05Z" {
 		t.Fatalf("published %q", got.PublishedAt)
+	}
+}
+
+func TestChatFlushWebSocket(t *testing.T) {
+	s, ts := startTest(t, Config{})
+	u := "ws" + strings.TrimPrefix(ts.URL, "http") + PathChatWS
+	c, _, err := websocket.DefaultDialer.Dial(u, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+	time.Sleep(30 * time.Millisecond)
+	s.PublishChat(FlushChat())
+	_ = c.SetReadDeadline(time.Now().Add(2 * time.Second))
+	var got ChatEvent
+	if err := c.ReadJSON(&got); err != nil {
+		t.Fatal(err)
+	}
+	if got.Type != string(PayloadTypeChatFlush) {
+		t.Fatalf("%+v", got)
 	}
 }
 

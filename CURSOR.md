@@ -120,7 +120,7 @@ Chat query `?transparent=1`:
 2. Maps onto the existing `body.transparent` class.
 3. Overlay still needs Interact-once for audio autoplay.
 
-**Chat WS payload** (same as `ytmemchat/internal/chat/contract.go`)
+**Chat WS payload** (same as `ytmemchat/internal/chat/contract.go`, plus control `type`)
 
 1. `authorName`
 2. `authorPicture`
@@ -128,6 +128,8 @@ Chat query `?transparent=1`:
 4. `publishedAt`
 5. `isModerator`
 6. `isOwner`
+7. optional `type`: empty line, `app_closed`, `chat_flush`
+8. `chat_flush` clears on-screen rows. Overlay is unchanged.
 
 **Overlay WS payload** (same as `ytmemchat/internal/server/contract.go`, plus `app_closed`)
 
@@ -140,7 +142,7 @@ Chat query `?transparent=1`:
 7. On Wails graceful exit, both sockets get `type: app_closed` before close.
 8. OBS pages can show that the app quit. They keep retrying so a later launch reconnects.
 9. Unexpected drops still use the generic “disconnected” banner.
-10. Chat JSON may include optional `type` (`app_closed` only).
+10. Overlay has no `chat_flush`.
 
 Do not invent a parallel Wails Events protocol for OBS.
 
@@ -198,7 +200,7 @@ Idiomatic pattern:
    4. Configuration: `GetSettings`, `SaveSettings`, `ConfigPath`, `GetTTSVoices`, path pickers.
    5. Home: `GetOBSStatus`, `Start`, `Stop`, `GetRunStatus`, `LookupLatestStream`, `InterruptTTS`.
    6. Commands: `GetAlertCommands`, `SaveAlertCommands`, `PickAlertMediaFile`, `PreviewAlert`.
-   7. Test: `SendTestMessage`.
+   7. Test: `SendTestMessage`, `FlushChat`.
    8. Sidebar: `AppVersion`.
    9. `PickAlertMediaFile` returns a path relative to the Config media folder.
    10. Files outside that tree are rejected.
