@@ -19,7 +19,7 @@
 1. **No CI** — local `go test` only.
 2. **`dAppServer/wails-build-action`** — less YAML; extra third-party action; older Go defaults.
 3. **Repo workflows**
-   1. `test.yml` on every push/PR (`go test -tags=nomain .` then `./internal/...`).
+   1. `test.yml` on every push/PR (`go test -tags=nomain` for `.`, bindings, and `internal/`).
    2. `release.yml` on `v*` tags with a matrix of native runners (Linux amd64, Linux arm64, Windows amd64, macOS universal).
 
 ## Decision
@@ -30,7 +30,7 @@ Use option 3.
    1. Live next to the package (`foo_test.go`).
    2. Run on every push: `go test -race -tags=nomain .`
    3. Then `go test -race -tags=nomain ./bindings/...`
-   4. Then `go test -race ./internal/...`
+   4. Then `go test -race -tags=nomain ./internal/...`
 2. **Integration tests**
    1. Use `//go:build integration` and files named `*_integration_test.go`.
    2. OS-specific cases add the GOOS (`integration && darwin`, `linux`, `windows`).
@@ -38,7 +38,10 @@ Use option 3.
    4. Run on every push: `go test -tags=integration ./internal/...`
    5. They must not need YouTube credentials or a display.
    6. Skip (don’t fail) if an optional tool is missing **on that OS**.
-3. **`internal/` stays CGO-free** so Ubuntu CI does not install WebKit for tests.
+3. **`internal/` stays CGO-free in tests**
+   1. `-tags=nomain` skips Wails in package main.
+   2. It also skips OS hotkey bind files.
+   3. Integration uses a no-op binder (`nomain || integration`).
 4. **Releases**
    1. Tag `v1.2.3` (semver with `v` prefix).
    2. Checkout with `fetch-depth: 0` so tags exist.
@@ -70,7 +73,8 @@ Use option 3.
 
 * macOS universal and Windows builds need GitHub-hosted macOS/Windows minutes.
 * `ubuntu-24.04-arm` availability depends on GitHub. If it disappears, switch Linux arm64 to a documented cross-compile fallback.
-* `go test ./...` from the repo root pulls Wails CGO (`main.go`). CI and `make test` use `-tags=nomain` on `.` plus `./internal/...`.
+* `go test ./...` from the repo root pulls Wails CGO (`main.go`).
+* CI and `make test` use `-tags=nomain` on `.`, `./bindings/...`, and `./internal/...`.
 
 ### Neutral
 

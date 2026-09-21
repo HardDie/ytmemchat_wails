@@ -342,7 +342,7 @@ Raw equivalents:
 2. `wails build`
 3. `go test -race -tags=nomain .`
 4. `go test -race -tags=nomain ./bindings/...`
-5. `go test -race ./internal/...`
+5. `go test -race -tags=nomain ./internal/...`
 6. Frontend-only (from `frontend/`): `npm install`, then `npm run dev` / `npm run build`.
 7. Wails generates bindings under `frontend/wailsjs/`. Do not edit those files by hand.
 8. After changing exported pane binding methods: `make generate`.
@@ -436,6 +436,7 @@ Official Wails layout:
 │   │   ├── quota/            # local Data API unit estimate (no extra Google calls)
 │   │   └── nokey/            # former youtubev1 (no API key)
 │   ├── obs/                  # one HTTP server: /obs/*, /api/*, both WS hubs, embed HTML
+│   ├── hotkey/               # chord parse + OS bind (`!nomain`)
 │   ├── alerts/               # command match + media file server
 │   └── tts/
 ├── pkg/                      # only if something is useful outside this module (prefer not)
@@ -499,7 +500,7 @@ Every ported Go package **must** have unit tests.
 
 | Kind | Files | Build tag | Local command |
 |---|---|---|---|
-| Unit | `foo_test.go` next to the code | none (`nomain` for package main) | `make test` or `go test ./internal/alerts` |
+| Unit | `foo_test.go` next to the code | `nomain` for `.`, bindings, and `internal/` | `make test` |
 | Integration (all OS) | `foo_integration_test.go` | `//go:build integration` | `make test-integration` |
 | Integration (one OS) | `foo_integration_darwin_test.go` (or `_linux_`, `_windows_`) | `//go:build integration && darwin` (or `linux` / `windows`) | same; other GOOS never compile those files |
 
@@ -507,28 +508,30 @@ Every ported Go package **must** have unit tests.
 
 1. Prefer table-driven tests.
 2. Cover happy path and the error cases in the use-case file (invalid API key, not live, bad YAML).
-3. `internal/` must stay **CGO-free** so CI can test on Ubuntu without WebKit.
+3. `internal/` stays **CGO-free** except OS hotkey bind files.
 4. Do not import Wails from `internal/`.
-5. OS hotkey registration lives in package main (`!nomain`).
-6. Integration tests use `httptest`, temp dirs, and fakes.
-7. They **skip** (`t.Skip`) if a real YouTube key or live stream is required.
-8. They must not fail CI for missing secrets. Never commit API keys.
-9. **OS-specific integration tests use GOOS build tags**, not `runtime.GOOS` skip branches.
-10. Example: `//go:build integration && darwin` so Linux/Windows do not compile `say` tests.
-11. Skip only when this OS is correct but the tool is missing (`espeak` not installed on Linux CI).
-12. Shared helpers may use `//go:build integration` with no GOOS.
-13. A package with no integration surface (pure token matching) does not need an integration file.
-14. Say so in the package comment if it is unclear.
-15. Porting is incomplete without tests, godoc, a use-case file, and a wiki `go doc` row ([Contributing](docs/wiki/Contributing.md)).
+5. OS hotkey registration lives in `internal/hotkey` (`!nomain && !integration`).
+6. Tests use `-tags=nomain` so the binder is a no-op (no display).
+7. Integration tests use `httptest`, temp dirs, and fakes.
+8. They **skip** (`t.Skip`) if a real YouTube key or live stream is required.
+9. They must not fail CI for missing secrets. Never commit API keys.
+10. **OS-specific integration tests use GOOS build tags**, not `runtime.GOOS` skip branches.
+11. Example: `//go:build integration && darwin` so Linux/Windows do not compile `say` tests.
+12. Skip only when this OS is correct but the tool is missing (`espeak` not installed on Linux CI).
+13. Shared helpers may use `//go:build integration` with no GOOS.
+14. A package with no integration surface (pure token matching) does not need an integration file.
+15. Say so in the package comment if it is unclear.
+16. Porting is incomplete without tests, godoc, a use-case file, and a wiki `go doc` row ([Contributing](docs/wiki/Contributing.md)).
 
 CI (every push and pull request):
 
 1. `go test -race -tags=nomain .`
 2. `go test -race -tags=nomain ./bindings/...`
-3. `go test -race ./internal/...`
+3. `go test -race -tags=nomain ./internal/...`
 4. `go test -tags=integration ./internal/...`
 5. See [ADR 008](docs/architecture/008-github-actions-test-and-release.md).
 6. The `nomain` tag skips `main.go` (Wails CGO) so App/pipeline tests run on Ubuntu.
+7. It also skips OS hotkey CGO in `internal/hotkey`.
 
 ### Releases
 

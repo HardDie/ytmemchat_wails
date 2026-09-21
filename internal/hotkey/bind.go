@@ -1,90 +1,42 @@
-//go:build !nomain
+//go:build !nomain && !integration
 
-package main
+package hotkey
 
 import (
-	"log/slog"
+	"fmt"
 	"time"
 
 	oshotkey "golang.design/x/hotkey"
-
-	"github.com/HardDie/ytmemchat_wails/bindings/home"
-	"github.com/HardDie/ytmemchat_wails/internal/hotkey"
 )
 
-type interruptHotkey struct {
+type osSession struct {
 	hk   *oshotkey.Hotkey
 	stop chan struct{}
 	done chan struct{}
 }
 
-func (a *App) syncInterruptHotkey() {
-	a.stopInterruptHotkey()
-	a.mu.Lock()
-	s := a.settings.InterruptHotkey
-	a.hotkeyErr = ""
-	a.mu.Unlock()
-	if !s.IsEnabled() {
-		return
-	}
-	chord, err := hotkey.Parse(s.Chord)
-	if err != nil {
-		a.setHotkeyErr(err.Error())
-		slog.Error("interrupt hotkey", "err", err)
-		return
-	}
-	key, ok := osHotkeyKey(chord.Key)
+func newSession(c Chord, onPress func()) (stoppable, error) {
+	key, ok := osHotkeyKey(c.Key)
 	if !ok {
-		a.setHotkeyErr("unsupported key " + chord.Key)
-		slog.Error("interrupt hotkey", "key", chord.Key)
-		return
+		return nil, fmt.Errorf("unsupported key %s", c.Key)
 	}
-	hk := oshotkey.New(osHotkeyMods(chord), key)
+	hk := oshotkey.New(osHotkeyMods(c), key)
 	if err := hk.Register(); err != nil {
-		a.setHotkeyErr(err.Error())
-		slog.Error("interrupt hotkey register", "err", err, "chord", chord.String())
-		return
+		return nil, err
 	}
 	stop := make(chan struct{})
 	done := make(chan struct{})
-	a.mu.Lock()
-	still := a.settings.InterruptHotkey.IsEnabled() && a.settings.InterruptHotkey.Chord == chord.String()
-	if !still {
-		a.mu.Unlock()
-		_ = hk.Unregister()
-		return
-	}
-	a.hk = interruptHotkey{hk: hk, stop: stop, done: done}
-	a.mu.Unlock()
-	go listenInterruptHotkey(a, hk, stop, done)
+	go listenOSHotkey(hk, onPress, stop, done)
+	return &osSession{hk: hk, stop: stop, done: done}, nil
 }
 
-func (a *App) setHotkeyErr(msg string) {
-	a.mu.Lock()
-	a.hotkeyErr = msg
-	a.mu.Unlock()
+func (s *osSession) unbind() {
+	close(s.stop)
+	<-s.done
+	_ = s.hk.Unregister()
 }
 
-func (a *App) stopInterruptHotkey() {
-	a.mu.Lock()
-	stop := a.hk.stop
-	done := a.hk.done
-	hk := a.hk.hk
-	a.hk = interruptHotkey{}
-	a.hotkeyErr = ""
-	a.mu.Unlock()
-	if stop != nil {
-		close(stop)
-	}
-	if done != nil {
-		<-done
-	}
-	if hk != nil {
-		_ = hk.Unregister()
-	}
-}
-
-func listenInterruptHotkey(a *App, hk *oshotkey.Hotkey, stop <-chan struct{}, done chan struct{}) {
+func listenOSHotkey(hk *oshotkey.Hotkey, onPress func(), stop <-chan struct{}, done chan struct{}) {
 	defer close(done)
 	tick := time.NewTicker(200 * time.Millisecond)
 	defer tick.Stop()
@@ -104,14 +56,14 @@ func listenInterruptHotkey(a *App, hk *oshotkey.Hotkey, stop <-chan struct{}, do
 				continue
 			}
 			last = time.Now()
-			if err := home.New(a).InterruptTTS(); err != nil {
-				slog.Debug("interrupt hotkey", "err", err)
+			if onPress != nil {
+				onPress()
 			}
 		}
 	}
 }
 
-func osHotkeyMods(c hotkey.Chord) []oshotkey.Modifier {
+func osHotkeyMods(c Chord) []oshotkey.Modifier {
 	var m []oshotkey.Modifier
 	if c.Ctrl {
 		m = append(m, oshotkey.ModCtrl)

@@ -10,6 +10,7 @@ import (
 	"github.com/HardDie/ytmemchat_wails/bindings/configuration"
 	"github.com/HardDie/ytmemchat_wails/bindings/home"
 	"github.com/HardDie/ytmemchat_wails/internal/config"
+	"github.com/HardDie/ytmemchat_wails/internal/hotkey"
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
 	"github.com/HardDie/ytmemchat_wails/internal/youtube"
 	"github.com/HardDie/ytmemchat_wails/internal/youtube/quota"
@@ -49,7 +50,7 @@ type App struct {
 	runError       string
 	emit           func(string, any)
 	lookupLatest   func(context.Context, string, string) (youtube.LatestBroadcast, error)
-	hk             interruptHotkey
+	hk             hotkey.Binding
 	hotkeyErr      string
 }
 

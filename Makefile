@@ -42,7 +42,7 @@ generate: require-wails
 test:
 	$(GO) test -race -count=1 -tags=$(TEST_MAIN_TAGS) .
 	$(GO) test -race -count=1 -tags=$(TEST_MAIN_TAGS) ./bindings/...
-	$(GO) test -race -count=1 $(INTERNAL)
+	$(GO) test -race -count=1 -tags=$(TEST_MAIN_TAGS) $(INTERNAL)
 
 ## test-integration: Integration tests (OS TTS, later HTTP); skips if tools missing
 test-integration:
@@ -58,7 +58,7 @@ ci: test-all
 vet:
 	$(GO) vet -tags=$(TEST_MAIN_TAGS) .
 	$(GO) vet -tags=$(TEST_MAIN_TAGS) ./bindings/...
-	$(GO) vet $(INTERNAL)
+	$(GO) vet -tags=$(TEST_MAIN_TAGS) $(INTERNAL)
 
 ## fmt: Format Go files; fail if any file needed formatting
 fmt:

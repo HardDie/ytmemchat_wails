@@ -1,6 +1,6 @@
 # UC-14: Global interrupt shortcut
 
-**Module:** `internal/hotkey`, package main (`hotkey_bind.go`)  
+**Module:** `internal/hotkey`  
 **Status:** Ported  
 **Actors:** Operator at the desk (OBS often fullscreen)  
 **Goal:** Stop overlay TTS with a keyboard combination even when the ytmemchat window is not focused  

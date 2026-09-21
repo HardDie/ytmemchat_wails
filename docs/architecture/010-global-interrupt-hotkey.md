@@ -16,7 +16,7 @@
 
 1. **Window-only shortcut** — fails when OBS has focus.
 2. **HTTP `/api/interrupt` only** — already exists; too slow in a panic.
-3. **OS global hotkey** (Carbon / `RegisterHotKey` / X11) registered from package main, chord stored in config.json.
+3. **OS global hotkey** (Carbon / `RegisterHotKey` / X11) in `internal/hotkey`, chord stored in config.json.
 
 ## Decision
 
@@ -24,11 +24,12 @@ Use option 3.
 
 1. Default chord is `Ctrl+Shift+I` (Control, not Command, so it does not steal macOS app shortcuts).
 2. The operator can record a different combination in Config.
-3. Registration is CGO in package main (`!nomain`).
-4. `internal/hotkey` only parses chords so tests stay CGO-free.
-5. Pin `golang.design/x/hotkey` v0.4.1.
-6. Later versions use a macOS event tap that requires Accessibility permission.
-7. Linux is X11 only.
+3. Registration is CGO in `internal/hotkey` (`!nomain && !integration`).
+4. Chord parse stays CGO-free in the same package.
+5. Tests compile a no-op binder (`nomain` or `integration`).
+6. Pin `golang.design/x/hotkey` v0.4.1.
+7. Later versions use a macOS event tap that requires Accessibility permission.
+8. Linux is X11 only.
 
 ## Consequences
 
