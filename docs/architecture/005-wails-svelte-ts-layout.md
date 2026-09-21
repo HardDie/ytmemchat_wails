@@ -25,10 +25,11 @@
 Use option 1.
 
 1. Bind one struct per window pane under `bindings/` (`home`, `configuration`, `commands`, `test`).
-2. They wrap `App` in `package main`.
-3. Domain stays in `internal/`.
-4. Do not use SvelteKit unless file-based routing is required.
-5. After scaffold, use Svelte 5 `mount()` in `frontend/src/main.ts` if the template still uses `new App({ target })`.
+2. Bind `sidebar` for chrome that is not a pane (`AppVersion`).
+3. They wrap `App` in `package main` except `sidebar`, which needs no `App`.
+4. Domain stays in `internal/`.
+5. Do not use SvelteKit unless file-based routing is required.
+6. After scaffold, use Svelte 5 `mount()` in `frontend/src/main.ts` if the template still uses `new App({ target })`.
 
 ## Consequences
 

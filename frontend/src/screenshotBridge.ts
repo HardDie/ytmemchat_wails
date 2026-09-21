@@ -43,13 +43,16 @@ const run = {
 }
 
 const home: Record<string, Fn> = {
-  AppVersion: ok('demo'),
   GetOBSStatus: ok(obs),
   GetRunStatus: ok(run),
   InterruptTTS: ok(undefined),
   LookupLatestStream: ok({ streamId: settings.streamId, channelId: 'UCxxxxxxxx', kind: 'live' }),
   Start: ok(undefined),
   Stop: ok(undefined),
+}
+
+const sidebar: Record<string, Fn> = {
+  AppVersion: ok('demo'),
 }
 
 const configuration: Record<string, Fn> = {
@@ -84,6 +87,7 @@ const testPane: Record<string, Fn> = {
 const w = window as unknown as {
   go: {
     home: { Home: Record<string, Fn> }
+    sidebar: { Sidebar: Record<string, Fn> }
     configuration: { Configuration: Record<string, Fn> }
     commands: { Commands: Record<string, Fn> }
     test: { Test: Record<string, Fn> }
@@ -96,6 +100,7 @@ const w = window as unknown as {
 
 w.go = {
   home: { Home: home },
+  sidebar: { Sidebar: sidebar },
   configuration: { Configuration: configuration },
   commands: { Commands: commands },
   test: { Test: testPane },

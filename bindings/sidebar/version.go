@@ -1,9 +1,9 @@
-package home
+package sidebar
 
 import "strings"
 
 // buildVersion is the git tag or short commit stamped at link time
-// (`-X github.com/HardDie/ytmemchat_wails/bindings/home.buildVersion=…`).
+// (`-X github.com/HardDie/ytmemchat_wails/bindings/sidebar.buildVersion=…`).
 // Unset builds show "dev".
 var buildVersion = "dev"
 
@@ -16,6 +16,6 @@ func versionString() string {
 }
 
 // AppVersion is the git tag or commit the binary was built from.
-func (h *Home) AppVersion() string {
+func (s *Sidebar) AppVersion() string {
 	return versionString()
 }

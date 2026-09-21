@@ -193,25 +193,27 @@ Idiomatic pattern:
    5. File mode `0600` because the file holds `YOUTUBE_API_KEY`.
 6. **Bindings**
    1. One Wails struct per pane under `bindings/` (`home`, `configuration`, `commands`, `test`).
-   2. `App` keeps Start/Stop, OBS HTTP, and persist helpers.
-   3. Configuration: `GetSettings`, `SaveSettings`, `ConfigPath`, `GetTTSVoices`, path pickers.
-   4. Home: `GetOBSStatus`, `Start`, `Stop`, `GetRunStatus`, `LookupLatestStream`, `InterruptTTS`, `AppVersion`.
-   5. Commands: `GetAlertCommands`, `SaveAlertCommands`, `PickAlertMediaFile`, `PreviewAlert`.
-   6. Test: `SendTestMessage`.
-   7. `PickAlertMediaFile` returns a path relative to the Config media folder.
-   8. Files outside that tree are rejected.
-   9. `AppVersion` is stamped at link time (`-X github.com/HardDie/ytmemchat_wails/bindings/home.buildVersion`).
-   10. Unset `AppVersion` is `dev`.
-   11. Start uses last saved settings (window saves the form first).
-   12. Empty API key → `nokey`. Non-empty → v3 only.
-   13. Never fall back on invalid key.
-   14. Connect runs in a goroutine.
-   15. After each chat line (YouTube, `POST /api/webhook`, or **Send**): overlay `alert` on a command match, else TTS when enabled.
-   16. Inject/test run while OBS HTTP is up. YouTube Start is not required.
-   17. Empty `commandsFilePath` skips the matcher.
-   18. A bad commands file fails Start (inject logs and skips the matcher).
-   19. `SaveAlertCommands` writes `commands.yaml` (omits unset `volume`/`scale`).
-   20. Save reloads the matcher without YouTube Start.
+   2. Sidebar chrome uses `bindings/sidebar`.
+   3. `App` keeps Start/Stop, OBS HTTP, and persist helpers.
+   4. Configuration: `GetSettings`, `SaveSettings`, `ConfigPath`, `GetTTSVoices`, path pickers.
+   5. Home: `GetOBSStatus`, `Start`, `Stop`, `GetRunStatus`, `LookupLatestStream`, `InterruptTTS`.
+   6. Commands: `GetAlertCommands`, `SaveAlertCommands`, `PickAlertMediaFile`, `PreviewAlert`.
+   7. Test: `SendTestMessage`.
+   8. Sidebar: `AppVersion`.
+   9. `PickAlertMediaFile` returns a path relative to the Config media folder.
+   10. Files outside that tree are rejected.
+   11. `AppVersion` is stamped at link time (`-X github.com/HardDie/ytmemchat_wails/bindings/sidebar.buildVersion`).
+   12. Unset `AppVersion` is `dev`.
+   13. Start uses last saved settings (window saves the form first).
+   14. Empty API key → `nokey`. Non-empty → v3 only.
+   15. Never fall back on invalid key.
+   16. Connect runs in a goroutine.
+   17. After each chat line (YouTube, `POST /api/webhook`, or **Send**): overlay `alert` on a command match, else TTS when enabled.
+   18. Inject/test run while OBS HTTP is up. YouTube Start is not required.
+   19. Empty `commandsFilePath` skips the matcher.
+   20. A bad commands file fails Start (inject logs and skips the matcher).
+   21. `SaveAlertCommands` writes `commands.yaml` (omits unset `volume`/`scale`).
+   22. Save reloads the matcher without YouTube Start.
 7. **What belongs here**
    1. Stream ID (required to Start).
    2. Optional YouTube API key.
@@ -404,7 +406,8 @@ Official Wails layout:
 ├── go.mod
 ├── main.go                   # wails.Run, Bind pane structs, //go:embed all:frontend/dist
 ├── app.go                    # App core: settings, pipeline, OBS HTTP (not bound directly)
-├── bindings/                 # Wails Bind[] wrappers, one package per pane
+├── bindings/                 # Wails Bind[] wrappers
+│   ├── sidebar/              # AppVersion
 │   ├── home/
 │   ├── configuration/
 │   ├── commands/
@@ -422,7 +425,7 @@ Official Wails layout:
 │   │   ├── lib/              # HomePane, ConfigPane, CommandsPane, TestPane
 │   │   └── assets/
 │   ├── wailsjs/              # generated bindings — do not edit
-│   │   ├── go/               # home, configuration, commands, test
+│   │   ├── go/               # sidebar, home, configuration, commands, test
 │   │   └── runtime/
 │   └── dist/                 # Vite build output (embedded; gitignore contents)
 ├── internal/
@@ -443,14 +446,15 @@ Official Wails layout:
 2. The Wails CLI expects `wails.json` beside them.
 3. Do not move the entrypoint to `cmd/` the way the console app does.
 4. Keep `App` in `package main` as the desktop core.
-5. Bind **one struct per window pane** under `bindings/` (`home`, `configuration`, `commands`, `test`).
-6. Wrappers may own pane-only Wails methods. Shared runtime stays on `App`.
-7. Do not put YouTube/HTTP/config core logic in `bindings/` except pane-specific mapping.
-8. Svelte imports Go via `../wailsjs/go/<package>/<Struct>`.
-9. Default `wailsjsdir` is `frontend/`. Leave it unless we add SvelteKit.
-10. `frontend/src/lib` is UI only. No HTTP server, no YouTube, no `commands.yaml` parsing.
-11. OBS pages (`overlay.html`, `chat.html`) live in `internal/obs` next to the handlers (`//go:embed`).
-12. Tests sit beside the Go package they cover (`internal/alerts/find_token_test.go` style).
+5. Bind pane structs under `bindings/` (`home`, `configuration`, `commands`, `test`).
+6. Bind `sidebar` for chrome that is not a pane (`AppVersion`).
+7. Wrappers may own pane-only Wails methods. Shared runtime stays on `App`.
+8. Do not put YouTube/HTTP/config core logic in `bindings/` except pane-specific mapping.
+9. Svelte imports Go via `../wailsjs/go/<package>/<Struct>`.
+10. Default `wailsjsdir` is `frontend/`. Leave it unless we add SvelteKit.
+11. `frontend/src/lib` is UI only. No HTTP server, no YouTube, no `commands.yaml` parsing.
+12. OBS pages (`overlay.html`, `chat.html`) live in `internal/obs` next to the handlers (`//go:embed`).
+13. Tests sit beside the Go package they cover (`internal/alerts/find_token_test.go` style).
 
 ### Go package documentation (godoc)
 

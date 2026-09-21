@@ -46,7 +46,7 @@ Use option 3.
    4. Prefetch modules (`go mod download`, retries) with `GODEBUG=http2client=0`.
    5. That avoids proxy.golang.org HTTP/2 stream errors on large zips (notably `google.golang.org/genproto`) on arm64.
    6. Build with `wails build -skipbindings -platform …`.
-   7. Stamp version with `-ldflags "-X github.com/HardDie/ytmemchat_wails/bindings/home.buildVersion=…"`.
+   7. Stamp version with `-ldflags "-X github.com/HardDie/ytmemchat_wails/bindings/sidebar.buildVersion=…"`.
    8. Bindings are committed under `frontend/wailsjs`. Generate locally after changing pane binding methods.
    9. Linux (Ubuntu 24.04) also passes `-tags webkit2_41` because the runner has `libwebkit2gtk-4.1-dev`, not 4.0.
    10. Native runners: `ubuntu-latest`, `ubuntu-24.04-arm`, `windows-latest`, `macos-latest` (`darwin/universal`).

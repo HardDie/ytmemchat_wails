@@ -11,6 +11,7 @@ import (
 	"github.com/HardDie/ytmemchat_wails/bindings/commands"
 	"github.com/HardDie/ytmemchat_wails/bindings/configuration"
 	"github.com/HardDie/ytmemchat_wails/bindings/home"
+	"github.com/HardDie/ytmemchat_wails/bindings/sidebar"
 	"github.com/HardDie/ytmemchat_wails/bindings/test"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -36,6 +37,7 @@ func main() {
 		OnStartup:        app.startup,
 		OnShutdown:       app.shutdown,
 		Bind: []interface{}{
+			sidebar.New(),
 			home.New(app),
 			configuration.New(app),
 			commands.New(app),

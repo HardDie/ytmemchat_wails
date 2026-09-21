@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { AppVersion } from '../wailsjs/go/sidebar/Sidebar.js'
   import {
-    AppVersion,
     GetOBSStatus,
     GetRunStatus,
     InterruptTTS,

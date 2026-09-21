@@ -1,4 +1,4 @@
-package home
+package sidebar
 
 import "testing"
 
@@ -16,8 +16,7 @@ func TestVersionString_emptyIsDev(t *testing.T) {
 }
 
 func TestAppVersion_defaultDev(t *testing.T) {
-	h := New(&homeStub{})
-	if h.AppVersion() != "dev" {
-		t.Fatalf("version = %q", h.AppVersion())
+	if New().AppVersion() != "dev" {
+		t.Fatalf("version = %q", New().AppVersion())
 	}
 }
