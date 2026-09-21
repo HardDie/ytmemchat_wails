@@ -34,4 +34,5 @@ Each Go package needs a package comment and comments on all exports. Check from 
 | `internal/alerts` | Ported | `go doc -all ./internal/alerts` |
 | `internal/tts` | Ported | `go doc -all ./internal/tts` |
 | `internal/hotkey` | Ported | `go doc -all ./internal/hotkey` |
+| `internal/secret` | Ported | `go doc -all ./internal/secret` |
 | `package main` (bindings façade) | Chat Start/Stop | `go doc -all .` |

@@ -24,6 +24,7 @@ Copy [\_TEMPLATE.md](_TEMPLATE.md) when a module is ported.
 | UC-14 | Global interrupt shortcut | `internal/hotkey` | Ported | [app/uc-14-global-interrupt-hotkey.md](app/uc-14-global-interrupt-hotkey.md) |
 | UC-15 | Estimate Data API quota spend locally | `internal/youtube/quota` | Ported | [youtube/uc-15-local-quota-estimate.md](youtube/uc-15-local-quota-estimate.md) |
 | UC-16 | Flush OBS chat from the Test pane | `internal/obs` | Ported | [obs/uc-16-flush-chat.md](obs/uc-16-flush-chat.md) |
+| UC-17 | Store the YouTube API key in the OS keychain | `internal/secret` | Ported | [secret/uc-17-os-keychain-api-key.md](secret/uc-17-os-keychain-api-key.md) |
 
 ## Layout (after porting)
 
@@ -50,7 +51,9 @@ docs/use-cases/
 │   └── uc-13-edit-commands-yaml.md
 ├── tts/
 │   └── uc-08-speak-message.md
-└── app/
-    ├── uc-11-start-stop.md
-    └── uc-14-global-interrupt-hotkey.md
+├── app/
+│   ├── uc-11-start-stop.md
+│   └── uc-14-global-interrupt-hotkey.md
+└── secret/
+    └── uc-17-os-keychain-api-key.md
 ```

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/HardDie/ytmemchat_wails/internal/config"
+	"github.com/HardDie/ytmemchat_wails/internal/secret"
 )
 
 func TestGetSaveSettings_roundTrip(t *testing.T) {
@@ -20,6 +21,9 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 	}
 	if !got.InterruptHotkeyEnabled || got.InterruptHotkeyChord != "Ctrl+Shift+I" {
 		t.Fatalf("hotkey %+v", got)
+	}
+	if got.APIKeyInKeychain {
+		t.Fatal("file store is not keychain")
 	}
 	savePatched(t, c, func(f *SettingsForm) {
 		f.StreamID = "  liveid  "
@@ -100,4 +104,17 @@ func TestSaveSettings_emptyStreamIDAllowed(t *testing.T) {
 		f.StreamID = ""
 		f.Port = "8080"
 	})
+}
+
+func TestGetSettings_keychainHint(t *testing.T) {
+	st := config.NewStoreWithVault(filepath.Join(t.TempDir(), "config.json"), &secret.Memory{})
+	c := New(&configStub{settings: config.Defaults(), store: st})
+	savePatched(t, c, func(f *SettingsForm) {
+		f.APIKey = "vaulted"
+		f.Port = "8080"
+	})
+	got := c.GetSettings()
+	if got.APIKey != "vaulted" || !got.APIKeyInKeychain {
+		t.Fatalf("%+v", got)
+	}
 }

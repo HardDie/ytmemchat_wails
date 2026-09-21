@@ -8,7 +8,7 @@ Leave the field empty to read the public live chat page (no quota). Paste a key 
 
 Without a key, YouTube may hide messages it marks as spam or otherwise “bad”. Those lines never reach ytmemchat. Details are on [Getting Started](Getting-Started#which-messages-you-will-see).
 
-The key is stored in the local settings file (mode `0600`). It is never logged.
+The key is stored in the OS keychain when that vault works. Otherwise it is in the local settings file (mode `0600`). It is never logged.
 
 ## How to get a key
 

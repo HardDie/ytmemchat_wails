@@ -15,3 +15,4 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [009](009-obs-http-process-lifetime.md) | OBS HTTP lives with the Wails process | Accepted |
 | [010](010-global-interrupt-hotkey.md) | OS-level interrupt hotkey | Accepted |
 | [011](011-local-youtube-quota-estimate.md) | Local YouTube Data API quota estimate | Accepted |
+| [012](012-os-keychain-api-key.md) | OS keychain for the YouTube API key | Accepted |

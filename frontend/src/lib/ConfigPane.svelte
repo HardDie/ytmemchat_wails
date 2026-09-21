@@ -16,6 +16,7 @@
   export let interruptHotkeyEnabled: boolean
   export let interruptHotkeyChord: string
   export let interruptHotkeyError: string
+  export let apiKeyInKeychain: boolean
   export let saving: boolean
   export let configPath: string
   export let onSave: () => Promise<void>
@@ -175,7 +176,13 @@
     YouTube API key
     <input autocomplete="off" bind:value={apiKey} spellcheck="false" type="password" />
   </label>
-  <p class="hint">Optional. Empty uses the no-key client. An invalid key does not fall back.</p>
+  <p class="hint">Optional. Empty uses the no-key client. An invalid key does not fall back.
+    {#if apiKeyInKeychain}
+      API key stored in the OS keychain.
+    {:else}
+      API key stored in the settings file (keychain unavailable).
+    {/if}
+  </p>
 
   <label class="field">
     HTTP port

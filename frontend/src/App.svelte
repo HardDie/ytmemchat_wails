@@ -53,6 +53,7 @@
   let interruptHotkeyEnabled = true
   let interruptHotkeyChord = 'Ctrl+Shift+I'
   let interruptHotkeyError = ''
+  let apiKeyInKeychain = false
   let testMessage = ''
   let configPath = ''
   let status = ''
@@ -82,6 +83,7 @@
     interruptHotkeyEnabled = s.interruptHotkeyEnabled !== false
     interruptHotkeyChord = s.interruptHotkeyChord || 'Ctrl+Shift+I'
     interruptHotkeyError = s.interruptHotkeyError ?? ''
+    apiKeyInKeychain = !!s.apiKeyInKeychain
   }
 
   function formPayload(): configuration.SettingsForm {
@@ -447,6 +449,7 @@
           bind:interruptHotkeyEnabled
           bind:interruptHotkeyChord
           interruptHotkeyError={interruptHotkeyError}
+          {apiKeyInKeychain}
           {saving}
           {configPath}
           onSave={save}

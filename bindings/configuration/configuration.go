@@ -61,6 +61,7 @@ func formFrom(s config.Settings, hotkeyErr string) SettingsForm {
 		InterruptHotkeyEnabled: s.InterruptHotkey.IsEnabled(),
 		InterruptHotkeyChord:   s.InterruptHotkey.Chord,
 		InterruptHotkeyError:   hotkeyErr,
+		APIKeyInKeychain:       s.APIKeyInKeychain,
 	}
 }
 

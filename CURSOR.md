@@ -237,9 +237,12 @@ Idiomatic pattern:
 8. **API key**
    1. Optional.
    2. Empty means use `youtube/nokey`.
-   3. When set, store in this `0600` JSON.
-   4. OS keychain is a later hardening step.
+   3. When set, store in the OS keychain when it is available.
+   4. If the keychain is down, keep the key in this `0600` JSON.
    5. Never log the key.
+   6. If JSON has a key and the vault works: move it, then save JSON with empty `apiKey`.
+   7. If the vault fails: leave the file as-is.
+   8. Config shows whether the keychain or the settings file holds the key.
 
 Do not panic if config is missing (unlike console `config.Get()`).
 
@@ -438,7 +441,8 @@ Official Wails layout:
 │   ├── obs/                  # one HTTP server: /obs/*, /api/*, both WS hubs, embed HTML
 │   ├── hotkey/               # chord parse + OS bind (`!nomain`)
 │   ├── alerts/               # command match + media file server
-│   └── tts/
+│   ├── tts/
+│   └── secret/               # OS keychain for the YouTube API key
 ├── pkg/                      # only if something is useful outside this module (prefer not)
 └── build/
 ```
@@ -458,6 +462,7 @@ Official Wails layout:
 11. `frontend/src/lib` is UI only. No HTTP server, no YouTube, no `commands.yaml` parsing.
 12. OBS pages (`overlay.html`, `chat.html`) live in `internal/obs` next to the handlers (`//go:embed`).
 13. Tests sit beside the Go package they cover (`internal/alerts/find_token_test.go` style).
+14. `internal/secret` holds the YouTube API key vault. `config.Store` calls it.
 
 ### Go package documentation (godoc)
 
@@ -577,6 +582,7 @@ The console tree splits more packages than behaviors.
 10. `alerts` / `tts` may depend on overlay event types in `obs`.
 11. `obs` must not import `alerts` or `youtube` (register handlers from `app.go`).
 12. **Keep `alerts` and `tts` as their own packages.** They have real logic (YAML commands, OS voices). Do not dump them into `obs`.
+13. `config` may use `internal/secret` for the YouTube API key.
 
 ---
 

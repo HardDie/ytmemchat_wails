@@ -52,3 +52,4 @@ Use option 3.
 ### Neutral
 
 * Window size may be stored in the same JSON later.
+* API key keychain is [012](012-os-keychain-api-key.md).

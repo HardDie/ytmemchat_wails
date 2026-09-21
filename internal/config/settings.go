@@ -33,6 +33,9 @@ type Settings struct {
 	InterruptHotkey InterruptHotkey `json:"interruptHotkey"`
 	// Window is optional saved Wails window bounds.
 	Window *Window `json:"window,omitempty"`
+	// APIKeyInKeychain is true when the OS vault is in use.
+	// It is filled by [Store.Load] and is not written to JSON.
+	APIKeyInKeychain bool `json:"-"`
 }
 
 // Youtube is YouTube live chat connection settings.

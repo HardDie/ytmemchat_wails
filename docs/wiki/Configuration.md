@@ -36,7 +36,7 @@ Required to **Start**. This is the YouTube video ID (`v=` in the watch URL, or t
 
 ### YouTube API key
 
-Optional. Empty uses the public live chat page. See [YouTube API key](YouTube-API-key) for what this token is, how to create one, and the default quota. With a key, **Home** shows spent units today (this app’s count; `liveChatMessages.list` is 5 units).
+Optional. Empty uses the public live chat page. See [YouTube API key](YouTube-API-key) for what this token is, how to create one, and the default quota. With a key, **Home** shows spent units today (this app’s count; `liveChatMessages.list` is 5 units). When the OS keychain works, the key is stored there; otherwise it stays in the settings file.
 
 ### HTTP port
 

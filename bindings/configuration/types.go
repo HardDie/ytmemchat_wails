@@ -28,6 +28,8 @@ type SettingsForm struct {
 	InterruptHotkeyChord string `json:"interruptHotkeyChord"`
 	// InterruptHotkeyError is a register failure; empty when the shortcut is active or off.
 	InterruptHotkeyError string `json:"interruptHotkeyError"`
+	// APIKeyInKeychain is true when the OS vault is available for the API key.
+	APIKeyInKeychain bool `json:"apiKeyInKeychain"`
 }
 
 // TTSVoice is one installed OS voice for the settings list.
