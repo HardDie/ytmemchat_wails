@@ -2,6 +2,8 @@
 
 The **Update** pane asks GitHub if a newer tagged build exists. It does not check on startup.
 
+![Update pane: Check, Download, Quit and install](https://raw.githubusercontent.com/HardDie/ytmemchat_wails/main/docs/screenshots/update.png)
+
 1. **Check** reads [GitHub Releases](https://github.com/HardDie/ytmemchat_wails/releases) (`releases/latest`).
 2. **Download** fetches this OS’s archive and checks SHA-256 against `SHA256SUMS.txt`.
 3. **Quit and install** quits ytmemchat, replaces the binary or macOS `.app`, and starts the new build.
