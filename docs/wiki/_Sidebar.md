@@ -5,4 +5,5 @@
 * [Configuration](Configuration)
 * [Commands](Commands)
 * [YouTube API key](YouTube-API-key)
+* [Update](Update)
 * [Contributing](Contributing)
