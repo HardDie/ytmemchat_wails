@@ -18,7 +18,7 @@ make doc PKG=./internal/tts
 make doc-all PKG=./internal/tts
 ```
 
-GitHub Actions (`.github/workflows/test.yml`) runs `make test` then integration tests on every push and pull request. Push a `vMAJOR.MINOR.PATCH` tag to publish release archives (`.github/workflows/release.yml`).
+GitHub Actions (`.github/workflows/test.yml`) runs `make test` then integration tests on every push and pull request. Push a `vMAJOR.MINOR.PATCH` tag to publish versioned release archives such as `ytmemchat-v0.1.0-linux-amd64.tar.gz` (`.github/workflows/release.yml`).
 
 ## Package documentation
 

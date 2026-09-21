@@ -544,10 +544,10 @@ Push a tag `vMAJOR.MINOR.PATCH` (for example `v0.1.0`). GitHub Actions builds an
 
 | Artifact | Runner / platform |
 |---|---|
-| `ytmemchat-linux-amd64.tar.gz` | `ubuntu-latest` · `linux/amd64` |
-| `ytmemchat-linux-arm64.tar.gz` | `ubuntu-24.04-arm` · `linux/arm64` |
-| `ytmemchat-windows-amd64.zip` | `windows-latest` · `windows/amd64` |
-| `ytmemchat-darwin-universal.zip` | `macos-latest` · `darwin/universal` |
+| `ytmemchat-vMAJOR.MINOR.PATCH-linux-amd64.tar.gz` | `ubuntu-latest` · `linux/amd64` |
+| `ytmemchat-vMAJOR.MINOR.PATCH-linux-arm64.tar.gz` | `ubuntu-24.04-arm` · `linux/arm64` |
+| `ytmemchat-vMAJOR.MINOR.PATCH-windows-amd64.zip` | `windows-latest` · `windows/amd64` |
+| `ytmemchat-vMAJOR.MINOR.PATCH-darwin-universal.zip` | `macos-latest` · `darwin/universal` |
 
 Plus `SHA256SUMS.txt`. Code signing is not part of the first slice.
 

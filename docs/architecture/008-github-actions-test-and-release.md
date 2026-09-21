@@ -57,6 +57,7 @@ Use option 3.
    12. `golang.design/x/hotkey` panics in `init()` when `DISPLAY` is unset.
    13. The `publish` job uploads binary archives and `SHA256SUMS.txt` to GitHub Release assets.
    14. `README.md` loads `window.gif` from `docs/screenshots/window.gif`.
+   15. Archive names include the git tag (`ytmemchat-v1.2.3-linux-amd64.tar.gz`).
 5. Until `go.mod` exists, the test workflow skips instead of failing.
 6. A tag without `wails.json` fails the release job.
 7. Code signing is out of scope for the first slice.

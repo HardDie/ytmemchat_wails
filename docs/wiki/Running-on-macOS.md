@@ -2,7 +2,7 @@
 
 Release builds of ytmemchat are **not code-signed**. macOS Gatekeeper blocks unsigned apps downloaded from the internet. That is expected. You do not need a developer certificate to run the app on your own Mac.
 
-The macOS archive is `ytmemchat-darwin-universal.zip` (Intel and Apple Silicon). Inside it is `ytmemchat.app`.
+The macOS archive is `ytmemchat-vMAJOR.MINOR.PATCH-darwin-universal.zip` (Intel and Apple Silicon). Inside it is `ytmemchat.app`.
 
 ## 1. Unzip, then open
 

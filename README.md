@@ -26,7 +26,7 @@ This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) de
 
 ### Download
 
-Download a tagged archive from [GitHub Releases](https://github.com/HardDie/ytmemchat_wails/releases) (Linux amd64/arm64, Windows amd64, macOS universal). Binaries are not code-signed yet. On macOS, [open the unsigned app](https://github.com/HardDie/ytmemchat_wails/wiki/Running-on-macOS). The window sidebar shows the git tag, or the short commit the binary was built from.
+Download a tagged archive from [GitHub Releases](https://github.com/HardDie/ytmemchat_wails/releases) (Linux amd64/arm64, Windows amd64, macOS universal). Files are named `ytmemchat-<tag>-<os>-<arch>` (for example `ytmemchat-v0.1.0-darwin-universal.zip`). Binaries are not code-signed yet. On macOS, [open the unsigned app](https://github.com/HardDie/ytmemchat_wails/wiki/Running-on-macOS). The window sidebar shows the git tag, or the short commit the binary was built from.
 
 ### From source
 

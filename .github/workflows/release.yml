@@ -27,20 +27,20 @@ jobs:
             os: ubuntu-latest
             wails_platform: linux/amd64
             wails_tags: webkit2_41
-            artifact: ytmemchat-linux-amd64.tar.gz
+            artifact: linux-amd64.tar.gz
           - name: linux-arm64
             os: ubuntu-24.04-arm
             wails_platform: linux/arm64
             wails_tags: webkit2_41
-            artifact: ytmemchat-linux-arm64.tar.gz
+            artifact: linux-arm64.tar.gz
           - name: windows-amd64
             os: windows-latest
             wails_platform: windows/amd64
-            artifact: ytmemchat-windows-amd64.zip
+            artifact: windows-amd64.zip
           - name: darwin-universal
             os: macos-latest
             wails_platform: darwin/universal
-            artifact: ytmemchat-darwin-universal.zip
+            artifact: darwin-universal.zip
     steps:
       - uses: actions/checkout@v4
         with:
@@ -113,11 +113,12 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
+          ARTIFACT="ytmemchat-${{ github.ref_name }}-${{ matrix.artifact }}"
           cd build/bin
           if [ "${{ runner.os }}" = "macOS" ]; then
-            zip -r "../../dist/${{ matrix.artifact }}" .
+            zip -r "../../dist/${ARTIFACT}" .
           else
-            tar -czf "../../dist/${{ matrix.artifact }}" .
+            tar -czf "../../dist/${ARTIFACT}" .
           fi
 
       - name: Package (Windows)
@@ -125,12 +126,12 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force dist | Out-Null
-          Compress-Archive -Path build/bin/* -DestinationPath "dist/${{ matrix.artifact }}"
+          Compress-Archive -Path build/bin/* -DestinationPath "dist/ytmemchat-${{ github.ref_name }}-${{ matrix.artifact }}"
 
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.name }}
-          path: dist/${{ matrix.artifact }}
+          path: dist/ytmemchat-${{ github.ref_name }}-${{ matrix.artifact }}
           if-no-files-found: error
 
   publish:
