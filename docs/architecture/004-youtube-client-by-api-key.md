@@ -8,7 +8,13 @@
 
 ## Context
 
-The console app has two `youtube.Client` implementations: Data API v3 (API key) and a no-key live chat HTML client (`youtubev1`). Console `main.go` currently hardcodes v3. Streamers may not have a Google Cloud key. A typed-but-wrong key must not silently switch to scraping.
+The console app has two `youtube.Client` implementations.
+
+1. Data API v3 (API key).
+2. A no-key live chat HTML client (`youtubev1`).
+3. Console `main.go` currently hardcodes v3.
+4. Streamers may not have a Google Cloud key.
+5. A typed-but-wrong key must not silently switch to scraping.
 
 ## Considered options
 
@@ -18,7 +24,12 @@ The console app has two `youtube.Client` implementations: Data API v3 (API key) 
 
 ## Decision
 
-Use option 3. Trim the saved key at Start. Both implementations emit the same `ChatMessage` type. “Not live”, quota, and network errors are distinct from “invalid API key”; none of them may start `youtube/nokey` when a key was provided.
+Use option 3.
+
+1. Trim the saved key at Start.
+2. Both implementations emit the same `ChatMessage` type.
+3. “Not live”, quota, and network errors are distinct from “invalid API key”.
+4. None of them may start `youtube/nokey` when a key was provided.
 
 ## Consequences
 
@@ -31,7 +42,7 @@ Use option 3. Trim the saved key at Start. Both implementations emit the same `C
 ### Negative and risks
 
 * The no-key client depends on YouTube HTML and can break without a code change.
-* Users might think an empty key is “anonymous API v3”; the settings UI must state the two modes.
+* Users might think an empty key is “anonymous API v3”. The settings UI must state the two modes.
 
 ### Neutral
 

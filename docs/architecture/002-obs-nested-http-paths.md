@@ -8,9 +8,20 @@
 
 ## Context
 
-The console app exposes overlay at `/`, overlay socket at `/ws`, chat HTML at `/chat`, chat socket at `/ws_chat`, media at `/media/`, and operator endpoints at `/webhook/` and `/interrupt/`. That mixes OBS pages with APIs and splits each page from its socket.
+The console app mixes OBS pages with APIs and splits each page from its socket.
 
-This desktop app is new; existing OBS sources will be re-added from the settings window. JSON payloads should stay compatible; URLs do not have to.
+1. Overlay HTML at `/`.
+2. Overlay socket at `/ws`.
+3. Chat HTML at `/chat`.
+4. Chat socket at `/ws_chat`.
+5. Media at `/media/`.
+6. Operator endpoints at `/webhook/` and `/interrupt/`.
+
+This desktop app is new.
+
+1. Existing OBS sources will be re-added from the settings window.
+2. JSON payloads should stay compatible.
+3. URLs do not have to.
 
 ## Considered options
 
@@ -20,9 +31,13 @@ This desktop app is new; existing OBS sources will be re-added from the settings
 
 ## Decision
 
-Use option 2. One Browser Source URL per page; that page’s WebSocket is a child `…/ws` derived from `location`. `/` is a human index of the two OBS URLs, not an OBS source. Do not register console aliases unless a migration shim is requested later.
+Use option 2.
 
-Optional `?transparent=1` on `/obs/chat` maps to the existing transparent body class.
+1. One Browser Source URL per page.
+2. That page’s WebSocket is a child `…/ws` derived from `location`.
+3. `/` is a human index of the two OBS URLs, not an OBS source.
+4. Do not register console aliases unless a migration shim is requested later.
+5. Optional `?transparent=1` on `/obs/chat` maps to the existing transparent body class.
 
 ## Consequences
 

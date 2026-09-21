@@ -8,9 +8,16 @@
 
 ## Context
 
-ytmemchat must let a streamer configure a YouTube live session and show chat, alerts, and TTS on stream. The console app already serves OBS Browser Sources over HTTP and pushes events on WebSockets. This port adds a desktop UI with Wails + Svelte.
+1. ytmemchat must let a streamer configure a YouTube live session.
+2. Chat, alerts, and TTS must show on stream.
+3. The console app already serves OBS Browser Sources over HTTP.
+4. It pushes events on WebSockets.
+5. This port adds a desktop UI with Wails + Svelte.
 
-Wails can also emit events into its own webview. Using that as the OBS transport would mean a second protocol and a chat renderer inside the desktop window.
+Wails can also emit events into its own webview.
+
+1. Using that as the OBS transport would mean a second protocol.
+2. It would also mean a chat renderer inside the desktop window.
 
 ## Considered options
 
@@ -22,7 +29,10 @@ Wails can also emit events into its own webview. Using that as the OBS transport
 
 Use option 2.
 
-The Svelte webview is a control panel: API key, stream ID, port, start/stop, status. Chat and overlay are served by the Go HTTP server. OBS Browser Sources load those pages. Wails Events may be used only for window status, never as the OBS transport.
+1. The Svelte webview is a control panel: API key, stream ID, port, start/stop, status.
+2. Chat and overlay are served by the Go HTTP server.
+3. OBS Browser Sources load those pages.
+4. Wails Events may be used only for window status, never as the OBS transport.
 
 ## Consequences
 
@@ -34,8 +44,10 @@ The Svelte webview is a control panel: API key, stream ID, port, start/stop, sta
 
 ### Negative and risks
 
-* Two processes in one binary: Wails UI and an HTTP server that stays up for the life of the app (see [ADR 009](009-obs-http-process-lifetime.md)). Start/Stop is the YouTube iterator, not the OBS listener.
-* Streamers must still add Browser Sources; the Wails window does not replace OBS.
+1. Two processes in one binary: Wails UI and an HTTP server.
+2. The HTTP server stays up for the life of the app (see [ADR 009](009-obs-http-process-lifetime.md)).
+3. Start/Stop is the YouTube iterator, not the OBS listener.
+4. Streamers must still add Browser Sources. The Wails window does not replace OBS.
 
 ### Neutral
 

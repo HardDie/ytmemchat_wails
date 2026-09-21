@@ -8,19 +8,36 @@
 
 ## Context
 
-The console tree has `clients/youtube`, `clients/youtubev1`, `server`, `chat`, `webhook`, plus `pkg/watermill` to fan in messages. Two WebSocket hubs are almost the same code. `webhook` is two POST handlers. `alerts` and `tts` contain real domain logic.
+The console tree has more packages than behaviors.
+
+1. `clients/youtube`
+2. `clients/youtubev1`
+3. `server`
+4. `chat`
+5. `webhook`
+6. `pkg/watermill` to fan in messages
+7. Two WebSocket hubs are almost the same code.
+8. `webhook` is two POST handlers.
+9. `alerts` and `tts` contain real domain logic.
 
 ## Considered options
 
 1. **Copy the console `internal/` tree** — fastest port, more packages than behaviors.
-2. **Collapse by surface:** `youtube` + `youtube/nokey`, `obs` (mux, both hubs, HTML, `/api`), keep `alerts` and `tts`, wire in `app.go` without watermill until needed.
+2. **Collapse by surface**
+   1. `youtube` + `youtube/nokey`
+   2. `obs` (mux, both hubs, HTML, `/api`)
+   3. Keep `alerts` and `tts`
+   4. Wire in `app.go` without watermill until needed
 3. **One `internal/app` package** — hard to test and easy to create import cycles.
 
 ## Decision
 
 Use option 2.
 
-Import direction: `app.go` → `config`, `youtube`, `obs`, `alerts`, `tts`. `obs` does not import `alerts` or `youtube`. Overlay payload types live in `obs`. `youtube` owns `ChatMessage` and `Client`.
+1. Import direction: `app.go` → `config`, `youtube`, `obs`, `alerts`, `tts`.
+2. `obs` does not import `alerts` or `youtube`.
+3. Overlay payload types live in `obs`.
+4. `youtube` owns `ChatMessage` and `Client`.
 
 ## Consequences
 
@@ -32,7 +49,7 @@ Import direction: `app.go` → `config`, `youtube`, `obs`, `alerts`, `tts`. `obs
 
 ### Negative and risks
 
-* Port is a reshape, not a file copy; easier to miss a route while moving HTML.
+* Port is a reshape, not a file copy. Easier to miss a route while moving HTML.
 
 ### Neutral
 

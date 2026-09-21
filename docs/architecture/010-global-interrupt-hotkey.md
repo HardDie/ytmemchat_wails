@@ -8,7 +8,9 @@
 
 ## Context
 
-OBS is usually fullscreen, so a Wails window keydown handler cannot stop TTS. Operators need a shortcut that works while another app is focused.
+1. OBS is usually fullscreen.
+2. A Wails window keydown handler cannot stop TTS.
+3. Operators need a shortcut that works while another app is focused.
 
 ## Considered options
 
@@ -18,7 +20,15 @@ OBS is usually fullscreen, so a Wails window keydown handler cannot stop TTS. Op
 
 ## Decision
 
-Use option 3. Default chord is `Ctrl+Shift+I` (Control, not Command, so it does not steal macOS app shortcuts). The operator can record a different combination in Config. Registration is CGO in package main (`!nomain`); `internal/hotkey` only parses chords so tests stay CGO-free. Pin `golang.design/x/hotkey` v0.4.1 because later versions use a macOS event tap that requires Accessibility permission. Linux is X11 only.
+Use option 3.
+
+1. Default chord is `Ctrl+Shift+I` (Control, not Command, so it does not steal macOS app shortcuts).
+2. The operator can record a different combination in Config.
+3. Registration is CGO in package main (`!nomain`).
+4. `internal/hotkey` only parses chords so tests stay CGO-free.
+5. Pin `golang.design/x/hotkey` v0.4.1.
+6. Later versions use a macOS event tap that requires Accessibility permission.
+7. Linux is X11 only.
 
 ## Consequences
 
@@ -29,6 +39,6 @@ Use option 3. Default chord is `Ctrl+Shift+I` (Control, not Command, so it does 
 
 ### Negative and risks
 
-* The chord can collide with another app’s global shortcut; show the register error in Config/Home.
+* The chord can collide with another app’s global shortcut. Show the register error in Config/Home.
 * Pure Wayland sessions cannot grab keys this way.
 * Linux `init()` panics without an X11 display, so headless `wails build` (GitHub Actions) must use Xvfb.

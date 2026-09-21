@@ -8,7 +8,11 @@
 
 ## Context
 
-The console app uses `cmd/main.go`. Wails CLI expects `wails.json` beside `main.go` and embeds `frontend/dist`. SvelteKit is a common add-on but needs extra adapter/embed/`wailsjsdir` wiring. This UI is a single settings window.
+1. The console app uses `cmd/main.go`.
+2. Wails CLI expects `wails.json` beside `main.go`.
+3. It embeds `frontend/dist`.
+4. SvelteKit is a common add-on but needs extra adapter/embed/`wailsjsdir` wiring.
+5. This UI is a single settings window.
 
 ## Considered options
 
@@ -18,7 +22,13 @@ The console app uses `cmd/main.go`. Wails CLI expects `wails.json` beside `main.
 
 ## Decision
 
-Use option 1. Bind one struct per window pane under `bindings/` (`home`, `configuration`, `commands`, `test`); they wrap `App` in `package main`. Domain stays in `internal/`. Do not use SvelteKit unless file-based routing is required. After scaffold, use Svelte 5 `mount()` in `frontend/src/main.ts` if the template still uses `new App({ target })`.
+Use option 1.
+
+1. Bind one struct per window pane under `bindings/` (`home`, `configuration`, `commands`, `test`).
+2. They wrap `App` in `package main`.
+3. Domain stays in `internal/`.
+4. Do not use SvelteKit unless file-based routing is required.
+5. After scaffold, use Svelte 5 `mount()` in `frontend/src/main.ts` if the template still uses `new App({ target })`.
 
 ## Consequences
 

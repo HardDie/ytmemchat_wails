@@ -8,7 +8,13 @@
 
 ## Context
 
-Wails v2 has no built-in settings store. The console app uses a committed-style `.env` and panics on missing variables. A desktop app must survive first launch, store an optional API key, and survive force-quit.
+Wails v2 has no built-in settings store.
+
+1. The console app uses a committed-style `.env`.
+2. It panics on missing variables.
+3. A desktop app must survive first launch.
+4. It must store an optional API key.
+5. It must survive force-quit.
 
 ## Considered options
 
@@ -20,9 +26,15 @@ Wails v2 has no built-in settings store. The console app uses a committed-style 
 
 ## Decision
 
-Use option 3. Load in `OnStartup`. Save on every successful `SaveSettings`, not only `OnShutdown`. Atomic write (temp file + rename), file mode `0600`. Defaults live in code. Missing file is first launch. Stream ID is required to Start; API key is optional.
+Use option 3.
 
-OS keychain is a later hardening step, not the first slice.
+1. Load in `OnStartup`.
+2. Save on every successful `SaveSettings`, not only `OnShutdown`.
+3. Atomic write (temp file + rename), file mode `0600`.
+4. Defaults live in code.
+5. Missing file is first launch.
+6. Stream ID is required to Start. API key is optional.
+7. OS keychain is a later hardening step, not the first slice.
 
 ## Consequences
 

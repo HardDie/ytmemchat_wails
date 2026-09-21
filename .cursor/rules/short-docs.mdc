@@ -1,0 +1,26 @@
+---
+description: Keep CURSOR.md and architecture ADRs short; never pack many facts into one sentence.
+globs: CURSOR.md,docs/architecture/**/*.md
+alwaysApply: true
+---
+
+# Short lines in CURSOR.md and ADRs
+
+Never write long sentences in `CURSOR.md` or `docs/architecture/*.md`.
+
+One numbered title, then short sub-items. Do not pack a paragraph of facts into a single line.
+
+```markdown
+6. Bindings
+   1. One Wails struct per pane under `bindings/`.
+   2. `App` keeps Start/Stop and OBS HTTP.
+   3. `AppVersion` is stamped at link time.
+```
+
+Do not:
+
+```markdown
+6. **Bindings**: GetSettings / SaveSettings, GetOBSStatus, Start / Stop … (rest of the contract in one sentence)
+```
+
+Tables, code fences, and the intended-tree listing may stay wide. Prose and bullet items stay short.

@@ -12,5 +12,6 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [006](006-internal-packages-by-surface.md) | Collapse console packages into `youtube`, `youtube/nokey`, `obs` | Accepted |
 | [007](007-docs-layout.md) | README, CURSOR.md, `docs/` (ADRs, use cases, wiki) | Accepted |
 | [008](008-github-actions-test-and-release.md) | GitHub Actions: tests on push, binaries on tag | Accepted |
+| [009](009-obs-http-process-lifetime.md) | OBS HTTP lives with the Wails process | Accepted |
 | [010](010-global-interrupt-hotkey.md) | OS-level interrupt hotkey | Accepted |
 | [011](011-local-youtube-quota-estimate.md) | Local YouTube Data API quota estimate | Accepted |
