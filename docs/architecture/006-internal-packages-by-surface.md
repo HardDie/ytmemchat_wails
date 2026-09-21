@@ -34,10 +34,12 @@ The console tree has more packages than behaviors.
 
 Use option 2.
 
-1. Import direction: `app.go` → `config`, `youtube`, `obs`, `alerts`, `tts`.
+1. Import direction: `package main` → `config`, `youtube`, `obs`, `alerts`, `tts`, `hotkey`, `quota`.
 2. `obs` does not import `alerts` or `youtube`.
 3. Overlay payload types live in `obs`.
 4. `youtube` owns `ChatMessage` and `Client`.
+5. `config` uses `secret` for the API key ([012](012-os-keychain-api-key.md)).
+6. `internal/update` is used from `bindings/update`, not from `app.go`.
 
 ## Consequences
 

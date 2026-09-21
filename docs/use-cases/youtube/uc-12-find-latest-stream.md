@@ -8,7 +8,7 @@
 
 ## Main scenario (happy path)
 
-1. The window calls `LookupLatestStream` with the current stream ID and API key (empty key uses the saved key).
+1. The window calls `LookupLatestStream` with the current stream ID and API key (empty ID or key uses the saved value).
 2. `videos.list` (`snippet`, `liveStreamingDetails`) loads the channel ID.
 3. If that video is still live (`activeLiveChatId`, or started with no end time), that ID is returned as kind `live`.
 4. Otherwise `search.list` `eventType=live` for the channel; if a video exists, it is returned as `live`.
@@ -17,7 +17,7 @@
 
 ## Alternative scenarios and errors
 
-* **1a. Empty stream ID:** error; lookup does not run.
+* **1a. Empty stream ID (form and saved):** error; lookup does not run.
 * **1b. Empty API key (form and saved):** error asking for a YouTube API key. The no-key client cannot list upcoming streams.
 * **2a. Unknown video / invalid key / quota:** mapped API errors; the key is never logged or returned.
 * **4–5a. Channel has only completed VODs:** `ErrNoBroadcast`.

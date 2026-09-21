@@ -24,7 +24,7 @@
 
 Use option 1.
 
-1. Bind one struct per window pane under `bindings/` (`home`, `configuration`, `commands`, `test`).
+1. Bind one struct per window pane under `bindings/` (`home`, `configuration`, `commands`, `test`, `update`).
 2. Bind `sidebar` for chrome that is not a pane (`AppVersion`).
 3. They wrap `App` in `package main` except `sidebar`, which needs no `App`.
 4. Domain stays in `internal/`.

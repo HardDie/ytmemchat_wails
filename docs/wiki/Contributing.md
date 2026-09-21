@@ -11,14 +11,14 @@ make help              # all targets
 make dev
 make build
 make screenshots       # refresh docs/screenshots/window.gif
-make test              # unit tests (race), same as CI
+make test              # unit tests (race); CI runs these commands then integration
 make test-integration
 make test-all
 make doc PKG=./internal/tts
 make doc-all PKG=./internal/tts
 ```
 
-GitHub Actions (`.github/workflows/test.yml`) runs `make test` then integration tests on every push and pull request. Push a `vMAJOR.MINOR.PATCH` tag to publish versioned release archives such as `ytmemchat-v0.1.0-linux-amd64.tar.gz` (`.github/workflows/release.yml`).
+GitHub Actions (`.github/workflows/test.yml`) runs the same `go test` commands as `make test`, then `make test-integration`, on every push and pull request. It does not invoke `make`. Push a `vMAJOR.MINOR.PATCH` tag to publish versioned release archives such as `ytmemchat-v0.1.0-linux-amd64.tar.gz` (`.github/workflows/release.yml`).
 
 ## Package documentation
 
@@ -36,4 +36,4 @@ Each Go package needs a package comment and comments on all exports. Check from 
 | `internal/hotkey` | Ported | `go doc -all ./internal/hotkey` |
 | `internal/secret` | Ported | `go doc -all ./internal/secret` |
 | `internal/update` | Ported | `go doc -all ./internal/update` |
-| `package main` (bindings façade) | Chat Start/Stop | `go doc -all .` |
+| `package main` (App core) | Start/Stop, OBS HTTP | `go doc -all .` |

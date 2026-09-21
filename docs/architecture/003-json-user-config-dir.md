@@ -34,7 +34,7 @@ Use option 3.
 4. Defaults live in code.
 5. Missing file is first launch.
 6. Stream ID is required to Start. API key is optional.
-7. OS keychain is a later hardening step, not the first slice.
+7. API key uses the OS keychain when available ([012](012-os-keychain-api-key.md)).
 
 ## Consequences
 
@@ -46,7 +46,7 @@ Use option 3.
 
 ### Negative and risks
 
-* API key sits on disk (mitigated by `0600`, not by encryption).
+* If the keychain is unavailable, the API key stays in the JSON file (`0600`).
 * Force-quit still loses unsaved form edits if the user never clicked save.
 
 ### Neutral

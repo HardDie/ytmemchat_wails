@@ -4,6 +4,7 @@
 * [Chat URL](Chat-URL)
 * [Configuration](Configuration)
 * [Commands](Commands)
+* [Test](Test)
 * [YouTube API key](YouTube-API-key)
 * [Update](Update)
 * [Contributing](Contributing)

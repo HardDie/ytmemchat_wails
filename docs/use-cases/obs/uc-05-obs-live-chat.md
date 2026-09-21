@@ -10,13 +10,14 @@
 
 1. OBS (or a browser) GETs `/obs/chat`.
 2. The page derives its socket URL as a child path (`…/ws`), not a hardcoded `/ws_chat`.
-3. The pipeline calls `PublishChat` with a [ChatEvent] (`authorName`, `authorPicture`, `messageText`, `publishedAt`, badges).
+3. The pipeline calls `PublishChat` with a [ChatEvent] (`authorName`, `authorPicture`, `messageText`, `publishedAt`).
 4. Connected `/obs/chat/ws` clients receive that JSON.
 
 ## Alternative scenarios and errors
 
 * **1a. Trailing slash `/obs/chat/`:** 404 (HTML routes have no trailing slash).
 * **1b. `?transparent=1` (or `true`):** the page adds `body.transparent`.
+* **Badges:** JSON includes `isModerator` and `isOwner`. `NewChatEvent` leaves them false.
 * **GET `/`:** index lists the two OBS URLs; it is not an OBS source.
 * **Process exit:** `NotifyAppClosed` then close. Pages show that ytmemchat closed and keep retrying the socket.
 

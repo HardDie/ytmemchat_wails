@@ -4,7 +4,7 @@
 **Status:** Ported  
 **Actors:** Pipeline (after a chat line did not match an alert command)  
 **Goal:** Turn the message text into WAV audio and hand it to the overlay sink  
-**Preconditions:** TTS is enabled; a voice name is configured; `Config.Out` is a non-nil channel with a receiver or buffer  
+**Preconditions:** TTS is enabled; `Config.Out` is a non-nil channel with a receiver or buffer. Empty `VoiceName` uses the OS default.  
 
 ## Main scenario (happy path)
 

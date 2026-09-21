@@ -83,4 +83,4 @@ Studio chat (and a [YouTube API key](YouTube-API-key)) can show a fuller feed. F
 
 ## Next
 
-When you want meme alerts, TTS, a [YouTube API key](YouTube-API-key), or the interrupt shortcut, see [Configuration](Configuration). Edit alert clips on [Commands](Commands). Alert matches play on the overlay and are not spoken.
+When you want meme alerts, TTS, a [YouTube API key](YouTube-API-key), or the interrupt shortcut, see [Configuration](Configuration). Edit alert clips on [Commands](Commands). Alert matches play on the overlay and are not spoken. Use [Test](Test) to send a fake line or flush OBS chat without YouTube Start.

@@ -38,6 +38,9 @@ Use option 2.
 3. `/` is a human index of the two OBS URLs, not an OBS source.
 4. Do not register console aliases unless a migration shim is requested later.
 5. Optional `?transparent=1` on `/obs/chat` maps to the existing transparent body class.
+6. Optional `?fontSize=` on `/obs/chat` (CSS size with a unit).
+7. Optional `?textColor=` on `/obs/chat` (hex without `#`).
+8. `/obs/overlay` has no query parameters.
 
 ## Consequences
 
