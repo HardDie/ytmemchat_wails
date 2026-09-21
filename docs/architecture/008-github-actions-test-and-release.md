@@ -61,6 +61,7 @@ Use option 3.
    16. Stamp Wails `info.productVersion` from the last git tag (strip `v`).
    17. That fills macOS `CFBundleVersion` and `CFBundleShortVersionString`.
    18. `scripts/sync-product-version.sh` writes the tag into `wails.json` and leaves it.
+   19. Windows `build/windows/info.json` uses that value for file and product version.
 5. Until `go.mod` exists, the test workflow skips instead of failing.
 6. A tag without `wails.json` fails the release job.
 7. Code signing is out of scope for the first slice.

@@ -220,6 +220,7 @@ Idiomatic pattern:
    24. macOS `CFBundleVersion` and `CFBundleShortVersionString` use the last git tag (no `v`).
    25. That value is Wails `info.productVersion` at `wails build` / `wails dev`.
    26. `make version` writes that tag into `wails.json` (`make dev` / `make build` do this first).
+   27. Windows VERSIONINFO uses that same tag (`FileVersion` / `ProductVersion`; binary 4-part adds `.0`).
 7. **What belongs here**
    1. Stream ID (required to Start).
    2. Optional YouTube API key.
