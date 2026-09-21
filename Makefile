@@ -11,12 +11,14 @@ PKGSITE_ADDR ?= localhost:8081
 # Exact git tag when HEAD is tagged, otherwise the short commit. Override with BUILD_VERSION=…
 BUILD_VERSION ?= $(shell git describe --tags --exact-match 2>/dev/null || git rev-parse --short=12 HEAD 2>/dev/null || echo dev)
 VERSION_LDFLAGS := -X github.com/HardDie/ytmemchat_wails/bindings/sidebar.buildVersion=$(BUILD_VERSION)
+# Last git tag without a leading v (macOS CFBundle / Windows ProductVersion). Override with PRODUCT_VERSION=…
+PRODUCT_VERSION ?= $(patsubst v%,%,$(shell git describe --tags --abbrev=0 2>/dev/null))
 # Ubuntu 24.04+ ships webkit2gtk-4.1; Wails needs this tag instead of 4.0.
 WAILS_TAGS := $(shell pkg-config --exists webkit2gtk-4.1 2>/dev/null && echo -tags webkit2_41)
 
 .DEFAULT_GOAL := help
 
-.PHONY: help dev build generate test test-integration test-all \
+.PHONY: help version dev build generate test test-integration test-all \
 	vet fmt tidy doc doc-all docs-site frontend-install screenshots clean ci
 
 ## help: Show this list
@@ -26,12 +28,16 @@ help:
 	@echo "Targets:"
 	@grep -E '^## ' $(MAKEFILE_LIST) | sed 's/^## //' | awk -F': ' '{printf "  %-22s %s\n", $$1, $$2}'
 
+## version: Set wails.json productVersion from the last git tag
+version:
+	PRODUCT_VERSION="$(PRODUCT_VERSION)" ./scripts/sync-product-version.sh
+
 ## dev: Run the Wails app with frontend hot reload
-dev: require-wails
+dev: require-wails version
 	$(WAILS) dev $(WAILS_TAGS) -ldflags "$(VERSION_LDFLAGS)"
 
 ## build: Production binary for this machine (build/bin)
-build: require-wails
+build: require-wails version
 	$(WAILS) build $(WAILS_TAGS) -clean -trimpath -ldflags "$(VERSION_LDFLAGS)"
 
 ## generate: Regenerate frontend/wailsjs bindings from Go

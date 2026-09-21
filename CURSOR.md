@@ -217,6 +217,9 @@ Idiomatic pattern:
    21. `SaveAlertCommands` writes `commands.yaml` (omits unset `volume`/`scale`).
    22. Save reloads the matcher without YouTube Start.
    23. Update: `Check`, `Download`, `ApplyAndQuit`.
+   24. macOS `CFBundleVersion` and `CFBundleShortVersionString` use the last git tag (no `v`).
+   25. That value is Wails `info.productVersion` at `wails build` / `wails dev`.
+   26. `make version` writes that tag into `wails.json` (`make dev` / `make build` do this first).
 7. **What belongs here**
    1. Stream ID (required to Start).
    2. Optional YouTube API key.
@@ -336,7 +339,7 @@ Prerequisites:
 ```bash
 make help   # all developer targets
 make dev    # wails dev
-make build  # wails build for this OS (stamps git tag or short commit into AppVersion)
+make build  # wails build for this OS (AppVersion + last git tag into CFBundle)
 make test
 make test-integration
 ```
@@ -409,7 +412,7 @@ Official Wails layout:
 ├── .github/workflows/
 │   ├── test.yml              # go test on every push/PR
 │   └── release.yml           # binaries on v* tags
-├── wails.json                # Wails CLI: frontend install/build/dev
+├── wails.json                # Wails CLI; `info.productVersion` = last git tag
 ├── go.mod
 ├── main.go                   # wails.Run, Bind pane structs, //go:embed all:frontend/dist
 ├── app.go                    # App core: settings, pipeline, OBS HTTP (not bound directly)

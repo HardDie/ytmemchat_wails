@@ -94,6 +94,10 @@ jobs:
         shell: bash
         run: |
           VERSION="$(git describe --tags --exact-match 2>/dev/null || git rev-parse --short=12 HEAD)"
+          PRODUCT_VERSION="$(git describe --tags --abbrev=0 2>/dev/null || true)"
+          PRODUCT_VERSION="${PRODUCT_VERSION#v}"
+          export PRODUCT_VERSION
+          ./scripts/sync-product-version.sh
           # -skipbindings: committed frontend/wailsjs. Wails generate walks test
           # imports (gax-go.test → huge genproto zip) and also executes package
           # main (Linux hotkey init panics without DISPLAY).

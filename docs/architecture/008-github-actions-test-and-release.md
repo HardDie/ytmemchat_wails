@@ -58,6 +58,9 @@ Use option 3.
    13. The `publish` job uploads binary archives and `SHA256SUMS.txt` to GitHub Release assets.
    14. `README.md` loads `window.gif` from `docs/screenshots/window.gif`.
    15. Archive names include the git tag (`ytmemchat-v1.2.3-linux-amd64.tar.gz`).
+   16. Stamp Wails `info.productVersion` from the last git tag (strip `v`).
+   17. That fills macOS `CFBundleVersion` and `CFBundleShortVersionString`.
+   18. `scripts/sync-product-version.sh` writes the tag into `wails.json` and leaves it.
 5. Until `go.mod` exists, the test workflow skips instead of failing.
 6. A tag without `wails.json` fails the release job.
 7. Code signing is out of scope for the first slice.
