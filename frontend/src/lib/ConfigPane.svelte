@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte'
-  import { GetTTSVoices } from '../../wailsjs/go/main/App.js'
-  import type { main } from '../../wailsjs/go/models'
+  import { GetTTSVoices } from '../../wailsjs/go/configuration/Configuration.js'
+  import type { configuration } from '../../wailsjs/go/models'
 
   export let streamId: string
   export let apiKey: string
@@ -24,14 +24,14 @@
   export let onPickYaml: () => Promise<void>
   export let onPickMedia: () => Promise<void>
 
-  let voices: main.TTSVoice[] = []
+  let voices: configuration.TTSVoice[] = []
   let recording = false
 
   $: selected = voices.find((v) => v.name === ttsVoiceName)
   $: hasApiKey = apiKey.trim() !== ''
   $: lookupDisabled = lookingUp || !hasApiKey
 
-  function voiceLabel(v: main.TTSVoice): string {
+  function voiceLabel(v: configuration.TTSVoice): string {
     const bits = [v.name]
     if (v.languages) {
       bits.push(v.languages)

@@ -1,9 +1,10 @@
-package main
+package home
 
 import "strings"
 
 // buildVersion is the git tag or short commit stamped at link time
-// (`-X main.buildVersion=…`). Unset builds show "dev".
+// (`-X github.com/HardDie/ytmemchat_wails/bindings/home.buildVersion=…`).
+// Unset builds show "dev".
 var buildVersion = "dev"
 
 func versionString() string {
@@ -15,6 +16,6 @@ func versionString() string {
 }
 
 // AppVersion is the git tag or commit the binary was built from.
-func (a *App) AppVersion() string {
+func (h *Home) AppVersion() string {
 	return versionString()
 }

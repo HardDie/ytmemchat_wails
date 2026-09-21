@@ -16,20 +16,6 @@ import (
 const httpShutdownTimeout = 5 * time.Second
 const appClosedFlush = 200 * time.Millisecond
 
-// OBSStatus is the live HTTP listener state for the settings window.
-type OBSStatus struct {
-	// Listening is true when the OBS HTTP server accepted a bind.
-	Listening bool `json:"listening"`
-	// Error is a bind/serve problem; empty when ok.
-	Error string `json:"error"`
-	// ChatURL is the OBS Browser Source URL for chat.
-	ChatURL string `json:"chatUrl"`
-	// OverlayURL is the OBS Browser Source URL for alerts and TTS.
-	OverlayURL string `json:"overlayUrl"`
-	// IndexURL lists those URLs in a browser (not for OBS).
-	IndexURL string `json:"indexUrl"`
-}
-
 func (a *App) shutdown(_ context.Context) {
 	a.Stop()
 	a.stopInterruptHotkey()

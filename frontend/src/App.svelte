@@ -2,24 +2,28 @@
   import { onMount } from 'svelte'
   import {
     AppVersion,
-    ConfigPath,
     GetOBSStatus,
     GetRunStatus,
-    GetSettings,
-    GetAlertCommands,
-    SaveAlertCommands,
-    LookupLatestStream,
-    PickCommandsFile,
-    PickMediaDirectory,
-    PickAlertMediaFile,
-    PreviewAlert,
-    SaveSettings,
-    SendTestMessage,
     InterruptTTS,
+    LookupLatestStream,
     Start,
     Stop,
-  } from '../wailsjs/go/main/App.js'
-  import { main } from '../wailsjs/go/models'
+  } from '../wailsjs/go/home/Home.js'
+  import {
+    ConfigPath,
+    GetSettings,
+    PickCommandsFile,
+    PickMediaDirectory,
+    SaveSettings,
+  } from '../wailsjs/go/configuration/Configuration.js'
+  import {
+    GetAlertCommands,
+    PickAlertMediaFile,
+    PreviewAlert,
+    SaveAlertCommands,
+  } from '../wailsjs/go/commands/Commands.js'
+  import { SendTestMessage } from '../wailsjs/go/test/Test.js'
+  import { commands as cmdModels, configuration, home } from '../wailsjs/go/models'
   import { ClipboardSetText, EventsOn } from '../wailsjs/runtime/runtime'
   import HomePane from './lib/HomePane.svelte'
   import ConfigPane from './lib/ConfigPane.svelte'
@@ -60,11 +64,11 @@
   let commandsLoading = false
   let commandsPath = ''
   let commandRows: Array<{ name: string; file: string; volume: string; scale: string }> = []
-  let obs: main.OBSStatus | null = null
-  let run: main.RunStatus | null = null
+  let obs: home.OBSStatus | null = null
+  let run: home.RunStatus | null = null
   let appVersion = ''
 
-  function applyForm(s: main.SettingsForm): void {
+  function applyForm(s: configuration.SettingsForm): void {
     streamId = s.streamId ?? ''
     apiKey = s.apiKey ?? ''
     port = s.port || '8080'
@@ -80,8 +84,8 @@
     interruptHotkeyError = s.interruptHotkeyError ?? ''
   }
 
-  function formPayload(): main.SettingsForm {
-    return main.SettingsForm.createFrom({
+  function formPayload(): configuration.SettingsForm {
+    return configuration.SettingsForm.createFrom({
       streamId,
       apiKey,
       port,
@@ -106,7 +110,7 @@
   }
 
   onMount(async () => {
-    EventsOn('pipeline', (s: main.RunStatus) => {
+    EventsOn('pipeline', (s: home.RunStatus) => {
       run = s
     })
     const quotaTick = window.setInterval(() => {
@@ -382,7 +386,7 @@
         }
         return item
       })
-      await SaveAlertCommands(main.AlertCommandsFile.createFrom({ path: commandsPath, commands }))
+      await SaveAlertCommands(cmdModels.AlertCommandsFile.createFrom({ path: commandsPath, commands }))
       await loadCommands()
       status = 'Commands saved'
     } catch (e) {

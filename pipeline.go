@@ -16,26 +16,6 @@ import (
 
 type clientFactory func(config.Settings) (youtube.Client, error)
 
-// RunStatus is Start/Stop state for the settings window.
-type RunStatus struct {
-	// Running is true while the YouTube iterator is live.
-	Running bool `json:"running"`
-	// Connecting is true after Start until the iterator is ready or failed.
-	Connecting bool `json:"connecting"`
-	// UsingAPIKey is true when the v3 client was selected (key present).
-	UsingAPIKey bool `json:"usingApiKey"`
-	// QuotaUnits is this app’s estimated spend in the default Data API bucket today.
-	QuotaUnits int `json:"quotaUnits"`
-	// QuotaUnitsLimit is the documented default daily unit budget (not Cloud-approved quota).
-	QuotaUnitsLimit int `json:"quotaUnitsLimit"`
-	// QuotaSearch is this process’s estimated search.list spend.
-	QuotaSearch int `json:"quotaSearch"`
-	// QuotaSearchLimit is the documented default daily search.list budget.
-	QuotaSearchLimit int `json:"quotaSearchLimit"`
-	// Error is a user-facing failure; empty when ok. Never includes the API key.
-	Error string `json:"error"`
-}
-
 func chooseYouTubeClient(s config.Settings) (youtube.Client, error) {
 	if s.HasAPIKey() {
 		return youtube.New(s.Youtube.APIKey)

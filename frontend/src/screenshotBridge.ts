@@ -42,12 +42,29 @@ const run = {
   error: '',
 }
 
-const app: Record<string, Fn> = {
+const home: Record<string, Fn> = {
   AppVersion: ok('demo'),
-  ConfigPath: ok('/Users/demo/Library/Application Support/ytmemchat/config.json'),
-  GetSettings: ok(settings),
   GetOBSStatus: ok(obs),
   GetRunStatus: ok(run),
+  InterruptTTS: ok(undefined),
+  LookupLatestStream: ok({ streamId: settings.streamId, channelId: 'UCxxxxxxxx', kind: 'live' }),
+  Start: ok(undefined),
+  Stop: ok(undefined),
+}
+
+const configuration: Record<string, Fn> = {
+  ConfigPath: ok('/Users/demo/Library/Application Support/ytmemchat/config.json'),
+  GetSettings: ok(settings),
+  GetTTSVoices: ok([
+    { name: 'Samantha', languages: 'en_US', gender: 'Female', details: '' },
+    { name: 'Alex', languages: 'en_US', gender: 'Male', details: '' },
+  ]),
+  PickCommandsFile: ok(''),
+  PickMediaDirectory: ok(''),
+  SaveSettings: ok(undefined),
+}
+
+const commands: Record<string, Fn> = {
   GetAlertCommands: ok({
     path: settings.alertsCommandsFilePath,
     commands: [
@@ -55,32 +72,34 @@ const app: Record<string, Fn> = {
       { name: 'clap', file: 'clap.mp4', volume: 0.8, scale: 1.2 },
     ],
   }),
-  GetTTSVoices: ok([
-    { name: 'Samantha', languages: 'en_US', gender: 'Female', details: '' },
-    { name: 'Alex', languages: 'en_US', gender: 'Male', details: '' },
-  ]),
-  SaveSettings: ok(undefined),
-  SaveAlertCommands: ok(undefined),
-  Start: ok(undefined),
-  Stop: ok(undefined),
-  InterruptTTS: ok(undefined),
-  SendTestMessage: ok(undefined),
-  LookupLatestStream: ok({ streamId: settings.streamId, channelId: 'UCxxxxxxxx', kind: 'live' }),
-  PickCommandsFile: ok(''),
-  PickMediaDirectory: ok(''),
   PickAlertMediaFile: ok(''),
   PreviewAlert: ok(undefined),
+  SaveAlertCommands: ok(undefined),
+}
+
+const testPane: Record<string, Fn> = {
+  SendTestMessage: ok(undefined),
 }
 
 const w = window as unknown as {
-  go: { main: { App: Record<string, Fn> } }
+  go: {
+    home: { Home: Record<string, Fn> }
+    configuration: { Configuration: Record<string, Fn> }
+    commands: { Commands: Record<string, Fn> }
+    test: { Test: Record<string, Fn> }
+  }
   runtime: {
     EventsOnMultiple: () => () => void
     ClipboardSetText: () => Promise<void>
   }
 }
 
-w.go = { main: { App: app } }
+w.go = {
+  home: { Home: home },
+  configuration: { Configuration: configuration },
+  commands: { Commands: commands },
+  test: { Test: testPane },
+}
 w.runtime = {
   EventsOnMultiple: () => () => {},
   ClipboardSetText: () => Promise.resolve(),

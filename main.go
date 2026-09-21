@@ -1,13 +1,17 @@
 //go:build !nomain
 
-// Package main is the Wails desktop entrypoint: native window plus bindings
-// façade. Domain logic lives in internal/. OBS HTTP starts in OnStartup.
+// Package main is the Wails desktop entrypoint: native window plus pane
+// bindings. Domain logic lives in internal/. OBS HTTP starts in OnStartup.
 // Start/Stop runs the YouTube iterator into the chat overlay.
 package main
 
 import (
 	"embed"
 
+	"github.com/HardDie/ytmemchat_wails/bindings/commands"
+	"github.com/HardDie/ytmemchat_wails/bindings/configuration"
+	"github.com/HardDie/ytmemchat_wails/bindings/home"
+	"github.com/HardDie/ytmemchat_wails/bindings/test"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -32,7 +36,10 @@ func main() {
 		OnStartup:        app.startup,
 		OnShutdown:       app.shutdown,
 		Bind: []interface{}{
-			app,
+			home.New(app),
+			configuration.New(app),
+			commands.New(app),
+			test.New(app),
 		},
 	})
 	if err != nil {

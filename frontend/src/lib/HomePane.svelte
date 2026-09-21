@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { main } from '../../wailsjs/go/models'
+  import type { home } from '../../wailsjs/go/models'
 
-  export let run: main.RunStatus | null
-  export let obs: main.OBSStatus | null
+  export let run: home.RunStatus | null
+  export let obs: home.OBSStatus | null
   export let streamId: string
   export let apiKey: string
   export let starting: boolean

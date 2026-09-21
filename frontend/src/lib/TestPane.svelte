@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { main } from '../../wailsjs/go/models'
+  import type { home } from '../../wailsjs/go/models'
 
   export let testMessage: string
-  export let obs: main.OBSStatus | null
+  export let obs: home.OBSStatus | null
   export let onSend: () => Promise<void>
 
   $: canSend = !!(obs && obs.listening && testMessage.trim())

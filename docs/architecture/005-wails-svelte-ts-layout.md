@@ -18,13 +18,13 @@ The console app uses `cmd/main.go`. Wails CLI expects `wails.json` beside `main.
 
 ## Decision
 
-Use option 1. Bind one `App` façade. Domain stays in `internal/`. Do not use SvelteKit unless file-based routing is required. After scaffold, use Svelte 5 `mount()` in `frontend/src/main.ts` if the template still uses `new App({ target })`.
+Use option 1. Bind one struct per window pane under `bindings/` (`home`, `configuration`, `commands`, `test`); they wrap `App` in `package main`. Domain stays in `internal/`. Do not use SvelteKit unless file-based routing is required. After scaffold, use Svelte 5 `mount()` in `frontend/src/main.ts` if the template still uses `new App({ target })`.
 
 ## Consequences
 
 ### Positive
 
-* Matches Wails docs and generated bindings (`frontend/wailsjs/go/main/App`).
+* Matches Wails docs and generated bindings (`frontend/wailsjs/go/<package>/<Struct>`).
 * Frontend remains a normal Vite project.
 
 ### Negative and risks

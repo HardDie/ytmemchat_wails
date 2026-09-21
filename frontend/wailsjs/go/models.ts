@@ -1,4 +1,4 @@
-export namespace main {
+export namespace commands {
 	
 	export class AlertCommand {
 	    name: string;
@@ -50,6 +50,70 @@ export namespace main {
 		    return a;
 		}
 	}
+
+}
+
+export namespace configuration {
+	
+	export class SettingsForm {
+	    streamId: string;
+	    apiKey: string;
+	    port: string;
+	    ttsEnabled: boolean;
+	    ttsVoiceName: string;
+	    alertsEnabled: boolean;
+	    alertsToken: string;
+	    alertsMediaPath: string;
+	    alertsCommandsFilePath: string;
+	    webhookEnabled: boolean;
+	    interruptHotkeyEnabled: boolean;
+	    interruptHotkeyChord: string;
+	    interruptHotkeyError: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new SettingsForm(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.streamId = source["streamId"];
+	        this.apiKey = source["apiKey"];
+	        this.port = source["port"];
+	        this.ttsEnabled = source["ttsEnabled"];
+	        this.ttsVoiceName = source["ttsVoiceName"];
+	        this.alertsEnabled = source["alertsEnabled"];
+	        this.alertsToken = source["alertsToken"];
+	        this.alertsMediaPath = source["alertsMediaPath"];
+	        this.alertsCommandsFilePath = source["alertsCommandsFilePath"];
+	        this.webhookEnabled = source["webhookEnabled"];
+	        this.interruptHotkeyEnabled = source["interruptHotkeyEnabled"];
+	        this.interruptHotkeyChord = source["interruptHotkeyChord"];
+	        this.interruptHotkeyError = source["interruptHotkeyError"];
+	    }
+	}
+	export class TTSVoice {
+	    name: string;
+	    languages: string;
+	    gender: string;
+	    details: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TTSVoice(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.languages = source["languages"];
+	        this.gender = source["gender"];
+	        this.details = source["details"];
+	    }
+	}
+
+}
+
+export namespace home {
+	
 	export class OBSStatus {
 	    listening: boolean;
 	    error: string;
@@ -96,42 +160,6 @@ export namespace main {
 	        this.error = source["error"];
 	    }
 	}
-	export class SettingsForm {
-	    streamId: string;
-	    apiKey: string;
-	    port: string;
-	    ttsEnabled: boolean;
-	    ttsVoiceName: string;
-	    alertsEnabled: boolean;
-	    alertsToken: string;
-	    alertsMediaPath: string;
-	    alertsCommandsFilePath: string;
-	    webhookEnabled: boolean;
-	    interruptHotkeyEnabled: boolean;
-	    interruptHotkeyChord: string;
-	    interruptHotkeyError: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new SettingsForm(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.streamId = source["streamId"];
-	        this.apiKey = source["apiKey"];
-	        this.port = source["port"];
-	        this.ttsEnabled = source["ttsEnabled"];
-	        this.ttsVoiceName = source["ttsVoiceName"];
-	        this.alertsEnabled = source["alertsEnabled"];
-	        this.alertsToken = source["alertsToken"];
-	        this.alertsMediaPath = source["alertsMediaPath"];
-	        this.alertsCommandsFilePath = source["alertsCommandsFilePath"];
-	        this.webhookEnabled = source["webhookEnabled"];
-	        this.interruptHotkeyEnabled = source["interruptHotkeyEnabled"];
-	        this.interruptHotkeyChord = source["interruptHotkeyChord"];
-	        this.interruptHotkeyError = source["interruptHotkeyError"];
-	    }
-	}
 	export class StreamLookup {
 	    streamId: string;
 	    channelId: string;
@@ -146,24 +174,6 @@ export namespace main {
 	        this.streamId = source["streamId"];
 	        this.channelId = source["channelId"];
 	        this.kind = source["kind"];
-	    }
-	}
-	export class TTSVoice {
-	    name: string;
-	    languages: string;
-	    gender: string;
-	    details: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new TTSVoice(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.name = source["name"];
-	        this.languages = source["languages"];
-	        this.gender = source["gender"];
-	        this.details = source["details"];
 	    }
 	}
 

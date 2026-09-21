@@ -96,7 +96,7 @@ Wails has **no built-in settings store** in v2 (maintainers point at XDG / the O
 3. **Never write next to the binary** (macOS `.app` / Program Files are not writable after install).
 4. **Format**: one JSON document with defaults in code. Missing file = first launch, use defaults. Unknown fields ignored (`json` unmarshal). Include a `version` field if we need migrations later.
 5. **Lifecycle**: load in `OnStartup`. **Save on every successful settings change** from `SaveSettings` — do not rely on `OnShutdown` alone (force-quit / crash skips it). Atomic write: temp file in the same dir, `fsync`, then `Rename`. File mode `0600` because the file holds `YOUTUBE_API_KEY`.
-6. **Bindings**: `GetSettings` / `SaveSettings`, `GetOBSStatus`, `Start` / `Stop` / `GetRunStatus`, `GetTTSVoices`, `LookupLatestStream`, `GetAlertCommands` / `SaveAlertCommands`, `SendTestMessage`, `InterruptTTS`, `PreviewAlert`, `AppVersion`, file/folder pickers (`PickAlertMediaFile` returns a path relative to the Config media folder; files outside that tree are rejected). `AppVersion` is the git tag or short commit stamped at link time (`-X main.buildVersion`); unset is `dev`. Start uses saved settings (window saves the form first). Empty API key → `nokey`; non-empty → v3 only. Never fall back on invalid key. Connect runs in a goroutine. After each chat line (YouTube, `POST /api/webhook`, or **Send** in the window): overlay `alert` on a command match, else TTS when enabled. Inject/test run while OBS HTTP is up; YouTube Start is not required. Empty `commandsFilePath` skips the matcher; a bad file fails Start (inject logs and skips the matcher). `SaveAlertCommands` writes `commands.yaml` (omits unset `volume`/`scale`) and reloads the matcher without YouTube Start.
+6. **Bindings**: `GetSettings` / `SaveSettings`, `GetOBSStatus`, `Start` / `Stop` / `GetRunStatus`, `GetTTSVoices`, `LookupLatestStream`, `GetAlertCommands` / `SaveAlertCommands`, `SendTestMessage`, `InterruptTTS`, `PreviewAlert`, `AppVersion`, file/folder pickers (`PickAlertMediaFile` returns a path relative to the Config media folder; files outside that tree are rejected). `AppVersion` is the git tag or short commit stamped at link time (`-X github.com/HardDie/ytmemchat_wails/bindings/home.buildVersion`); unset is `dev`. Start uses saved settings (window saves the form first). Empty API key → `nokey`; non-empty → v3 only. Never fall back on invalid key. Connect runs in a goroutine. After each chat line (YouTube, `POST /api/webhook`, or **Send** in the window): overlay `alert` on a command match, else TTS when enabled. Inject/test run while OBS HTTP is up; YouTube Start is not required. Empty `commandsFilePath` skips the matcher; a bad file fails Start (inject logs and skips the matcher). `SaveAlertCommands` writes `commands.yaml` (omits unset `volume`/`scale`) and reloads the matcher without YouTube Start.
 7. **What belongs here**: stream ID (required to Start), optional YouTube API key, listen port, TTS on/off + voice, alerts on/off + command token + media/commands paths, webhook on/off, interrupt hotkey on/off + chord (default `Ctrl+Shift+I`, OS-global), optional window size. The window is setup only (not on stream). First launch: alerts and TTS off, API key empty. **Home**: YouTube status, Start/Stop, spent Data API quota when a key is set, interrupt overlay audio, Find latest stream, OBS Browser Source URLs. **Config**: all settings including the interrupt shortcut; Find latest fills stream ID from the channel of a known video (live, else upcoming; not VOD). Requires a Data API key. Does not save until Save/Start. **Commands**: edit `commands.yaml` (add rows; blank volume/scale are not written). **Test**: send a fake chat line. **What does not**: chat history, live iterator state.
 8. **API key**: optional. Empty means use `youtube/nokey`. When set, store in this `0600` JSON. OS keychain is a later hardening step. Never log the key.
 
@@ -137,7 +137,7 @@ The settings UI should make the optional key obvious: empty = no-key client; fil
 | YouTube | Data API v3 when an API key is set; otherwise `youtube/nokey`. Same `youtube.Client` interface. |
 | Config | JSON file under the OS user config dir (Go `os.UserConfigDir`); settings UI; no committed `.env` |
 
-The tree already has `wails.json`, `main.go`, `app.go`, and `frontend/` from `wails init -t svelte-ts`. Do not run init again (it would nest a second project). After changing exported `App` methods: `make generate`.
+The tree already has `wails.json`, `main.go`, `app.go`, and `frontend/` from `wails init -t svelte-ts`. Do not run init again (it would nest a second project). After changing exported pane binding methods: `make generate`.
 
 ---
 
@@ -153,7 +153,7 @@ make test
 make test-integration
 ```
 
-Raw Wails/Go equivalents: `wails dev`, `wails build`, `go test -race -tags=nomain .` then `go test -race ./internal/...`. Frontend-only (from `frontend/`): `npm install` then `npm run dev` / `npm run build`. Wails generates bindings under `frontend/wailsjs/` — do not edit those files by hand. After changing exported `App` methods: `make generate`.
+Raw Wails/Go equivalents: `wails dev`, `wails build`, `go test -race -tags=nomain .` then `go test -race -tags=nomain ./bindings/...` then `go test -race ./internal/...`. Frontend-only (from `frontend/`): `npm install` then `npm run dev` / `npm run build`. Wails generates bindings under `frontend/wailsjs/` — do not edit those files by hand. After changing exported pane binding methods: `make generate`.
 
 YouTube Data API v3 is only required when the user saves an API key. After start, add OBS Browser Sources to `http://127.0.0.1:<port>/obs/chat` and `http://127.0.0.1:<port>/obs/overlay`. Click Interact on the overlay source once so the browser can autoplay audio (same as the console README).
 
@@ -198,8 +198,13 @@ Official Wails layout is a **Vite Svelte app in `frontend/`** plus **`package ma
 │   └── release.yml           # binaries on v* tags
 ├── wails.json                # Wails CLI: frontend install/build/dev
 ├── go.mod
-├── main.go                   # wails.Run, //go:embed all:frontend/dist
-├── app.go                    # App struct: GetSettings, SaveSettings, Start, Stop
+├── main.go                   # wails.Run, Bind pane structs, //go:embed all:frontend/dist
+├── app.go                    # App core: settings, pipeline, OBS HTTP (not bound directly)
+├── bindings/                 # Wails Bind[] wrappers, one package per pane
+│   ├── home/
+│   ├── configuration/
+│   ├── commands/
+│   └── test/
 ├── frontend/                 # config window only (official svelte-ts template)
 │   ├── index.html
 │   ├── package.json
@@ -213,7 +218,7 @@ Official Wails layout is a **Vite Svelte app in `frontend/`** plus **`package ma
 │   │   ├── lib/              # HomePane, ConfigPane, CommandsPane, TestPane
 │   │   └── assets/
 │   ├── wailsjs/              # generated bindings — do not edit
-│   │   ├── go/main/          # App.ts / App.js from package main
+│   │   ├── go/               # home, configuration, commands, test
 │   │   └── runtime/
 │   └── dist/                 # Vite build output (embedded; gitignore contents)
 ├── internal/
@@ -231,8 +236,8 @@ Official Wails layout is a **Vite Svelte app in `frontend/`** plus **`package ma
 **Layout rules**
 
 - Keep `main.go` / `app.go` at the **repository root**. The Wails CLI expects `wails.json` beside them. Do not move the entrypoint to `cmd/` the way the console app does.
-- Bind **one façade** (`App` in `package main`). Put YouTube, HTTP, and config in `internal/` and call them from `app.go`. Extra bind structs only if a second UI surface needs its own API.
-- Svelte imports Go via `../wailsjs/go/main/App` (or `$lib` aliases that point at `wailsjs`). Default `wailsjsdir` is `frontend/` — leave it unless we add SvelteKit.
+- Keep `App` in `package main` as the desktop core. Bind **one struct per window pane** under `bindings/` (`home`, `configuration`, `commands`, `test`). Wrappers delegate to `App`; do not put YouTube/HTTP/config logic in `bindings/`.
+- Svelte imports Go via `../wailsjs/go/<package>/<Struct>` (or `$lib` aliases that point at `wailsjs`). Default `wailsjsdir` is `frontend/` — leave it unless we add SvelteKit.
 - `frontend/src/lib` is UI only. No HTTP server, no YouTube, no `commands.yaml` parsing.
 - OBS pages (`overlay.html`, `chat.html`) live in `internal/obs` next to the handlers (`//go:embed`), not under `frontend/`.
 - Tests sit beside the Go package they cover (`internal/alerts/find_token_test.go` style).
@@ -284,7 +289,7 @@ Every ported Go package **must** have unit tests. Add integration tests when the
 - A package with no integration surface (for example pure token matching) does not need an integration file; say so in the package comment if it is unclear.
 - Porting is incomplete without tests, godoc, a use-case file, and a wiki `go doc` row ([Contributing](docs/wiki/Contributing.md)).
 
-CI (every push and pull request): `go test -race -tags=nomain .` then `go test -race ./internal/...` then `go test -tags=integration ./internal/...`. See [ADR 008](docs/architecture/008-github-actions-test-and-release.md). The `nomain` tag skips `main.go` (Wails CGO) so App/pipeline tests run on Ubuntu.
+CI (every push and pull request): `go test -race -tags=nomain .` then `go test -race -tags=nomain ./bindings/...` then `go test -race ./internal/...` then `go test -tags=integration ./internal/...`. See [ADR 008](docs/architecture/008-github-actions-test-and-release.md). The `nomain` tag skips `main.go` (Wails CGO) so App/pipeline tests run on Ubuntu.
 
 ### Releases
 
@@ -333,7 +338,7 @@ The console tree splits HTTP into `server` + `chat`, YouTube into `clients/youtu
 - **Config is a JSON file under `os.UserConfigDir()/ytmemchat`**, loaded at startup and saved on change. Defaults live in Go. Stream ID is required to Start; API key is optional. Do not panic the process the way console `config.Get()` does.
 - **YouTube client is chosen by API key presence**, not by a hardcoded flag. Empty key → `youtube/nokey`. Non-empty key → API v3 only. Invalid key → error in the config window, never fall back to the no-key client.
 - **Svelte has no overlay business rules.** No YouTube calls, no WS servers, no alert matching in the frontend.
-- **Wails bindings (`frontend/wailsjs`) are generated.** After changing exported methods on `App`, regenerate via `wails dev` / `wails generate module`. Never hand-edit `wailsjs`.
+- **Wails bindings (`frontend/wailsjs`) are generated.** After changing exported methods on pane binding structs, regenerate via `wails dev` / `wails generate module`. Never hand-edit `wailsjs`.
 - **Every Go package has godoc** (`go doc` / `go doc -all`). Missing package or export comments are incomplete ports.
 - **Secrets and media paths** stay local. Do not log API keys. Alert media files are user-configured paths (`ALERTS_MEDIA_PATH` in the console app).
 

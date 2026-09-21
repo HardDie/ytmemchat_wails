@@ -97,7 +97,7 @@ jobs:
           # -skipbindings: committed frontend/wailsjs. Wails generate walks test
           # imports (gax-go.test → huge genproto zip) and also executes package
           # main (Linux hotkey init panics without DISPLAY).
-          cmd=(wails build -skipbindings -clean -trimpath -platform "${{ matrix.wails_platform }}" -ldflags "-X main.buildVersion=${VERSION}")
+          cmd=(wails build -skipbindings -clean -trimpath -platform "${{ matrix.wails_platform }}" -ldflags "-X github.com/HardDie/ytmemchat_wails/bindings/home.buildVersion=${VERSION}")
           # Ubuntu 24.04 has webkit2gtk-4.1 only; Wails 2.11 still defaults to 4.0.
           if [ -n "${{ matrix.wails_tags }}" ]; then
             cmd+=(-tags "${{ matrix.wails_tags }}")

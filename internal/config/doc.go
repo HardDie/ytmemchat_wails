@@ -3,6 +3,6 @@
 // on a missing file (unlike the console app).
 //
 // Default path: os.UserConfigDir()/ytmemchat/config.json (mode 0600).
-// Bindings on App should call [Store.Load] / [Store.Save]; this package
+// Bindings on the Configuration pane should call [Store.Load] / [Store.Save]; this package
 // does not import Wails.
 package config

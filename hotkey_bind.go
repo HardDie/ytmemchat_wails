@@ -8,6 +8,7 @@ import (
 
 	oshotkey "golang.design/x/hotkey"
 
+	"github.com/HardDie/ytmemchat_wails/bindings/home"
 	"github.com/HardDie/ytmemchat_wails/internal/hotkey"
 )
 
@@ -103,7 +104,7 @@ func listenInterruptHotkey(a *App, hk *oshotkey.Hotkey, stop <-chan struct{}, do
 				continue
 			}
 			last = time.Now()
-			if err := a.InterruptTTS(); err != nil {
+			if err := home.New(a).InterruptTTS(); err != nil {
 				slog.Debug("interrupt hotkey", "err", err)
 			}
 		}

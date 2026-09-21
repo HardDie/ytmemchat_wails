@@ -10,7 +10,7 @@ PKG          ?= ./internal/tts
 PKGSITE_ADDR ?= localhost:8081
 # Exact git tag when HEAD is tagged, otherwise the short commit. Override with BUILD_VERSION=…
 BUILD_VERSION ?= $(shell git describe --tags --exact-match 2>/dev/null || git rev-parse --short=12 HEAD 2>/dev/null || echo dev)
-VERSION_LDFLAGS := -X main.buildVersion=$(BUILD_VERSION)
+VERSION_LDFLAGS := -X github.com/HardDie/ytmemchat_wails/bindings/home.buildVersion=$(BUILD_VERSION)
 # Ubuntu 24.04+ ships webkit2gtk-4.1; Wails needs this tag instead of 4.0.
 WAILS_TAGS := $(shell pkg-config --exists webkit2gtk-4.1 2>/dev/null && echo -tags webkit2_41)
 
@@ -38,9 +38,10 @@ build: require-wails
 generate: require-wails
 	$(WAILS) generate module
 
-## test: Unit tests for package main and internal packages (same as CI, with race)
+## test: Unit tests for package main, bindings, and internal packages (same as CI, with race)
 test:
 	$(GO) test -race -count=1 -tags=$(TEST_MAIN_TAGS) .
+	$(GO) test -race -count=1 -tags=$(TEST_MAIN_TAGS) ./bindings/...
 	$(GO) test -race -count=1 $(INTERNAL)
 
 ## test-integration: Integration tests (OS TTS, later HTTP); skips if tools missing
@@ -56,6 +57,7 @@ ci: test-all
 ## vet: Go vet on package main (no Wails CGO) and internal packages
 vet:
 	$(GO) vet -tags=$(TEST_MAIN_TAGS) .
+	$(GO) vet -tags=$(TEST_MAIN_TAGS) ./bindings/...
 	$(GO) vet $(INTERNAL)
 
 ## fmt: Format Go files; fail if any file needed formatting
