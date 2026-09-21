@@ -9,3 +9,4 @@ ytmemchat reads YouTube live chat and drives an OBS overlay: on-stream messages,
 * [Commands](Commands) — edit `commands.yaml` (name, file, volume, scale)
 * [YouTube API key](YouTube-API-key) — what the Google token is, how to create one, default quota; Home shows spent units when a key is set
 * [Contributing](Contributing) — make targets, tests, package docs
+* [Update](Update) — check GitHub Releases and replace this install

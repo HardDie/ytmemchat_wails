@@ -216,6 +216,7 @@ Idiomatic pattern:
    20. A bad commands file fails Start (inject logs and skips the matcher).
    21. `SaveAlertCommands` writes `commands.yaml` (omits unset `volume`/`scale`).
    22. Save reloads the matcher without YouTube Start.
+   23. Update: `Check`, `Download`, `ApplyAndQuit`.
 7. **What belongs here**
    1. Stream ID (required to Start).
    2. Optional YouTube API key.
@@ -234,6 +235,7 @@ Idiomatic pattern:
    15. **Commands**: edit `commands.yaml` (add rows; blank volume/scale are not written).
    16. **Test**: send a fake chat line.
    17. **What does not**: chat history, live iterator state.
+   18. **Update**: check GitHub, download, quit and replace.
 8. **API key**
    1. Optional.
    2. Empty means use `youtube/nokey`.
@@ -416,7 +418,8 @@ Official Wails layout:
 │   ├── home/
 │   ├── configuration/
 │   ├── commands/
-│   └── test/
+│   ├── test/
+│   └── update/
 ├── frontend/                 # config window only (official svelte-ts template)
 │   ├── index.html
 │   ├── package.json
@@ -425,12 +428,12 @@ Official Wails layout:
 │   ├── src/
 │   │   ├── main.ts           # boot App; ?screenshot=1 loads stub bindings
 │   │   ├── screenshotBridge.ts
-│   │   ├── App.svelte        # pane shell (home / config / commands / test)
+│   │   ├── App.svelte        # pane shell (home / config / commands / test / update)
 │   │   ├── style.css
-│   │   ├── lib/              # HomePane, ConfigPane, CommandsPane, TestPane
+│   │   ├── lib/              # HomePane, ConfigPane, CommandsPane, TestPane, UpdatePane
 │   │   └── assets/
 │   ├── wailsjs/              # generated bindings — do not edit
-│   │   ├── go/               # sidebar, home, configuration, commands, test
+│   │   ├── go/               # sidebar, home, configuration, commands, test, update
 │   │   └── runtime/
 │   └── dist/                 # Vite build output (embedded; gitignore contents)
 ├── internal/
@@ -442,7 +445,8 @@ Official Wails layout:
 │   ├── hotkey/               # chord parse + OS bind (`!nomain`)
 │   ├── alerts/               # command match + media file server
 │   ├── tts/
-│   └── secret/               # OS keychain for the YouTube API key
+│   ├── secret/               # OS keychain for the YouTube API key
+│   └── update/               # GitHub release check + verified install
 ├── pkg/                      # only if something is useful outside this module (prefer not)
 └── build/
 ```
@@ -463,6 +467,7 @@ Official Wails layout:
 12. OBS pages (`overlay.html`, `chat.html`) live in `internal/obs` next to the handlers (`//go:embed`).
 13. Tests sit beside the Go package they cover (`internal/alerts/find_token_test.go` style).
 14. `internal/secret` holds the YouTube API key vault. `config.Store` calls it.
+15. `internal/update` checks GitHub Releases and stages a verified install.
 
 ### Go package documentation (godoc)
 
@@ -583,6 +588,7 @@ The console tree splits more packages than behaviors.
 11. `obs` must not import `alerts` or `youtube` (register handlers from `app.go`).
 12. **Keep `alerts` and `tts` as their own packages.** They have real logic (YAML commands, OS voices). Do not dump them into `obs`.
 13. `config` may use `internal/secret` for the YouTube API key.
+14. `app.go` does not import `internal/update`; the Update pane binding does.
 
 ---
 

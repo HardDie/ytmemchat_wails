@@ -86,6 +86,21 @@ const testPane: Record<string, Fn> = {
   FlushChat: ok(undefined),
 }
 
+const updatePane: Record<string, Fn> = {
+  Check: ok({
+    current: 'demo',
+    latest: 'v0.2.0',
+    notes: 'Demo release notes.',
+    url: 'https://github.com/HardDie/ytmemchat_wails/releases',
+    asset: 'ytmemchat-v0.2.0-darwin-universal.zip',
+    newer: true,
+    canInstall: true,
+    same: false,
+  }),
+  Download: ok(undefined),
+  ApplyAndQuit: ok(undefined),
+}
+
 const w = window as unknown as {
   go: {
     home: { Home: Record<string, Fn> }
@@ -93,10 +108,12 @@ const w = window as unknown as {
     configuration: { Configuration: Record<string, Fn> }
     commands: { Commands: Record<string, Fn> }
     test: { Test: Record<string, Fn> }
+    update: { Update: Record<string, Fn> }
   }
   runtime: {
     EventsOnMultiple: () => () => void
     ClipboardSetText: () => Promise<void>
+    BrowserOpenURL: (url: string) => void
   }
 }
 
@@ -106,10 +123,12 @@ w.go = {
   configuration: { Configuration: configuration },
   commands: { Commands: commands },
   test: { Test: testPane },
+  update: { Update: updatePane },
 }
 w.runtime = {
   EventsOnMultiple: () => () => {},
   ClipboardSetText: () => Promise.resolve(),
+  BrowserOpenURL: () => {},
 }
 
 export {}

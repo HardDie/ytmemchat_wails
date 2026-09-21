@@ -13,6 +13,7 @@ import (
 	"github.com/HardDie/ytmemchat_wails/bindings/home"
 	"github.com/HardDie/ytmemchat_wails/bindings/sidebar"
 	"github.com/HardDie/ytmemchat_wails/bindings/test"
+	"github.com/HardDie/ytmemchat_wails/bindings/update"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -42,6 +43,7 @@ func main() {
 			configuration.New(app),
 			commands.New(app),
 			test.New(app),
+			update.New(app),
 		},
 	})
 	if err != nil {

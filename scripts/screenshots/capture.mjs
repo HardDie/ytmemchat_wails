@@ -27,6 +27,7 @@ const panes = [
   { file: 'config.png', heading: 'Configuration', click: 'Configuration' },
   { file: 'commands.png', heading: 'Commands', click: 'Commands' },
   { file: 'test.png', heading: 'Test message', click: 'Test' },
+  { file: 'update.png', heading: 'Update', click: 'Update' },
 ]
 
 function unusedPort() {

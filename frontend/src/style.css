@@ -733,3 +733,15 @@ code {
     margin: 8px 0 0;
     font-size: 12px;
 }
+
+.notes {
+    margin: 8px 0 0;
+    padding: 8px;
+    max-height: 12rem;
+    overflow: auto;
+    white-space: pre-wrap;
+    font: inherit;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 6px;
+}

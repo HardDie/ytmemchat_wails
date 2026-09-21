@@ -23,20 +23,23 @@
     SaveAlertCommands,
   } from '../wailsjs/go/commands/Commands.js'
   import { FlushChat, SendTestMessage } from '../wailsjs/go/test/Test.js'
-  import { commands as cmdModels, configuration, home } from '../wailsjs/go/models'
-  import { ClipboardSetText, EventsOn } from '../wailsjs/runtime/runtime'
+  import { ApplyAndQuit, Check as CheckUpdate, Download as DownloadUpdate } from '../wailsjs/go/update/Update.js'
+  import { commands as cmdModels, configuration, home, update as updateModels } from '../wailsjs/go/models'
+  import { BrowserOpenURL, ClipboardSetText, EventsOn } from '../wailsjs/runtime/runtime'
   import HomePane from './lib/HomePane.svelte'
   import ConfigPane from './lib/ConfigPane.svelte'
   import CommandsPane from './lib/CommandsPane.svelte'
   import TestPane from './lib/TestPane.svelte'
+  import UpdatePane from './lib/UpdatePane.svelte'
 
-  type Page = 'home' | 'config' | 'commands' | 'test'
+  type Page = 'home' | 'config' | 'commands' | 'test' | 'update'
 
   const titles: Record<Page, string> = {
     home: 'Home',
     config: 'Configuration',
     commands: 'Commands',
     test: 'Test message',
+    update: 'Update',
   }
 
   let page: Page = 'home'
@@ -68,6 +71,9 @@
   let obs: home.OBSStatus | null = null
   let run: home.RunStatus | null = null
   let appVersion = ''
+  let updateStatus: updateModels.Status | null = null
+  let updateBusy = false
+  let updateDownloaded = false
 
   function applyForm(s: configuration.SettingsForm): void {
     streamId = s.streamId ?? ''
@@ -222,6 +228,54 @@
     } catch (e) {
       error = String(e)
     }
+  }
+
+  async function checkUpdate(): Promise<void> {
+    updateBusy = true
+    error = ''
+    status = ''
+    updateDownloaded = false
+    try {
+      updateStatus = await CheckUpdate()
+      status = 'Checked GitHub'
+    } catch (e) {
+      error = String(e)
+    } finally {
+      updateBusy = false
+    }
+  }
+
+  async function downloadUpdate(): Promise<void> {
+    updateBusy = true
+    error = ''
+    status = ''
+    try {
+      await DownloadUpdate()
+      updateDownloaded = true
+      status = 'Archive verified'
+    } catch (e) {
+      error = String(e)
+    } finally {
+      updateBusy = false
+    }
+  }
+
+  async function applyUpdate(): Promise<void> {
+    updateBusy = true
+    error = ''
+    status = ''
+    try {
+      await ApplyAndQuit()
+      status = 'Installing…'
+    } catch (e) {
+      error = String(e)
+      updateBusy = false
+    }
+  }
+
+  function openReleases(): void {
+    const url = (updateStatus && updateStatus.url) || 'https://github.com/HardDie/ytmemchat_wails/releases'
+    BrowserOpenURL(url)
   }
 
   async function interruptTTS(): Promise<void> {
@@ -421,6 +475,7 @@
       <button class="pane-btn" class:active={page === 'config'} type="button" on:click={() => { page = 'config' }}>Configuration</button>
       <button class="pane-btn" class:active={page === 'commands'} type="button" on:click={openCommands}>Commands</button>
       <button class="pane-btn" class:active={page === 'test'} type="button" on:click={() => { page = 'test' }}>Test</button>
+      <button class="pane-btn" class:active={page === 'update'} type="button" on:click={() => { page = 'update' }}>Update</button>
     </nav>
     {#if appVersion}
       <div class="sidebar-version" title={appVersion}>{appVersion}</div>
@@ -476,6 +531,8 @@
         />
       {:else if page === 'test'}
         <TestPane bind:testMessage {obs} onSend={sendTest} onFlush={flushChat} />
+      {:else if page === 'update'}
+        <UpdatePane current={appVersion} status={updateStatus} busy={updateBusy} downloaded={updateDownloaded} onCheck={checkUpdate} onDownload={downloadUpdate} onApply={applyUpdate} onOpen={openReleases} />
       {:else}
         <HomePane {run} {obs} {streamId} {apiKey} {starting} {lookingUp} interruptHotkeyEnabled={interruptHotkeyEnabled} interruptHotkeyChord={interruptHotkeyChord} interruptHotkeyError={interruptHotkeyError} onStart={start} onStop={stop} onInterrupt={interruptTTS} onLookup={lookupLatest} onCopyChat={copyChat} onCopyOverlay={copyOverlay} />
       {/if}

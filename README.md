@@ -13,7 +13,7 @@ This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) de
 ## Features
 
 - Live YouTube chat (history skipped on connect); optional [Data API v3](https://developers.google.com/youtube/v3) key
-- Home / Configuration / Commands / Test window
+- Home / Configuration / Commands / Test / Update window
 - OBS chat and alert/TTS overlay over HTTP + WebSocket
 - Alert commands (for example `@jump`) and TTS (macOS `say`, Windows PowerShell, Linux `espeak`)
 - Optional HTTP API and a Test pane to inject a fake chat line
