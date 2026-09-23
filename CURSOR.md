@@ -98,6 +98,7 @@ This is a new desktop app.
 7. File servers use a trailing slash (`/obs/media/`).
 8. Do not register old console aliases unless we later need a migration shim.
 9. Chat/overlay open one WebSocket ([014](docs/architecture/014-obs-html-one-websocket.md)).
+10. Chat/overlay keep one reconnect timer ([015](docs/architecture/015-obs-html-reconnect-timer.md)).
 
 | Method | Route | Role |
 |---|---|---|
@@ -475,6 +476,7 @@ Official Wails layout:
 14. `internal/secret` holds the YouTube API key vault. `config.Store` calls it.
 15. `internal/update` checks GitHub Releases and stages a verified install.
 16. OBS chat/overlay sockets: [014](docs/architecture/014-obs-html-one-websocket.md).
+17. OBS chat/overlay reconnect: [015](docs/architecture/015-obs-html-reconnect-timer.md).
 
 ### Go package documentation (godoc)
 
