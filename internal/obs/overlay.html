@@ -396,7 +396,7 @@
 			scheduleReconnect();
 		};
 		websocket.onerror = function(err) {
-			console.error("Socket encountered error: ", err.message, "Closing socket");
+			console.error("Socket encountered error: ", err);
 			if (websocket) websocket.close();
 		};
 	}
