@@ -158,7 +158,7 @@
             document.body.classList.add('transparent');
         }
 
-        let websocket = new WebSocket(wsUri);
+        let websocket = null;
         function connectWebSocket() {
             // 1. Clean up the old socket if it exists
             if (websocket) {
@@ -225,9 +225,7 @@
         }
 
 
-        setTimeout(() => {
-            connectWebSocket();
-        }, 300); // 300ms is usually enough for Chrome to clear the previous socket
+        connectWebSocket();
     </script>
 
     <script>

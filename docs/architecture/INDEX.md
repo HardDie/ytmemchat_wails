@@ -17,3 +17,4 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [011](011-local-youtube-quota-estimate.md) | Local YouTube Data API quota estimate | Accepted |
 | [012](012-os-keychain-api-key.md) | OS keychain for the YouTube API key | Accepted |
 | [013](013-github-self-update.md) | GitHub Releases for in-app update | Accepted |
+| [014](014-obs-html-one-websocket.md) | OBS pages open one WebSocket | Accepted |

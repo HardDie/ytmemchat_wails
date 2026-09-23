@@ -140,11 +140,7 @@
 
         console.log('AudioContext is active:', audioContext.state);
         startBtn.style.display = 'none'; // Hide button after activation
-
-        console.log("Settling browser environment before connecting...");
-        setTimeout(() => {
-            connectWebSocket();
-        }, 300); // 300ms is usually enough for Chrome to clear the previous socket
+        connectWebSocket();
     });
 
     const statusEl = document.getElementById('connection-status');
@@ -192,7 +188,7 @@
     }
     // -------------------------
 
-    let websocket = new WebSocket(wsUri);
+    let websocket = null;
 	function connectWebSocket() {
         // 1. Clean up the old socket if it exists
         if (websocket) {
