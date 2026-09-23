@@ -101,6 +101,7 @@ This is a new desktop app.
 10. Chat/overlay keep one reconnect timer ([015](docs/architecture/015-obs-html-reconnect-timer.md)).
 11. Overlay clears media on `app_closed` and on socket close; chat keeps lines ([016](docs/architecture/016-obs-html-app-closed-teardown.md)).
 12. OBS pages recover without reload ([017](docs/architecture/017-obs-html-recover-no-reload.md)).
+13. Overlay video min play 5s ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 
 | Method | Route | Role |
 |---|---|---|
@@ -150,6 +151,7 @@ Chat query `?transparent=1`:
 11. Overlay `app_closed` tears down playback ([016](docs/architecture/016-obs-html-app-closed-teardown.md)).
 12. Overlay `onclose` does the same teardown.
 13. OBS pages recover without reload ([017](docs/architecture/017-obs-html-recover-no-reload.md)).
+14. Overlay video min play 5s ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 
 Do not invent a parallel Wails Events protocol for OBS.
 
@@ -485,6 +487,7 @@ Official Wails layout:
 18. Overlay `app_closed` teardown: [016](docs/architecture/016-obs-html-app-closed-teardown.md).
 19. Overlay socket-close teardown is the same ADR.
 20. OBS HTML recover / script groups: [017](docs/architecture/017-obs-html-recover-no-reload.md).
+21. Overlay min sticker time: [018](docs/architecture/018-obs-html-min-sticker-time.md).
 
 ### Go package documentation (godoc)
 

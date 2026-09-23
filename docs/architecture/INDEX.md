@@ -21,3 +21,4 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [015](015-obs-html-reconnect-timer.md) | OBS pages keep one reconnect timer | Accepted |
 | [016](016-obs-html-app-closed-teardown.md) | Overlay drops media on `app_closed` and socket close; chat keeps lines | Accepted |
 | [017](017-obs-html-recover-no-reload.md) | OBS pages recover in-place; scripts grouped by role | Accepted |
+| [018](018-obs-html-min-sticker-time.md) | Overlay video stays at least 5s (memealerts) | Accepted |

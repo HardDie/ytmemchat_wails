@@ -120,6 +120,8 @@
 	/* <====== Draw / playback ======> */
 	const OBS_WIDTH = window.innerWidth;
 	const OBS_HEIGHT = window.innerHeight;
+	const MIN_STICKER_PLAYING_SEC = 5;
+	const MEDIA_FADE_MS = 500;
 	let alertQueue = [];
 	let isPlaying = false;
 	let currentTtsSource = null;
@@ -204,7 +206,10 @@
 		mediaElement.className = 'media-alert';
 		container.appendChild(mediaElement);
 		document.body.appendChild(container);
+		let laidOut = false;
 		const handleMediaLoad = function() {
+			if (laidOut) return;
+			laidOut = true;
 			mediaElement.removeEventListener('load', handleMediaLoad);
 			mediaElement.removeEventListener('loadedmetadata', handleMediaLoad);
 			const originalWidth = container.offsetWidth;
@@ -223,9 +228,11 @@
 			container.style.top = (randomY - offsetY) + 'px';
 			container.style.opacity = 1;
 			if (isVideo) {
-				mediaElement.onended = function() {
-					removeMediaElement(container);
-				};
+				const playAttempt = mediaElement.play();
+				if (playAttempt && playAttempt.catch) {
+					playAttempt.catch(function() { /* autoplay blocked */ });
+				}
+				scheduleVideoTeardown(mediaElement, container);
 			} else {
 				setTimeout(function() {
 					removeMediaElement(container);
@@ -274,11 +281,25 @@
 			});
 	}
 
+	function scheduleVideoTeardown(mediaElement, container) {
+		const d = mediaElement.duration;
+		let sec = MIN_STICKER_PLAYING_SEC;
+		if (Number.isFinite(d) && d > 0) {
+			sec = Math.max(d, MIN_STICKER_PLAYING_SEC);
+		}
+		const fadeAt = Math.max(0, sec * 1000 - MEDIA_FADE_MS);
+		setTimeout(function() {
+			removeMediaElement(container);
+		}, fadeAt);
+	}
+
 	function removeMediaElement(container) {
+		if (!container || container.dataset.removed) return;
+		container.dataset.removed = '1';
 		container.style.opacity = 0;
 		setTimeout(function() {
 			container.remove();
-		}, 500);
+		}, MEDIA_FADE_MS);
 	}
 	</script>
 

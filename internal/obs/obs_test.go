@@ -93,6 +93,12 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(string(ob), "recoverFromUnhandledError") {
 		t.Fatal("overlay html must recover via connectWebSocket")
 	}
+	if !strings.Contains(string(ob), "MIN_STICKER_PLAYING_SEC") {
+		t.Fatal("overlay html must keep video on screen at least min sticker time")
+	}
+	if strings.Contains(string(ob), "mediaElement.onended") {
+		t.Fatal("overlay video must not hide on ended")
+	}
 }
 
 func TestChatTrailingSlashNotFound(t *testing.T) {
