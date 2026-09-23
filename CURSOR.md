@@ -99,6 +99,7 @@ This is a new desktop app.
 8. Do not register old console aliases unless we later need a migration shim.
 9. Chat/overlay open one WebSocket ([014](docs/architecture/014-obs-html-one-websocket.md)).
 10. Chat/overlay keep one reconnect timer ([015](docs/architecture/015-obs-html-reconnect-timer.md)).
+11. Overlay clears media on `app_closed` and on socket close; chat keeps lines ([016](docs/architecture/016-obs-html-app-closed-teardown.md)).
 
 | Method | Route | Role |
 |---|---|---|
@@ -145,6 +146,8 @@ Chat query `?transparent=1`:
 8. OBS pages can show that the app quit. They keep retrying so a later launch reconnects.
 9. Unexpected drops still use the generic “disconnected” banner.
 10. Overlay has no `chat_flush`.
+11. Overlay `app_closed` tears down playback ([016](docs/architecture/016-obs-html-app-closed-teardown.md)).
+12. Overlay `onclose` does the same teardown.
 
 Do not invent a parallel Wails Events protocol for OBS.
 
@@ -477,6 +480,8 @@ Official Wails layout:
 15. `internal/update` checks GitHub Releases and stages a verified install.
 16. OBS chat/overlay sockets: [014](docs/architecture/014-obs-html-one-websocket.md).
 17. OBS chat/overlay reconnect: [015](docs/architecture/015-obs-html-reconnect-timer.md).
+18. Overlay `app_closed` teardown: [016](docs/architecture/016-obs-html-app-closed-teardown.md).
+19. Overlay socket-close teardown is the same ADR.
 
 ### Go package documentation (godoc)
 

@@ -78,6 +78,9 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(string(ob), "app_closed") {
 		t.Fatal("overlay html must handle graceful app_closed")
 	}
+	if !strings.Contains(string(ob), "clearOverlayPlayback") {
+		t.Fatal("overlay html must tear down media on app_closed")
+	}
 }
 
 func TestChatTrailingSlashNotFound(t *testing.T) {

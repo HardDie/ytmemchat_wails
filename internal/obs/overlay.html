@@ -229,6 +229,7 @@
                 const type = data.type;
                 if (type === 'app_closed') {
                     appClosed = true;
+                    clearOverlayPlayback();
                     showConnectionStatus();
                     return;
                 }
@@ -252,6 +253,7 @@
 
         websocket.onclose = function() {
             websocket = null;
+            clearOverlayPlayback();
             showConnectionStatus();
             console.log(`Connection lost. Retrying in ${RETRY_INTERVAL}ms...`);
             scheduleReconnect();
@@ -277,6 +279,22 @@
             currentTtsSource = null;
         }
         isPlaying = false;
+    }
+
+    function clearOverlayPlayback() {
+        document.querySelectorAll('.alert-container').forEach((container) => {
+            container.querySelectorAll('video, audio').forEach((el) => {
+                try { el.pause(); } catch (e) { /* ignore */ }
+                el.removeAttribute('src');
+                try { el.load(); } catch (e) { /* ignore */ }
+            });
+            removeMediaElement(container);
+        });
+        document.querySelectorAll('body > audio').forEach((el) => {
+            try { el.pause(); } catch (e) { /* ignore */ }
+            el.remove();
+        });
+        interruptCurrentTTS();
     }
 	/**
 	 * Creates and displays the media container with all dynamic properties.
