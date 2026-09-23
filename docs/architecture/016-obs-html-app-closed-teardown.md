@@ -38,6 +38,8 @@ Use option 3 plus option 4.
 9. Force-quit skips `app_closed` (unchanged).
 10. Crash / kill still hit `onclose`.
 11. Intentional reconnect nulls `onclose` before `close()`, so that path does not clear.
+12. `tts_interrupt` does not flush the queue ([019](019-obs-html-tts-queue.md)).
+13. `clearOverlayPlayback` must still empty `alertQueue` itself.
 
 ## Consequences
 

@@ -99,6 +99,9 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if strings.Contains(string(ob), "mediaElement.onended") {
 		t.Fatal("overlay video must not hide on ended")
 	}
+	if !strings.Contains(string(ob), "!laidOut") {
+		t.Fatal("overlay html must drop media that never loads")
+	}
 }
 
 func TestChatTrailingSlashNotFound(t *testing.T) {

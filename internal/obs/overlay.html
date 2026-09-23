@@ -179,13 +179,26 @@
 		const isAudio = filename.match(/\.(mp3|ogg|wav|aac|flac)$/i);
 		if (isAudio) {
 			const audioElement = document.createElement('audio');
-			audioElement.src = mediaUrl;
 			audioElement.autoplay = true;
 			audioElement.volume = volume;
-			document.body.appendChild(audioElement);
-			audioElement.onended = function() {
+			let audioReady = false;
+			const drop = function() {
+				try { audioElement.pause(); } catch (e) { /* ignore */ }
 				audioElement.remove();
 			};
+			audioElement.addEventListener('ended', drop);
+			audioElement.addEventListener('error', drop);
+			audioElement.addEventListener('abort', drop);
+			audioElement.addEventListener('loadedmetadata', function() {
+				audioReady = true;
+			});
+			setTimeout(function() {
+				if (!audioReady) {
+					drop();
+				}
+			}, MIN_STICKER_PLAYING_SEC * 1000);
+			audioElement.src = mediaUrl;
+			document.body.appendChild(audioElement);
 			return;
 		}
 		let mediaElement;
@@ -202,11 +215,20 @@
 		} else {
 			mediaElement = document.createElement('img');
 		}
-		mediaElement.src = mediaUrl;
 		mediaElement.className = 'media-alert';
 		container.appendChild(mediaElement);
 		document.body.appendChild(container);
 		let laidOut = false;
+		const failLoad = function() {
+			removeMediaElement(container);
+		};
+		mediaElement.addEventListener('error', failLoad);
+		mediaElement.addEventListener('abort', failLoad);
+		setTimeout(function() {
+			if (!laidOut) {
+				removeMediaElement(container);
+			}
+		}, isVideo ? MIN_STICKER_PLAYING_SEC * 1000 : 6000);
 		const handleMediaLoad = function() {
 			if (laidOut) return;
 			laidOut = true;
@@ -241,6 +263,7 @@
 		};
 		mediaElement.addEventListener('load', handleMediaLoad);
 		mediaElement.addEventListener('loadedmetadata', handleMediaLoad);
+		mediaElement.src = mediaUrl;
 		if (mediaElement.complete || (mediaElement.readyState >= 1 && isVideo)) {
 			handleMediaLoad();
 		}

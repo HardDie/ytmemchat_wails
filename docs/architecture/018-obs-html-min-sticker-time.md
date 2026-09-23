@@ -37,6 +37,11 @@ Use option 2.
 8. Images still use the 6s timer.
 9. Audio-only still uses `ended`.
 10. `clearOverlayPlayback` can still cut a clip short ([016](016-obs-html-app-closed-teardown.md)).
+11. `error` / `abort` call `removeMediaElement`.
+12. If layout never ran, remove after 5s (video) or 6s (image).
+13. That backstop no-ops once `laidOut` is true.
+14. Audio-only also drops on `error` / `abort`.
+15. Audio that never reaches `loadedmetadata` is dropped after 5s.
 
 ## Consequences
 
@@ -47,9 +52,8 @@ Use option 2.
 
 ### Negative and risks
 
-* Metadata never loading still has no timer (review item 7).
 * Min 5s is hardcoded (memealerts can change `minStickerPlayingTimeSec` in config).
 
 ### Neutral
 
-* Review notes: `docs/obs-html-review.md` item 6.
+* Review notes: `docs/obs-html-review.md` items 6 and 7.
