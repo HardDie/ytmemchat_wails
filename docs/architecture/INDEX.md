@@ -20,3 +20,4 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [014](014-obs-html-one-websocket.md) | OBS pages open one WebSocket | Accepted |
 | [015](015-obs-html-reconnect-timer.md) | OBS pages keep one reconnect timer | Accepted |
 | [016](016-obs-html-app-closed-teardown.md) | Overlay drops media on `app_closed` and socket close; chat keeps lines | Accepted |
+| [017](017-obs-html-recover-no-reload.md) | OBS pages recover in-place; scripts grouped by role | Accepted |

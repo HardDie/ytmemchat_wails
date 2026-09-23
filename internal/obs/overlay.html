@@ -111,225 +111,89 @@
     <div id="connection-status">⚠️ WEB SOCKET DISCONNECTED - RETRYING...</div>
 
 	<script>
-    // --- Global Safety Net ---
-    window.onerror = function(msg, url, line) {
-        console.error(`CRITICAL ERROR: ${msg} at ${line}`);
-        // Delay reload by 5s so you have time to see the error in DevTools
-        // and to prevent a high-speed refresh loop.
-        setTimeout(() => { location.reload(); }, 5000);
-        return false;
-    };
+	/* <====== Shared state ======> */
+	var appClosed = false;
+	var audioContext;
+	</script>
 
-    window.onunhandledrejection = function(event) {
-        console.error("PROMISE REJECTION:", event.reason);
-        setTimeout(() => { location.reload(); }, 5000);
-    };
-
-    const startBtn = document.getElementById('start-btn');
-    let audioContext;
-    startBtn.addEventListener('click', async () => {
-        // Initialize the context if it doesn't exist
-        if (!audioContext) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        // Explicitly resume in case it's suspended
-        if (audioContext.state === 'suspended') {
-            await audioContext.resume();
-        }
-
-        console.log('AudioContext is active:', audioContext.state);
-        startBtn.style.display = 'none'; // Hide button after activation
-        connectWebSocket();
-    });
-
-    const statusEl = document.getElementById('connection-status');
-    const STATUS_LOST = '⚠️ WEB SOCKET DISCONNECTED - RETRYING...';
-    const STATUS_CLOSED = 'ytmemchat is closed — reconnecting when it starts…';
-    const RETRY_INTERVAL = 500; // 0.5 seconds
-    let appClosed = false;
-    let reconnectTimer = null;
-
-    function showConnectionStatus() {
-        statusEl.textContent = appClosed ? STATUS_CLOSED : STATUS_LOST;
-        statusEl.classList.toggle('app-closed', appClosed);
-        statusEl.style.display = 'block';
-    }
-
-    function scheduleReconnect() {
-        if (reconnectTimer) return;
-        reconnectTimer = setTimeout(() => {
-            reconnectTimer = null;
-            connectWebSocket();
-        }, RETRY_INTERVAL);
-    }
-
-    const wsProto = (window.location.protocol === 'https:') ? 'wss://' : 'ws://';
-    const wsUri = wsProto + window.location.host + window.location.pathname.replace(/\/$/, '') + '/ws';
-	// Screen dimensions will be set by the OBS Browser Source size
+	<script>
+	/* <====== Draw / playback ======> */
 	const OBS_WIDTH = window.innerWidth;
 	const OBS_HEIGHT = window.innerHeight;
+	let alertQueue = [];
+	let isPlaying = false;
+	let currentTtsSource = null;
 
-    // --- Queue Management ---
-    let alertQueue = [];
-    let isPlaying = false;
-    let currentTtsSource = null; // Track the active audio node
-
-    function addToQueue(data) {
-        alertQueue.push(data);
-        processQueue();
-    }
-
-    function processQueue() {
-        if (isPlaying || alertQueue.length === 0) return;
-
-        isPlaying = true;
-        const nextAlert = alertQueue.shift();
-
-        // Retrieve parameters, using defaults if not provided in the webhook
-        const volume = nextAlert.volume !== undefined ? nextAlert.volume : 0.8;
-        displayTTS(nextAlert.payload, volume)
-    }
-
-    function onMediaFinished() {
-        isPlaying = false;
-        processQueue();
-    }
-    // -------------------------
-
-    let websocket = null;
-	function connectWebSocket() {
-        if (reconnectTimer) {
-            clearTimeout(reconnectTimer);
-            reconnectTimer = null;
-        }
-        // 1. Clean up the old socket if it exists
-        if (websocket) {
-            console.log("Cleaning up old WebSocket before reconnecting...");
-            websocket.onopen = null;
-            websocket.onmessage = null;
-            websocket.onerror = null;
-            websocket.onclose = null;
-            websocket.close();
-            websocket = null;
-        }
-
-        // 2. Initialize new connection
-        websocket = new WebSocket(wsUri);
-
-		websocket.onopen = function() {
-			console.log("WebSocket Connected! Ready for media alerts.");
-            appClosed = false;
-            statusEl.classList.remove('app-closed');
-            statusEl.style.display = 'none';
-		};
-		websocket.onmessage = function(event) {
-			try {
-				const data = JSON.parse(event.data);
-                const type = data.type;
-                if (type === 'app_closed') {
-                    appClosed = true;
-                    clearOverlayPlayback();
-                    showConnectionStatus();
-                    return;
-                }
-				const filename = data.filename;
-				// Retrieve parameters, using defaults if not provided in the webhook
-				const volume = data.volume !== undefined ? data.volume : 0.8;
-				const scale = data.scale !== undefined ? data.scale : 1.0;
-                if (type === 'alert') {
-                    // Pass all parameters to the display function
-                    displayMediaAlert(filename, volume, scale);
-                } else if (type === 'tts') {
-                    // Instead of calling functions directly, add to queue
-                    addToQueue(data);
-                } else if (type === 'tts_interrupt') {
-                    interruptCurrentTTS();
-                }
-			} catch(e) {
-				console.error("Error processing WebSocket message:", e);
-			}
-		};
-
-        websocket.onclose = function() {
-            websocket = null;
-            clearOverlayPlayback();
-            showConnectionStatus();
-            console.log(`Connection lost. Retrying in ${RETRY_INTERVAL}ms...`);
-            scheduleReconnect();
-        };
-
-        websocket.onerror = function(err) {
-            // Log it, but let onclose handle the reconnection logic
-            console.error("Socket encountered error: ", err.message, "Closing socket");
-            // We don't call connectWebSocket here;
-            // websocket.close() will trigger onclose automatically.
-            if (websocket) websocket.close();
-        };
+	function addToQueue(data) {
+		alertQueue.push(data);
+		processQueue();
 	}
 
-    function interruptCurrentTTS() {
-        alertQueue = [];
-        if (currentTtsSource) {
-            try {
-                currentTtsSource.stop();
-            } catch (e) {
-                /* already stopped */
-            }
-            currentTtsSource = null;
-        }
-        isPlaying = false;
-    }
+	function processQueue() {
+		if (isPlaying || alertQueue.length === 0) return;
+		isPlaying = true;
+		const nextAlert = alertQueue.shift();
+		const volume = nextAlert.volume !== undefined ? nextAlert.volume : 0.8;
+		displayTTS(nextAlert.payload, volume);
+	}
 
-    function clearOverlayPlayback() {
-        document.querySelectorAll('.alert-container').forEach((container) => {
-            container.querySelectorAll('video, audio').forEach((el) => {
-                try { el.pause(); } catch (e) { /* ignore */ }
-                el.removeAttribute('src');
-                try { el.load(); } catch (e) { /* ignore */ }
-            });
-            removeMediaElement(container);
-        });
-        document.querySelectorAll('body > audio').forEach((el) => {
-            try { el.pause(); } catch (e) { /* ignore */ }
-            el.remove();
-        });
-        interruptCurrentTTS();
-    }
-	/**
-	 * Creates and displays the media container with all dynamic properties.
-	 * @param {string} filename - The filename from the webhook.
-	 * @param {number} volume - The volume level (0.0 to 1.0).
-	 * @param {number} scale - The scale multiplier (e.g., 1.0, 1.5, 0.75).
-	 */
+	function onMediaFinished() {
+		isPlaying = false;
+		processQueue();
+	}
+
+	function interruptCurrentTTS() {
+		alertQueue = [];
+		if (currentTtsSource) {
+			try {
+				currentTtsSource.stop();
+			} catch (e) {
+				/* already stopped */
+			}
+			currentTtsSource = null;
+		}
+		isPlaying = false;
+	}
+
+	function clearOverlayPlayback() {
+		document.querySelectorAll('.alert-container').forEach(function(container) {
+			container.querySelectorAll('video, audio').forEach(function(el) {
+				try { el.pause(); } catch (e) { /* ignore */ }
+				el.removeAttribute('src');
+				try { el.load(); } catch (e) { /* ignore */ }
+			});
+			removeMediaElement(container);
+		});
+		document.querySelectorAll('body > audio').forEach(function(el) {
+			try { el.pause(); } catch (e) { /* ignore */ }
+			el.remove();
+		});
+		interruptCurrentTTS();
+	}
+
 	function displayMediaAlert(filename, volume, scale) {
-		const mediaUrl = `/obs/media/${filename}`;
-		// Check file type for handling
+		const mediaUrl = '/obs/media/' + filename;
 		const isVideo = filename.match(/\.(mp4|webm|mov|gif)$/i);
 		const isAudio = filename.match(/\.(mp3|ogg|wav|aac|flac)$/i);
-		// --- 1. Handle Pure Audio Files ---
-		if(isAudio) {
+		if (isAudio) {
 			const audioElement = document.createElement('audio');
 			audioElement.src = mediaUrl;
 			audioElement.autoplay = true;
 			audioElement.volume = volume;
 			document.body.appendChild(audioElement);
-			// Removal logic based on playback end
-			audioElement.onended = () => {
+			audioElement.onended = function() {
 				audioElement.remove();
 			};
-			return; // Audio handled, exit function
+			return;
 		}
-		// --- 2. Handle Visual Media (Video/GIF) ---
 		let mediaElement;
 		const container = document.createElement('div');
 		container.className = 'alert-container';
-		if(isVideo) {
+		if (isVideo) {
 			mediaElement = document.createElement('video');
 			mediaElement.autoplay = true;
 			mediaElement.loop = false;
 			mediaElement.muted = false;
-			// Set the specific volume level for this alert
 			mediaElement.volume = volume;
 			mediaElement.playsInline = true;
 			mediaElement.preload = "metadata";
@@ -340,103 +204,214 @@
 		mediaElement.className = 'media-alert';
 		container.appendChild(mediaElement);
 		document.body.appendChild(container);
-		// 3. Layout, Rotation, and Scale Application
-		const handleMediaLoad = () => {
+		const handleMediaLoad = function() {
 			mediaElement.removeEventListener('load', handleMediaLoad);
 			mediaElement.removeEventListener('loadedmetadata', handleMediaLoad);
-			// Get the container's unscaled, original size (W, H, including border)
 			const originalWidth = container.offsetWidth;
 			const originalHeight = container.offsetHeight;
-			// Calculate the actual size the element will occupy after scaling
 			const scaledWidth = originalWidth * scale;
 			const scaledHeight = originalHeight * scale;
-			// Apply Rotation and Scale
 			const randomRotation = (Math.random() * 20) - 10;
-			container.style.transform = `rotate(${randomRotation}deg) scale(${scale})`;
-			// 3. Random Position Calculation (ensuring element is fully on screen)
+			container.style.transform = 'rotate(' + randomRotation + 'deg) scale(' + scale + ')';
 			const safeXRange = OBS_WIDTH - scaledWidth;
 			const safeYRange = OBS_HEIGHT - scaledHeight;
-			// Generate random position for the TOP-LEFT corner of the overall bounding box.
 			const randomX = Math.random() * Math.max(0, safeXRange);
 			const randomY = Math.random() * Math.max(0, safeYRange);
-			// Adjust position to account for the scaling origin (center).
 			const offsetX = (scaledWidth - originalWidth) / 2;
 			const offsetY = (scaledHeight - originalHeight) / 2;
-			// Apply position, adjusted for scale offset
-			container.style.left = `${randomX - offsetX}px`;
-			container.style.top = `${randomY - offsetY}px`;
-			container.style.opacity = 1; // Fade in
-			// 7. Media Removal Logic
-			if(isVideo) {
-				mediaElement.onended = () => {
+			container.style.left = (randomX - offsetX) + 'px';
+			container.style.top = (randomY - offsetY) + 'px';
+			container.style.opacity = 1;
+			if (isVideo) {
+				mediaElement.onended = function() {
 					removeMediaElement(container);
 				};
 			} else {
-				// For GIFs/Images, remove after a fixed duration (e.g., 6 seconds)
-				setTimeout(() => {
+				setTimeout(function() {
 					removeMediaElement(container);
 				}, 6000);
 			}
 		};
 		mediaElement.addEventListener('load', handleMediaLoad);
 		mediaElement.addEventListener('loadedmetadata', handleMediaLoad);
-		if(mediaElement.complete || (mediaElement.readyState >= 1 && isVideo)) {
+		if (mediaElement.complete || (mediaElement.readyState >= 1 && isVideo)) {
 			handleMediaLoad();
 		}
 	}
-    function displayTTS(payload, volume) {
-        if (!audioContext) {
-            console.warn("AudioContext not initialized. Click the 'Start' button first.");
-            onMediaFinished(); // Don't block the queue
-            return;
-        }
 
-        // 1. Convert Base64 string back to binary (ArrayBuffer)
-        const binaryString = atob(payload);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-        }
-
-        // 2. Use Web Audio API to play
-        audioContext.decodeAudioData(bytes.buffer)
-            .then((audioBuffer) => {
-                const source = audioContext.createBufferSource();
-                source.buffer = audioBuffer;
-
-                // Store the reference globally so we can .stop() it later
-                currentTtsSource = source;
-
-                // Create and configure Gain
-                const gainNode = audioContext.createGain();
-                gainNode.gain.value = volume;
-
-                // Routing: Source -> Gain -> Destination
-                source.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-
-                source.onended = () => {
-                    source.disconnect();
-                    gainNode.disconnect(); // Explicitly break the connection chain
-                    currentTtsSource = null;
-                    onMediaFinished(); // Trigger next in queue
-                };
-
-                source.start(0);
-            })
-            .catch((err) => {
-                console.error("Error decoding TTS audio:", err);
-                onMediaFinished();
-            });
-    }
+	function displayTTS(payload, volume) {
+		if (!audioContext) {
+			console.warn("AudioContext not initialized. Click the 'Start' button first.");
+			onMediaFinished();
+			return;
+		}
+		const binaryString = atob(payload);
+		const len = binaryString.length;
+		const bytes = new Uint8Array(len);
+		for (let i = 0; i < len; i++) {
+			bytes[i] = binaryString.charCodeAt(i);
+		}
+		audioContext.decodeAudioData(bytes.buffer)
+			.then(function(audioBuffer) {
+				const source = audioContext.createBufferSource();
+				source.buffer = audioBuffer;
+				currentTtsSource = source;
+				const gainNode = audioContext.createGain();
+				gainNode.gain.value = volume;
+				source.connect(gainNode);
+				gainNode.connect(audioContext.destination);
+				source.onended = function() {
+					source.disconnect();
+					gainNode.disconnect();
+					currentTtsSource = null;
+					onMediaFinished();
+				};
+				source.start(0);
+			})
+			.catch(function(err) {
+				console.error("Error decoding TTS audio:", err);
+				onMediaFinished();
+			});
+	}
 
 	function removeMediaElement(container) {
-		container.style.opacity = 0; // Start fade out
-		setTimeout(() => {
+		container.style.opacity = 0;
+		setTimeout(function() {
 			container.remove();
-		}, 500); // Wait for transition duration before removing
+		}, 500);
 	}
+	</script>
+
+	<script>
+	/* <====== Errors / recover ======> */
+	const RECOVER_COOLDOWN_MS = 2000;
+	let recovering = false;
+
+	function recoverFromUnhandledError(label, detail) {
+		console.error(label, detail);
+		if (recovering) return;
+		recovering = true;
+		try {
+			clearOverlayPlayback();
+			connectWebSocket();
+		} catch (e) {
+			console.error(e);
+		}
+		setTimeout(function() { recovering = false; }, RECOVER_COOLDOWN_MS);
+	}
+
+	window.onerror = function(msg, url, line) {
+		recoverFromUnhandledError("CRITICAL ERROR:", msg + " at " + line);
+		return true;
+	};
+
+	window.onunhandledrejection = function(event) {
+		event.preventDefault();
+		recoverFromUnhandledError("PROMISE REJECTION:", event.reason);
+	};
+	</script>
+
+	<script>
+	/* <====== Messages ======> */
+	function handleOverlayMessage(event) {
+		let data;
+		try {
+			data = JSON.parse(event.data);
+		} catch (e) {
+			console.error("Error processing WebSocket message:", e);
+			return;
+		}
+		const type = data.type;
+		if (type === 'app_closed') {
+			appClosed = true;
+			clearOverlayPlayback();
+			showConnectionStatus();
+			return;
+		}
+		const filename = data.filename;
+		const volume = data.volume !== undefined ? data.volume : 0.8;
+		const scale = data.scale !== undefined ? data.scale : 1.0;
+		if (type === 'alert') {
+			displayMediaAlert(filename, volume, scale);
+		} else if (type === 'tts') {
+			addToQueue(data);
+		} else if (type === 'tts_interrupt') {
+			interruptCurrentTTS();
+		}
+	}
+	</script>
+
+	<script>
+	/* <====== Connection ======> */
+	const startBtn = document.getElementById('start-btn');
+	const statusEl = document.getElementById('connection-status');
+	const STATUS_LOST = '⚠️ WEB SOCKET DISCONNECTED - RETRYING...';
+	const STATUS_CLOSED = 'ytmemchat is closed — reconnecting when it starts…';
+	const RETRY_INTERVAL = 500;
+	let reconnectTimer = null;
+	let websocket = null;
+	const wsUri = ((window.location.protocol === 'https:') ? 'wss://' : 'ws://') + window.location.host + window.location.pathname.replace(/\/$/, '') + '/ws';
+
+	function showConnectionStatus() {
+		statusEl.textContent = appClosed ? STATUS_CLOSED : STATUS_LOST;
+		statusEl.classList.toggle('app-closed', appClosed);
+		statusEl.style.display = 'block';
+	}
+
+	function scheduleReconnect() {
+		if (reconnectTimer) return;
+		reconnectTimer = setTimeout(function() {
+			reconnectTimer = null;
+			connectWebSocket();
+		}, RETRY_INTERVAL);
+	}
+
+	function connectWebSocket() {
+		if (reconnectTimer) {
+			clearTimeout(reconnectTimer);
+			reconnectTimer = null;
+		}
+		if (websocket) {
+			console.log("Cleaning up old WebSocket before reconnecting...");
+			websocket.onopen = null;
+			websocket.onmessage = null;
+			websocket.onerror = null;
+			websocket.onclose = null;
+			websocket.close();
+			websocket = null;
+		}
+		websocket = new WebSocket(wsUri);
+		websocket.onopen = function() {
+			console.log("WebSocket Connected! Ready for media alerts.");
+			appClosed = false;
+			statusEl.classList.remove('app-closed');
+			statusEl.style.display = 'none';
+		};
+		websocket.onmessage = handleOverlayMessage;
+		websocket.onclose = function() {
+			websocket = null;
+			clearOverlayPlayback();
+			showConnectionStatus();
+			console.log("Connection lost. Retrying in " + RETRY_INTERVAL + "ms...");
+			scheduleReconnect();
+		};
+		websocket.onerror = function(err) {
+			console.error("Socket encountered error: ", err.message, "Closing socket");
+			if (websocket) websocket.close();
+		};
+	}
+
+	startBtn.addEventListener('click', async function() {
+		if (!audioContext) {
+			audioContext = new (window.AudioContext || window.webkitAudioContext)();
+		}
+		if (audioContext.state === 'suspended') {
+			await audioContext.resume();
+		}
+		console.log('AudioContext is active:', audioContext.state);
+		startBtn.style.display = 'none';
+		connectWebSocket();
+	});
 	</script>
 </body>
 

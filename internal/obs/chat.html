@@ -119,191 +119,191 @@
     <div id="connection-status">⚠️ WEB SOCKET DISCONNECTED - RETRYING...</div>
 
     <script>
-        // --- Global Safety Net ---
-        window.onerror = function(msg, url, line) {
-            console.error(`CRITICAL ERROR: ${msg} at ${line}`);
-            // Delay reload by 5s so you have time to see the error in DevTools
-            // and to prevent a high-speed refresh loop.
-            setTimeout(() => { location.reload(); }, 5000);
-            return false;
-        };
-
-        window.onunhandledrejection = function(event) {
-            console.error("PROMISE REJECTION:", event.reason);
-            setTimeout(() => { location.reload(); }, 5000);
-        };
-
-        const wsProto = (window.location.protocol === 'https:') ? 'wss://' : 'ws://';
-        const wsUri = wsProto + window.location.host + window.location.pathname.replace(/\/$/, '') + '/ws';
-        const statusEl = document.getElementById('connection-status');
-        const STATUS_LOST = '⚠️ WEB SOCKET DISCONNECTED - RETRYING...';
-        const STATUS_CLOSED = 'ytmemchat is closed — reconnecting when it starts…';
-        const RETRY_INTERVAL = 500; // 0.5 seconds
-        let appClosed = false;
-        let reconnectTimer = null;
-
-        function showConnectionStatus() {
-            statusEl.textContent = appClosed ? STATUS_CLOSED : STATUS_LOST;
-            statusEl.classList.toggle('app-closed', appClosed);
-            statusEl.style.display = 'block';
-        }
-
-        function scheduleReconnect() {
-            if (reconnectTimer) return;
-            reconnectTimer = setTimeout(() => {
-                reconnectTimer = null;
-                connectWebSocket();
-            }, RETRY_INTERVAL);
-        }
-
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('fontSize')) {
-            document.documentElement.style.setProperty('--font-size', params.get('fontSize'));
-        }
-        if (params.get('textColor')) {
-            document.documentElement.style.setProperty('--text-color', '#' + params.get('textColor'));
-        }
-        if (params.get('transparent') === '1' || params.get('transparent') === 'true') {
-            document.body.classList.add('transparent');
-        }
-
-        let websocket = null;
-        function connectWebSocket() {
-            if (reconnectTimer) {
-                clearTimeout(reconnectTimer);
-                reconnectTimer = null;
-            }
-            // 1. Clean up the old socket if it exists
-            if (websocket) {
-                console.log("Cleaning up old WebSocket before reconnecting...");
-                websocket.onopen = null;
-                websocket.onmessage = null;
-                websocket.onerror = null;
-                websocket.onclose = null;
-                websocket.close();
-                websocket = null;
-            }
-
-            // 2. Initialize new connection
-            websocket = new WebSocket(wsUri);
-
-            websocket.onopen = function() {
-                console.log("WebSocket Connected! Ready for media alerts.");
-                appClosed = false;
-                statusEl.classList.remove('app-closed');
-                statusEl.style.display = 'none';
-            };
-            websocket.onmessage = function(event) {
-                const msg = JSON.parse(event.data);
-                if (msg.type === 'app_closed') {
-                    appClosed = true;
-                    showConnectionStatus();
-                    return;
-                }
-                if (msg.type === 'chat_flush') {
-                    document.getElementById('chat-container').replaceChildren();
-                    return;
-                }
-                const container = document.getElementById('chat-container');
-
-                const div = document.createElement('div');
-                div.className = 'message-row';
-
-                const avatar = buildAvatarElement(msg);
-                const content = buildContentElement(msg);
-
-                div.appendChild(avatar);
-                div.appendChild(content);
-
-                container.prepend(div);
-            }
-
-            websocket.onclose = function() {
-                websocket = null;
-                showConnectionStatus();
-                console.log(`Connection lost. Retrying in ${RETRY_INTERVAL}ms...`);
-                scheduleReconnect();
-            };
-
-            websocket.onerror = function(err) {
-                // Log it, but let onclose handle the reconnection logic
-                console.error("Socket encountered error: ", err.message, "Closing socket");
-                // We don't call connectWebSocket here;
-                // websocket.close() will trigger onclose automatically.
-                if (websocket) websocket.close();
-            };
-        }
-
-
-        connectWebSocket();
+    /* <====== Shared state ======> */
+    var appClosed = false;
     </script>
 
     <script>
-        // helpers
-        function buildAvatarElement(msg) {
-            const avatar = document.createElement('img');
-            avatar.className = 'avatar';
-            // Logic: Use provided picture, or generate one if missing/placeholder
-            if (msg.authorPicture && !msg.authorPicture.includes('placeholder')) {
-                avatar.referrerPolicy = "no-referrer";
-                avatar.src = msg.authorPicture;
-            } else {
-                avatar.src = generateAvatar(msg.authorName || "?");
-            }
-            return avatar
+    /* <====== Appearance ======> */
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('fontSize')) {
+        document.documentElement.style.setProperty('--font-size', params.get('fontSize'));
+    }
+    if (params.get('textColor')) {
+        document.documentElement.style.setProperty('--text-color', '#' + params.get('textColor'));
+    }
+    if (params.get('transparent') === '1' || params.get('transparent') === 'true') {
+        document.body.classList.add('transparent');
+    }
+    </script>
+
+    <script>
+    /* <====== Draw ======> */
+    function buildAvatarElement(msg) {
+        const avatar = document.createElement('img');
+        avatar.className = 'avatar';
+        if (msg.authorPicture && !msg.authorPicture.includes('placeholder')) {
+            avatar.referrerPolicy = "no-referrer";
+            avatar.src = msg.authorPicture;
+        } else {
+            avatar.src = generateAvatar(msg.authorName || "?");
         }
+        return avatar;
+    }
 
-        function buildContentElement(msg) {
-            // Create elements manually to ensure text is escaped
-            const content = document.createElement('div');
-            content.className = 'content';
+    function buildContentElement(msg) {
+        const content = document.createElement('div');
+        content.className = 'content';
+        if (msg.isOwner) content.innerHTML += '<span class="badge" style="background:#ffd700; color:black">Host</span>';
+        if (msg.isModerator) content.innerHTML += '<span class="badge">Mod</span>';
+        const authorSpan = document.createElement('span');
+        authorSpan.className = 'author';
+        authorSpan.textContent = msg.authorName + ": ";
+        const textSpan = document.createElement('span');
+        textSpan.className = 'text';
+        textSpan.textContent = msg.messageText;
+        content.appendChild(authorSpan);
+        content.appendChild(textSpan);
+        return content;
+    }
 
-            // Badges (controlled by your server, so these are safe)
-            if (msg.isOwner) content.innerHTML += '<span class="badge" style="background:#ffd700; color:black">Host</span>';
-            if (msg.isModerator) content.innerHTML += '<span class="badge">Mod</span>';
-
-            const authorSpan = document.createElement('span');
-            authorSpan.className = 'author';
-            authorSpan.textContent = msg.authorName + ": "; // Safe escaping
-
-            const textSpan = document.createElement('span');
-            textSpan.className = 'text';
-            textSpan.textContent = msg.messageText; // Safe escaping
-
-            content.appendChild(authorSpan);
-            content.appendChild(textSpan);
-
-            return content;
+    function generateAvatar(name) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
         }
+        const color = 'hsl(' + (hash % 360) + ', 60%, 45%)';
+        ctx.fillStyle = color;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 32px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const initial = name.charAt(0).toUpperCase();
+        ctx.fillText(initial, canvas.width / 2, canvas.height / 2);
+        return canvas.toDataURL();
+    }
+    </script>
 
-        // Function to generate an avatar with initials
-        function generateAvatar(name) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 64;
-            canvas.height = 64;
-            const ctx = canvas.getContext('2d');
+    <script>
+    /* <====== Errors / recover ======> */
+    const RECOVER_COOLDOWN_MS = 2000;
+    let recovering = false;
 
-            // Generate a consistent color based on the name
-            let hash = 0;
-            for (let i = 0; i < name.length; i++) {
-                hash = name.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            const color = `hsl(${hash % 360}, 60%, 45%)`;
-
-            // Draw background
-            ctx.fillStyle = color;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw text
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 32px Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            const initial = name.charAt(0).toUpperCase();
-            ctx.fillText(initial, canvas.width / 2, canvas.height / 2);
-
-            return canvas.toDataURL();
+    function recoverFromUnhandledError(label, detail) {
+        console.error(label, detail);
+        if (recovering) return;
+        recovering = true;
+        try {
+            connectWebSocket();
+        } catch (e) {
+            console.error(e);
         }
+        setTimeout(function() { recovering = false; }, RECOVER_COOLDOWN_MS);
+    }
+
+    window.onerror = function(msg, url, line) {
+        recoverFromUnhandledError("CRITICAL ERROR:", msg + " at " + line);
+        return true;
+    };
+
+    window.onunhandledrejection = function(event) {
+        event.preventDefault();
+        recoverFromUnhandledError("PROMISE REJECTION:", event.reason);
+    };
+    </script>
+
+    <script>
+    /* <====== Messages ======> */
+    function handleChatMessage(event) {
+        let msg;
+        try {
+            msg = JSON.parse(event.data);
+        } catch (e) {
+            console.error("Error processing WebSocket message:", e);
+            return;
+        }
+        if (msg.type === 'app_closed') {
+            appClosed = true;
+            showConnectionStatus();
+            return;
+        }
+        if (msg.type === 'chat_flush') {
+            document.getElementById('chat-container').replaceChildren();
+            return;
+        }
+        const container = document.getElementById('chat-container');
+        const div = document.createElement('div');
+        div.className = 'message-row';
+        div.appendChild(buildAvatarElement(msg));
+        div.appendChild(buildContentElement(msg));
+        container.prepend(div);
+    }
+    </script>
+
+    <script>
+    /* <====== Connection ======> */
+    const statusEl = document.getElementById('connection-status');
+    const STATUS_LOST = '⚠️ WEB SOCKET DISCONNECTED - RETRYING...';
+    const STATUS_CLOSED = 'ytmemchat is closed — reconnecting when it starts…';
+    const RETRY_INTERVAL = 500;
+    let reconnectTimer = null;
+    let websocket = null;
+    const wsUri = ((window.location.protocol === 'https:') ? 'wss://' : 'ws://') + window.location.host + window.location.pathname.replace(/\/$/, '') + '/ws';
+
+    function showConnectionStatus() {
+        statusEl.textContent = appClosed ? STATUS_CLOSED : STATUS_LOST;
+        statusEl.classList.toggle('app-closed', appClosed);
+        statusEl.style.display = 'block';
+    }
+
+    function scheduleReconnect() {
+        if (reconnectTimer) return;
+        reconnectTimer = setTimeout(function() {
+            reconnectTimer = null;
+            connectWebSocket();
+        }, RETRY_INTERVAL);
+    }
+
+    function connectWebSocket() {
+        if (reconnectTimer) {
+            clearTimeout(reconnectTimer);
+            reconnectTimer = null;
+        }
+        if (websocket) {
+            console.log("Cleaning up old WebSocket before reconnecting...");
+            websocket.onopen = null;
+            websocket.onmessage = null;
+            websocket.onerror = null;
+            websocket.onclose = null;
+            websocket.close();
+            websocket = null;
+        }
+        websocket = new WebSocket(wsUri);
+        websocket.onopen = function() {
+            console.log("WebSocket Connected! Ready for media alerts.");
+            appClosed = false;
+            statusEl.classList.remove('app-closed');
+            statusEl.style.display = 'none';
+        };
+        websocket.onmessage = handleChatMessage;
+        websocket.onclose = function() {
+            websocket = null;
+            showConnectionStatus();
+            console.log("Connection lost. Retrying in " + RETRY_INTERVAL + "ms...");
+            scheduleReconnect();
+        };
+        websocket.onerror = function(err) {
+            console.error("Socket encountered error: ", err.message, "Closing socket");
+            if (websocket) websocket.close();
+        };
+    }
+
+    connectWebSocket();
     </script>
 </body>
 </html>

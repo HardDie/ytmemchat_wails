@@ -62,6 +62,12 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(string(cb), "chat_flush") {
 		t.Fatal("chat html must handle chat_flush")
 	}
+	if strings.Contains(string(cb), "location.reload") {
+		t.Fatal("chat html must not reload on unhandled errors")
+	}
+	if !strings.Contains(string(cb), "recoverFromUnhandledError") {
+		t.Fatal("chat html must recover via connectWebSocket")
+	}
 
 	ov, err := http.Get(ts.URL + PathOverlay)
 	if err != nil {
@@ -80,6 +86,12 @@ func TestIndexAndOBSPages(t *testing.T) {
 	}
 	if !strings.Contains(string(ob), "clearOverlayPlayback") {
 		t.Fatal("overlay html must tear down media on app_closed")
+	}
+	if strings.Contains(string(ob), "location.reload") {
+		t.Fatal("overlay html must not reload on unhandled errors")
+	}
+	if !strings.Contains(string(ob), "recoverFromUnhandledError") {
+		t.Fatal("overlay html must recover via connectWebSocket")
 	}
 }
 
