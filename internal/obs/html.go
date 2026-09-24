@@ -12,6 +12,8 @@ var (
 	chatHTML []byte
 	//go:embed overlay.html
 	overlayHTML []byte
+	//go:embed script.js
+	scriptJS []byte
 	//go:embed favicon.png
 	faviconPNG []byte
 )
@@ -31,6 +33,11 @@ func (s *Server) serveChatHTML(w http.ResponseWriter, _ *http.Request) {
 
 func (s *Server) serveOverlayHTML(w http.ResponseWriter, _ *http.Request) {
 	writeHTML(w, overlayHTML)
+}
+
+func (s *Server) serveScript(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "text/javascript; charset=utf-8")
+	_, _ = w.Write(scriptJS)
 }
 
 func (s *Server) serveFavicon(w http.ResponseWriter, _ *http.Request) {

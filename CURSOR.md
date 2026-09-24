@@ -516,6 +516,7 @@ Official Wails layout:
 25. Chat message cap: [022](docs/architecture/022-obs-html-chat-cap.md).
 26. Chat avatar fallback: [023](docs/architecture/023-obs-html-chat-avatar-fallback.md).
 27. Overlay audio sticker: [024](docs/architecture/024-obs-html-audio-sticker.md).
+28. Shared OBS page script: [025](docs/architecture/025-obs-html-shared-script.md).
 
 ### Go package documentation (godoc)
 

@@ -50,8 +50,8 @@ func TestIndexAndOBSPages(t *testing.T) {
 	}
 	cb, _ := io.ReadAll(chat.Body)
 	chat.Body.Close()
-	if !strings.Contains(string(cb), "location.pathname") {
-		t.Fatal("chat html must derive websocket from location")
+	if !strings.Contains(string(cb), PathScript) {
+		t.Fatal("chat html must load the shared script")
 	}
 	if strings.Contains(string(cb), "/ws_chat") {
 		t.Fatal("console chat socket path leaked")
@@ -65,8 +65,8 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if strings.Contains(string(cb), "location.reload") {
 		t.Fatal("chat html must not reload on unhandled errors")
 	}
-	if !strings.Contains(string(cb), "recoverFromUnhandledError") {
-		t.Fatal("chat html must recover via connectWebSocket")
+	if strings.Contains(string(cb), "function connectWebSocket") {
+		t.Fatal("chat html must use the shared connectWebSocket")
 	}
 	if !strings.Contains(string(cb), "DEFAULT_CHAT_CAP") {
 		t.Fatal("chat html must cap messages by default")
@@ -88,9 +88,6 @@ func TestIndexAndOBSPages(t *testing.T) {
 	}
 	if !strings.Contains(string(cb), "Ready for chat.") {
 		t.Fatal("chat html must log chat socket ready")
-	}
-	if !strings.Contains(string(cb), "CONNECTING_TIMEOUT_MS") {
-		t.Fatal("chat html must abort a stuck CONNECTING socket")
 	}
 	if !strings.Contains(string(cb), `textColor.charAt(0) !== '#'`) {
 		t.Fatal("chat html must accept textColor with or without #")
@@ -114,11 +111,17 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(string(ob), "clearOverlayPlayback") {
 		t.Fatal("overlay html must tear down media on app_closed")
 	}
+	if !strings.Contains(string(ob), PathScript) {
+		t.Fatal("overlay html must load the shared script")
+	}
 	if strings.Contains(string(ob), "location.reload") {
 		t.Fatal("overlay html must not reload on unhandled errors")
 	}
-	if !strings.Contains(string(ob), "recoverFromUnhandledError") {
-		t.Fatal("overlay html must recover via connectWebSocket")
+	if strings.Contains(string(ob), "function connectWebSocket") {
+		t.Fatal("overlay html must use the shared connectWebSocket")
+	}
+	if !strings.Contains(string(ob), "onConnectionLost") {
+		t.Fatal("overlay html must tear down playback when the socket drops")
 	}
 	if !strings.Contains(string(ob), "MIN_STICKER_PLAYING_SEC") {
 		t.Fatal("overlay html must keep video on screen at least min sticker time")
@@ -177,8 +180,40 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(htmlOv, "startAudibleSticker") {
 		t.Fatal("overlay TTS and command audio must use an HTML audio sticker")
 	}
-	if !strings.Contains(htmlOv, "CONNECTING_TIMEOUT_MS") {
-		t.Fatal("overlay html must abort a stuck CONNECTING socket")
+	if !strings.Contains(htmlOv, "Ready for media alerts.") {
+		t.Fatal("overlay html must log media-alert socket ready")
+	}
+
+	jsRes, err := http.Get(ts.URL + PathScript)
+	if err != nil {
+		t.Fatal(err)
+	}
+	jsBody, _ := io.ReadAll(jsRes.Body)
+	jsRes.Body.Close()
+	if jsRes.StatusCode != http.StatusOK {
+		t.Fatalf("script status %d", jsRes.StatusCode)
+	}
+	if ct := jsRes.Header.Get("Content-Type"); !strings.Contains(ct, "javascript") {
+		t.Fatalf("script content-type %q", ct)
+	}
+	js := string(jsBody)
+	if !strings.Contains(js, "location.pathname") {
+		t.Fatal("shared script must derive websocket from location")
+	}
+	if strings.Contains(js, "location.reload") {
+		t.Fatal("shared script must not reload on unhandled errors")
+	}
+	if !strings.Contains(js, "recoverFromUnhandledError") {
+		t.Fatal("shared script must recover via connectWebSocket")
+	}
+	if !strings.Contains(js, "CONNECTING_TIMEOUT_MS") {
+		t.Fatal("shared script must abort a stuck CONNECTING socket")
+	}
+	if !strings.Contains(js, "function connectWebSocket") {
+		t.Fatal("shared script must own connectWebSocket")
+	}
+	if strings.Contains(js, "clearOverlayPlayback") {
+		t.Fatal("shared script must not call overlay teardown by name")
 	}
 }
 

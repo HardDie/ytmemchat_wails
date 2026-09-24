@@ -9,6 +9,7 @@ const (
 	PathChatWS    = "/obs/chat/ws"
 	PathOverlay   = "/obs/overlay"
 	PathOverlayWS = "/obs/overlay/ws"
+	PathScript    = "/obs/script.js"
 	PathMedia     = "/obs/media/"
 	PathWebhook   = "/api/webhook"
 	PathInterrupt = "/api/interrupt"

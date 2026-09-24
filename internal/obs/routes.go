@@ -11,6 +11,7 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("GET "+PathChatWS, s.chat.serveWS)
 	s.mux.HandleFunc("GET "+PathOverlay, s.serveOverlayHTML)
 	s.mux.HandleFunc("GET "+PathOverlayWS, s.overlay.serveWS)
+	s.mux.HandleFunc("GET "+PathScript, s.serveScript)
 	s.mux.HandleFunc("GET "+PathFavicon, s.serveFavicon)
 	if strings.TrimSpace(s.cfg.MediaPath) != "" {
 		fs := http.StripPrefix(PathMedia, http.FileServer(http.Dir(s.cfg.MediaPath)))
