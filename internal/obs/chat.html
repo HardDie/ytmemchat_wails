@@ -331,7 +331,7 @@
         }
         websocket = new WebSocket(wsUri);
         websocket.onopen = function() {
-            console.log("WebSocket Connected! Ready for media alerts.");
+            console.log("WebSocket Connected! Ready for chat.");
             appClosed = false;
             statusEl.classList.remove('app-closed');
             statusEl.style.display = 'none';
