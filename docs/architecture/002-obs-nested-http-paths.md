@@ -44,6 +44,7 @@ Use option 2.
 9. Overlay `?debugAudio=1` shows the audio debug square ([024](024-obs-html-audio-sticker.md)).
 10. Chat `?cap=` ([022](022-obs-html-chat-cap.md)).
 11. Chat `textColor` may include `#`.
+12. `?v=` is the running app version ([026](026-obs-html-version-query.md)).
 
 ## Consequences
 

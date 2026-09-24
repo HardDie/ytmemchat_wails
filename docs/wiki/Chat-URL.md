@@ -21,6 +21,8 @@ Add query parameters after `?`, joined with `&`. Restart or refresh the Browser 
 
 `transparent=0`, empty values, and unknown names are ignored.
 
+`v` is not one of these. The app adds it (release tag, or commit while developing) so OBS loads the page and `script.js` for the running build. Leave it off the Browser Source URL. A missing or old `v` is redirected to the current one. Your `cap`, `transparent`, `fontSize`, and `textColor` values stay.
+
 ## Examples
 
 Dark panel (default), larger type:
@@ -67,6 +69,8 @@ The page is already transparent. TTS and command audio play with **no click** in
 | Parameter | Default | Values | What it changes |
 |---|---|---|---|
 | `debugAudio` | off | `1` or `true` | Shows a green square while TTS or command audio plays. Off: nothing on screen for sound-only alerts. |
+
+The same `v` query is added on this page. Do not put it in the Browser Source URL.
 
 A desktop Chrome tab may still block `play()`. OBS Browser Source does not.
 
