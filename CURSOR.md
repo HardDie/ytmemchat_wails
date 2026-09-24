@@ -104,6 +104,7 @@ This is a new desktop app.
 13. Overlay video min play 5s ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 14. Overlay TTS is queued one-by-one ([019](docs/architecture/019-obs-html-tts-queue.md)).
 15. Overlay alerts may overlap. Interrupt is TTS only ([020](docs/architecture/020-obs-html-alert-overlap.md)).
+16. Overlay placement follows `resize` ([021](docs/architecture/021-obs-html-resize-placement.md)).
 
 | Method | Route | Role |
 |---|---|---|
@@ -159,6 +160,7 @@ Chat query `?transparent=1`:
 17. Overlay `.gif` alerts are `<img>` ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 18. Overlay alerts may overlap. Interrupt is TTS only ([020](docs/architecture/020-obs-html-alert-overlap.md)).
 19. In-flight TTS decode is dropped after interrupt / teardown ([019](docs/architecture/019-obs-html-tts-queue.md)).
+20. Overlay placement follows `resize` ([021](docs/architecture/021-obs-html-resize-placement.md)).
 
 Do not invent a parallel Wails Events protocol for OBS.
 
@@ -497,6 +499,7 @@ Official Wails layout:
 21. Overlay min sticker time: [018](docs/architecture/018-obs-html-min-sticker-time.md).
 22. Overlay TTS queue: [019](docs/architecture/019-obs-html-tts-queue.md).
 23. Overlay alert overlap: [020](docs/architecture/020-obs-html-alert-overlap.md).
+24. Overlay resize placement: [021](docs/architecture/021-obs-html-resize-placement.md).
 
 ### Go package documentation (godoc)
 

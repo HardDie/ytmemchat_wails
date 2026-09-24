@@ -129,6 +129,12 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(htmlOv, "generation !== ttsGeneration") {
 		t.Fatal("overlay TTS decode must ignore a stale generation")
 	}
+	if strings.Contains(htmlOv, "const OBS_WIDTH") {
+		t.Fatal("overlay OBS size must update on resize")
+	}
+	if !strings.Contains(htmlOv, "addEventListener('resize'") {
+		t.Fatal("overlay html must listen for window resize")
+	}
 }
 
 func overlayJSFunc(html, name string) string {

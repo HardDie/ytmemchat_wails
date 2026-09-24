@@ -24,3 +24,4 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [018](018-obs-html-min-sticker-time.md) | Overlay video stays at least 5s (memealerts) | Accepted |
 | [019](019-obs-html-tts-queue.md) | Overlay TTS plays one at a time from a queue | Accepted |
 | [020](020-obs-html-alert-overlap.md) | Overlay alerts may overlap; interrupt is TTS only | Accepted |
+| [021](021-obs-html-resize-placement.md) | Overlay alert placement follows Browser Source resize | Accepted |
