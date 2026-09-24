@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/HardDie/ytmemchat_wails/bindings/sidebar"
 	"github.com/HardDie/ytmemchat_wails/internal/config"
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
 )
@@ -47,6 +48,7 @@ func (a *App) startHTTPLocked() error {
 		Addr:      addr,
 		MediaPath: mediaPathFor(a.settings),
 		Webhooks:  a.settings.Webhook.Enabled,
+		Version:   sidebar.New().AppVersion(),
 	})
 	a.httpSrv = srv
 	a.httpAddr = ln.Addr().String()

@@ -27,12 +27,12 @@ func (s *Server) serveIndex(w http.ResponseWriter, _ *http.Request) {
 	writeHTML(w, indexHTML)
 }
 
-func (s *Server) serveChatHTML(w http.ResponseWriter, _ *http.Request) {
-	writeHTML(w, chatHTML)
+func (s *Server) serveChatHTML(w http.ResponseWriter, r *http.Request) {
+	s.serveVersionedPage(w, r, chatHTML)
 }
 
-func (s *Server) serveOverlayHTML(w http.ResponseWriter, _ *http.Request) {
-	writeHTML(w, overlayHTML)
+func (s *Server) serveOverlayHTML(w http.ResponseWriter, r *http.Request) {
+	s.serveVersionedPage(w, r, overlayHTML)
 }
 
 func (s *Server) serveScript(w http.ResponseWriter, _ *http.Request) {

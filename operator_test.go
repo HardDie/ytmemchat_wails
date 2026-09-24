@@ -27,8 +27,8 @@ func TestSendTestMessage_usesOverlayPath(t *testing.T) {
 		f.TTSEnabled = true
 	})
 	obsSt := a.GetOBSStatus()
-	chatURL := "ws" + strings.TrimPrefix(obsSt.ChatURL, "http") + "/ws"
-	overURL := "ws" + strings.TrimPrefix(obsSt.OverlayURL, "http") + "/ws"
+	chatURL := "ws" + strings.TrimPrefix(obsSt.ChatURL, "http") + "/ws" + obs.SocketQuery("")
+	overURL := "ws" + strings.TrimPrefix(obsSt.OverlayURL, "http") + "/ws" + obs.SocketQuery("")
 	chat, _, err := websocket.DefaultDialer.Dial(chatURL, nil)
 	if err != nil {
 		t.Fatal(err)

@@ -173,7 +173,7 @@ func TestStart_alertPublishesOverlayNotTTS(t *testing.T) {
 	a.clientFn = func(config.Settings) (youtube.Client, error) {
 		return &fakeClient{it: &fakeIterator{ch: ch}}, nil
 	}
-	u := "ws" + strings.TrimPrefix(a.GetOBSStatus().OverlayURL, "http") + "/ws"
+	u := "ws" + strings.TrimPrefix(a.GetOBSStatus().OverlayURL, "http") + "/ws" + obs.SocketQuery("")
 	conn, _, err := websocket.DefaultDialer.Dial(u, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -235,7 +235,7 @@ func TestStart_plainChatUsesTTS(t *testing.T) {
 	a.clientFn = func(config.Settings) (youtube.Client, error) {
 		return &fakeClient{it: &fakeIterator{ch: ch}}, nil
 	}
-	u := "ws" + strings.TrimPrefix(a.GetOBSStatus().OverlayURL, "http") + "/ws"
+	u := "ws" + strings.TrimPrefix(a.GetOBSStatus().OverlayURL, "http") + "/ws" + obs.SocketQuery("")
 	conn, _, err := websocket.DefaultDialer.Dial(u, nil)
 	if err != nil {
 		t.Fatal(err)

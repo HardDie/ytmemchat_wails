@@ -109,6 +109,8 @@ This is a new desktop app.
 18. Chat avatar URL errors use the letter canvas ([023](docs/architecture/023-obs-html-chat-avatar-fallback.md)).
 19. A stuck `CONNECTING` socket is closed after 2.5s ([015](docs/architecture/015-obs-html-reconnect-timer.md)).
 20. Overlay TTS/command audio uses a fading HTML sticker ([024](docs/architecture/024-obs-html-audio-sticker.md)).
+21. OBS HTML and sockets carry `?v=` ([026](docs/architecture/026-obs-html-version-query.md)).
+22. A stale `v` redirects the page to the running app version.
 
 | Method | Route | Role |
 |---|---|---|
@@ -136,6 +138,8 @@ Chat query `?transparent=1`:
 6. Failed chat avatar URLs use the letter canvas ([023](docs/architecture/023-obs-html-chat-avatar-fallback.md)).
 7. Overlay TTS uses a fading HTML audio sticker ([024](docs/architecture/024-obs-html-audio-sticker.md)).
 8. `?debugAudio=1` shows the debug square (off by default).
+9. `?v=` is the running app version (tag, or commit when untagged).
+10. Chat and overlay `script.js` use the same `v`.
 
 **Chat WS payload** (same as `ytmemchat/internal/chat/contract.go`, plus control `type`)
 

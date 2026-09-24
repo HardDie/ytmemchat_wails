@@ -200,6 +200,12 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(js, "location.pathname") {
 		t.Fatal("shared script must derive websocket from location")
 	}
+	if !strings.Contains(js, "location.search") {
+		t.Fatal("shared script must pass the page query to the socket")
+	}
+	if !strings.Contains(js, "version_redirect") {
+		t.Fatal("shared script must follow a version redirect")
+	}
 	if strings.Contains(js, "location.reload") {
 		t.Fatal("shared script must not reload on unhandled errors")
 	}
@@ -229,6 +235,55 @@ func overlayJSFunc(html, name string) string {
 		return html[start:]
 	}
 	return html[start : start+len(sig)+next]
+}
+
+func TestPageVersionRedirect(t *testing.T) {
+	_, ts := startTest(t, Config{Version: "v9"})
+	client := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
+	}}
+	res, err := client.Get(ts.URL + PathChat + "?cap=3&transparent=1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	if res.StatusCode != http.StatusFound {
+		t.Fatalf("status %d", res.StatusCode)
+	}
+	if loc := res.Header.Get("Location"); loc != "/obs/chat?cap=3&transparent=1&v=v9" {
+		t.Fatalf("location %q", loc)
+	}
+
+	ok, err := client.Get(ts.URL + PathOverlay + "?" + QueryVersion + "=v9")
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, _ := io.ReadAll(ok.Body)
+	ok.Body.Close()
+	if ok.StatusCode != http.StatusOK {
+		t.Fatalf("status %d", ok.StatusCode)
+	}
+	if !strings.Contains(string(body), PathScript+"?v=v9") {
+		t.Fatalf("script src %s", body)
+	}
+	if strings.Contains(string(body), "__APP_VERSION__") {
+		t.Fatal("version token left in overlay html")
+	}
+
+	u := "ws" + strings.TrimPrefix(ts.URL, "http") + PathChatWS + "?cap=3&" + QueryVersion + "=old"
+	c, _, err := websocket.DefaultDialer.Dial(u, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+	_ = c.SetReadDeadline(time.Now().Add(2 * time.Second))
+	var msg versionRedirect
+	if err := c.ReadJSON(&msg); err != nil {
+		t.Fatal(err)
+	}
+	if msg.Type != "version_redirect" || msg.URL != "/obs/chat?cap=3&v=v9" {
+		t.Fatalf("%+v", msg)
+	}
 }
 
 func TestChatTrailingSlashNotFound(t *testing.T) {
@@ -321,7 +376,7 @@ func TestWebhookInjectAndBadJSON(t *testing.T) {
 
 func TestChatWebSocket(t *testing.T) {
 	s, ts := startTest(t, Config{})
-	u := "ws" + strings.TrimPrefix(ts.URL, "http") + PathChatWS
+	u := "ws" + strings.TrimPrefix(ts.URL, "http") + PathChatWS + SocketQuery("")
 	c, _, err := websocket.DefaultDialer.Dial(u, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -345,7 +400,7 @@ func TestChatWebSocket(t *testing.T) {
 
 func TestChatFlushWebSocket(t *testing.T) {
 	s, ts := startTest(t, Config{})
-	u := "ws" + strings.TrimPrefix(ts.URL, "http") + PathChatWS
+	u := "ws" + strings.TrimPrefix(ts.URL, "http") + PathChatWS + SocketQuery("")
 	c, _, err := websocket.DefaultDialer.Dial(u, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -365,8 +420,8 @@ func TestChatFlushWebSocket(t *testing.T) {
 
 func TestNotifyAppClosed(t *testing.T) {
 	s, ts := startTest(t, Config{})
-	chatURL := "ws" + strings.TrimPrefix(ts.URL, "http") + PathChatWS
-	overURL := "ws" + strings.TrimPrefix(ts.URL, "http") + PathOverlayWS
+	chatURL := "ws" + strings.TrimPrefix(ts.URL, "http") + PathChatWS + SocketQuery("")
+	overURL := "ws" + strings.TrimPrefix(ts.URL, "http") + PathOverlayWS + SocketQuery("")
 	chat, _, err := websocket.DefaultDialer.Dial(chatURL, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -399,7 +454,7 @@ func TestNotifyAppClosed(t *testing.T) {
 
 func TestOverlayWebSocketAndInterrupt(t *testing.T) {
 	s, ts := startTest(t, Config{Webhooks: true})
-	u := "ws" + strings.TrimPrefix(ts.URL, "http") + PathOverlayWS
+	u := "ws" + strings.TrimPrefix(ts.URL, "http") + PathOverlayWS + SocketQuery("")
 	c, _, err := websocket.DefaultDialer.Dial(u, nil)
 	if err != nil {
 		t.Fatal(err)

@@ -25,7 +25,7 @@ func TestPreviewAlert_publishesOverlay(t *testing.T) {
 	}
 	srv, addr := listenOBS(t)
 	c = New(&cmdStub{overlay: srv})
-	u := "ws" + strings.TrimPrefix(obs.OverlaySourceURL(addr), "http") + "/ws"
+	u := "ws" + strings.TrimPrefix(obs.OverlaySourceURL(addr), "http") + "/ws" + obs.SocketQuery("")
 	conn, _, err := websocket.DefaultDialer.Dial(u, nil)
 	if err != nil {
 		t.Fatal(err)

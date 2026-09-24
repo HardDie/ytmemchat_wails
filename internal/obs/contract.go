@@ -128,4 +128,10 @@ type Config struct {
 	MediaPath string
 	// Webhooks serves PathWebhook and PathInterrupt when true.
 	Webhooks bool
+	// Version is the running app version (release tag or commit).
+	// Empty means "dev".
+	Version string
 }
+
+// QueryVersion is the cache-bust query on OBS pages, sockets, and script.js.
+const QueryVersion = "v"

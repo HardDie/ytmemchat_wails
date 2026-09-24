@@ -43,8 +43,9 @@ const RETRY_INTERVAL = 500;
 const CONNECTING_TIMEOUT_MS = 2500;
 let reconnectTimer = null;
 let connectingTimer = null;
+let versionRedirecting = false;
 let websocket = null;
-const wsUri = ((window.location.protocol === 'https:') ? 'wss://' : 'ws://') + window.location.host + window.location.pathname.replace(/\/$/, '') + '/ws';
+const wsUri = ((window.location.protocol === 'https:') ? 'wss://' : 'ws://') + window.location.host + window.location.pathname.replace(/\/$/, '') + '/ws' + window.location.search;
 
 function showConnectionStatus() {
 	statusEl.textContent = appClosed ? STATUS_CLOSED : STATUS_LOST;
@@ -97,10 +98,27 @@ function connectWebSocket() {
 		statusEl.classList.remove('app-closed');
 		statusEl.style.display = 'none';
 	};
-	websocket.onmessage = handleSocketMessage;
+	websocket.onmessage = function(event) {
+		let data;
+		try {
+			data = JSON.parse(event.data);
+		} catch (e) {
+			handleSocketMessage(event);
+			return;
+		}
+		if (data && data.type === 'version_redirect' && data.url) {
+			versionRedirecting = true;
+			window.location.replace(data.url);
+			return;
+		}
+		handleSocketMessage(event);
+	};
 	websocket.onclose = function() {
 		clearConnectingTimer();
 		websocket = null;
+		if (versionRedirecting) {
+			return;
+		}
 		if (typeof onConnectionLost === 'function') {
 			onConnectionLost();
 		}

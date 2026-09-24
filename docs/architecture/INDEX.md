@@ -29,3 +29,4 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [023](023-obs-html-chat-avatar-fallback.md) | Chat avatar URL failure uses the letter canvas | Accepted |
 | [024](024-obs-html-audio-sticker.md) | Overlay TTS and command audio use a fading HTML sticker | Accepted |
 | [025](025-obs-html-shared-script.md) | Chat and overlay share one socket script | Accepted |
+| [026](026-obs-html-version-query.md) | OBS pages and sockets carry the app version | Accepted |

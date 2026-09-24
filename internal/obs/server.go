@@ -96,6 +96,20 @@ func (s *Server) NotifyAppClosed() {
 	s.overlay.broadcast(AppClosedOverlay())
 }
 
+func (s *Server) serveChatWS(w http.ResponseWriter, r *http.Request) {
+	if s.redirectStaleSocket(w, r) {
+		return
+	}
+	s.chat.serveWS(w, r)
+}
+
+func (s *Server) serveOverlayWS(w http.ResponseWriter, r *http.Request) {
+	if s.redirectStaleSocket(w, r) {
+		return
+	}
+	s.overlay.serveWS(w, r)
+}
+
 // Injected is fake chat lines from POST /api/webhook. Receive from app.go.
 func (s *Server) Injected() <-chan InjectedMessage {
 	return s.injected

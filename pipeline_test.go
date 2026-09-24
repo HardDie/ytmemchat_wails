@@ -112,7 +112,7 @@ func TestStart_publishesChatAndStop(t *testing.T) {
 		}
 		return fc, nil
 	}
-	u := "ws" + strings.TrimPrefix(a.GetOBSStatus().ChatURL, "http") + "/ws"
+	u := "ws" + strings.TrimPrefix(a.GetOBSStatus().ChatURL, "http") + "/ws" + obs.SocketQuery("")
 	conn, _, err := websocket.DefaultDialer.Dial(u, nil)
 	if err != nil {
 		t.Fatal(err)

@@ -55,8 +55,8 @@ func TestInject_alertWithoutStart(t *testing.T) {
 		f.TTSEnabled = true
 	})
 	obsSt := a.GetOBSStatus()
-	chatURL := "ws" + strings.TrimPrefix(obsSt.ChatURL, "http") + "/ws"
-	overURL := "ws" + strings.TrimPrefix(obsSt.OverlayURL, "http") + "/ws"
+	chatURL := "ws" + strings.TrimPrefix(obsSt.ChatURL, "http") + "/ws" + obs.SocketQuery("")
+	overURL := "ws" + strings.TrimPrefix(obsSt.OverlayURL, "http") + "/ws" + obs.SocketQuery("")
 	chat, _, err := websocket.DefaultDialer.Dial(chatURL, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -119,7 +119,7 @@ func TestInject_plainTextTTS(t *testing.T) {
 		f.TTSEnabled = true
 	})
 	obsSt := a.GetOBSStatus()
-	overURL := "ws" + strings.TrimPrefix(obsSt.OverlayURL, "http") + "/ws"
+	overURL := "ws" + strings.TrimPrefix(obsSt.OverlayURL, "http") + "/ws" + obs.SocketQuery("")
 	over, _, err := websocket.DefaultDialer.Dial(overURL, nil)
 	if err != nil {
 		t.Fatal(err)
