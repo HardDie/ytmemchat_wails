@@ -20,3 +20,4 @@
 ## Postconditions
 
 * Interrupt does not go through the inject channel. It is overlay-only. The Wails **Interrupt speech** binding (`InterruptTTS`) and the OS-global interrupt shortcut publish the same event when HTTP is listening, even if webhooks are off.
+* Interrupt does not stop command alert media ([020](../../architecture/020-obs-html-alert-overlap.md)).

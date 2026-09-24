@@ -30,6 +30,7 @@ Use option 3.
 6. Pin `golang.design/x/hotkey` v0.4.1.
 7. Later versions use a macOS event tap that requires Accessibility permission.
 8. Linux is X11 only.
+9. Interrupt stops TTS only. Not command alert clips ([020](020-obs-html-alert-overlap.md)).
 
 ## Consequences
 

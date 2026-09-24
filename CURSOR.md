@@ -103,6 +103,7 @@ This is a new desktop app.
 12. OBS pages recover without reload ([017](docs/architecture/017-obs-html-recover-no-reload.md)).
 13. Overlay video min play 5s ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 14. Overlay TTS is queued one-by-one ([019](docs/architecture/019-obs-html-tts-queue.md)).
+15. Overlay alerts may overlap. Interrupt is TTS only ([020](docs/architecture/020-obs-html-alert-overlap.md)).
 
 | Method | Route | Role |
 |---|---|---|
@@ -156,6 +157,7 @@ Chat query `?transparent=1`:
 15. Overlay TTS queue ([019](docs/architecture/019-obs-html-tts-queue.md)).
 16. `tts_interrupt` stops only the playing TTS. Queue stays.
 17. Overlay `.gif` alerts are `<img>` ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
+18. Overlay alerts may overlap. Interrupt is TTS only ([020](docs/architecture/020-obs-html-alert-overlap.md)).
 
 Do not invent a parallel Wails Events protocol for OBS.
 
@@ -493,6 +495,7 @@ Official Wails layout:
 20. OBS HTML recover / script groups: [017](docs/architecture/017-obs-html-recover-no-reload.md).
 21. Overlay min sticker time: [018](docs/architecture/018-obs-html-min-sticker-time.md).
 22. Overlay TTS queue: [019](docs/architecture/019-obs-html-tts-queue.md).
+23. Overlay alert overlap: [020](docs/architecture/020-obs-html-alert-overlap.md).
 
 ### Go package documentation (godoc)
 

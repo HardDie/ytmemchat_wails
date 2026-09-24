@@ -35,6 +35,7 @@ Use option 2.
 9. TTS is never dropped by that timer.
 10. After interrupt, `onMediaFinished` / `processQueue` plays the next queued TTS.
 11. `clearOverlayPlayback` still empties the queue and stops the source (teardown).
+12. Alert overlap and no alert interrupt: [020](020-obs-html-alert-overlap.md).
 
 ## Consequences
 
