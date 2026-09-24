@@ -95,8 +95,21 @@ func TestOBSHTTP_servesChatPage(t *testing.T) {
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("status %d", res.StatusCode)
 	}
-	if !strings.Contains(string(body), "location.pathname") {
-		t.Fatalf("body %s", body)
+	if !strings.Contains(string(body), obs.PathScript) {
+		t.Fatalf("chat page must load %s", obs.PathScript)
+	}
+	base := strings.TrimSuffix(stt.ChatURL, obs.PathChat)
+	jsRes, err := http.Get(base + obs.PathScript)
+	if err != nil {
+		t.Fatal(err)
+	}
+	jsBody, _ := io.ReadAll(jsRes.Body)
+	jsRes.Body.Close()
+	if jsRes.StatusCode != http.StatusOK {
+		t.Fatalf("script status %d", jsRes.StatusCode)
+	}
+	if !strings.Contains(string(jsBody), "location.pathname") {
+		t.Fatal("shared script must derive websocket from location")
 	}
 	res, err = http.Get(stt.IndexURL)
 	if err != nil {
