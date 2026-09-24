@@ -24,7 +24,7 @@
 
         #chat-container {
             display: flex;
-            /* Changed to column-reverse to keep new items at the top */
+            /* Newest rows sit at the bottom (prepend + column-reverse). */
             flex-direction: column-reverse; 
             height: 100vh;
             padding: 10px;
@@ -45,7 +45,7 @@
             display: flex;
             align-items: flex-start;
             margin-bottom: 12px;
-            /* Animation slightly adjusted for top-entry */
+            /* New row fades in at the bottom. */
             animation: slideDown 0.3s ease;
             background: rgba(255, 255, 255, 0.2);
             padding: 8px;
