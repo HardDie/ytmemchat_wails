@@ -17,6 +17,7 @@ Add query parameters after `?`, joined with `&`. Restart or refresh the Browser 
 | `transparent` | off (dark `#18181b` page background) | `1` or `true` | Makes the page background transparent so gameplay shows through. Message rows still have a light frosted panel. |
 | `fontSize` | `16px` | A CSS size **with a unit**, for example `20px` or `1.25rem` | Message text size (author name and body). Avatars stay 32px. |
 | `textColor` | `efeff1` (light gray) | Hex **without** `#` | Message body color. The page prepends `#`. Author names stay the accent purple; they are not this parameter. |
+| `cap` | `100` | Positive integer, or `0` / `none` / `off` / `unlimited` | How many newest chat rows to keep. `0` and the named values mean no cap. |
 
 `transparent=0`, empty values, and unknown names are ignored.
 
@@ -38,6 +39,12 @@ All three:
 
 ```text
 http://127.0.0.1:8080/obs/chat?transparent=1&fontSize=20px&textColor=ffe08a
+```
+
+Keep every line (no cap):
+
+```text
+http://127.0.0.1:8080/obs/chat?cap=none
 ```
 
 `textColor=fff` is valid (short hex). Do not write `textColor=#ffffff` — the extra `#` would become `##ffffff`.

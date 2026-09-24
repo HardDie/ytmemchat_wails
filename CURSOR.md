@@ -105,6 +105,7 @@ This is a new desktop app.
 14. Overlay TTS is queued one-by-one ([019](docs/architecture/019-obs-html-tts-queue.md)).
 15. Overlay alerts may overlap. Interrupt is TTS only ([020](docs/architecture/020-obs-html-alert-overlap.md)).
 16. Overlay placement follows `resize` ([021](docs/architecture/021-obs-html-resize-placement.md)).
+17. Chat keeps 100 newest rows by default ([022](docs/architecture/022-obs-html-chat-cap.md)).
 
 | Method | Route | Role |
 |---|---|---|
@@ -127,6 +128,8 @@ Chat query `?transparent=1`:
 1. Drops the opaque background.
 2. Maps onto the existing `body.transparent` class.
 3. Overlay still needs Interact-once for audio autoplay.
+4. Chat keeps 100 newest rows by default ([022](docs/architecture/022-obs-html-chat-cap.md)).
+5. `?cap=none` (also `0`, `off`, `unlimited`) disables the cap.
 
 **Chat WS payload** (same as `ytmemchat/internal/chat/contract.go`, plus control `type`)
 
@@ -501,6 +504,7 @@ Official Wails layout:
 22. Overlay TTS queue: [019](docs/architecture/019-obs-html-tts-queue.md).
 23. Overlay alert overlap: [020](docs/architecture/020-obs-html-alert-overlap.md).
 24. Overlay resize placement: [021](docs/architecture/021-obs-html-resize-placement.md).
+25. Chat message cap: [022](docs/architecture/022-obs-html-chat-cap.md).
 
 ### Go package documentation (godoc)
 

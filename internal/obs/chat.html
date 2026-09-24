@@ -242,6 +242,40 @@
         div.appendChild(buildAvatarElement(msg));
         div.appendChild(buildContentElement(msg));
         container.prepend(div);
+        trimChatMessages();
+    }
+
+    const DEFAULT_CHAT_CAP = 100;
+
+    function parseChatCap() {
+        const raw = new URLSearchParams(window.location.search).get('cap');
+        if (raw === null || raw === '') {
+            return DEFAULT_CHAT_CAP;
+        }
+        const lower = String(raw).toLowerCase();
+        if (lower === 'none' || lower === 'off' || lower === 'unlimited') {
+            return 0;
+        }
+        const n = parseInt(raw, 10);
+        if (n === 0) {
+            return 0;
+        }
+        if (!Number.isFinite(n) || n < 1) {
+            return DEFAULT_CHAT_CAP;
+        }
+        return n;
+    }
+
+    const chatCap = parseChatCap();
+
+    function trimChatMessages() {
+        if (chatCap <= 0) {
+            return;
+        }
+        const container = document.getElementById('chat-container');
+        while (container.children.length > chatCap) {
+            container.lastElementChild.remove();
+        }
     }
     </script>
 

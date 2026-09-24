@@ -68,6 +68,15 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(string(cb), "recoverFromUnhandledError") {
 		t.Fatal("chat html must recover via connectWebSocket")
 	}
+	if !strings.Contains(string(cb), "DEFAULT_CHAT_CAP") {
+		t.Fatal("chat html must cap messages by default")
+	}
+	if !strings.Contains(string(cb), `get('cap')`) {
+		t.Fatal("chat html must read cap from the query string")
+	}
+	if !strings.Contains(string(cb), "trimChatMessages") {
+		t.Fatal("chat html must trim old rows")
+	}
 
 	ov, err := http.Get(ts.URL + PathOverlay)
 	if err != nil {
