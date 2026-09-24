@@ -142,11 +142,20 @@
     function buildAvatarElement(msg) {
         const avatar = document.createElement('img');
         avatar.className = 'avatar';
+        const fallback = function() {
+            avatar.onerror = null;
+            try {
+                avatar.src = generateAvatar(msg.authorName || "?");
+            } catch (e) {
+                avatar.removeAttribute('src');
+            }
+        };
+        avatar.onerror = fallback;
         if (msg.authorPicture && !msg.authorPicture.includes('placeholder')) {
             avatar.referrerPolicy = "no-referrer";
             avatar.src = msg.authorPicture;
         } else {
-            avatar.src = generateAvatar(msg.authorName || "?");
+            fallback();
         }
         return avatar;
     }

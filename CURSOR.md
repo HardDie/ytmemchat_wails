@@ -106,6 +106,7 @@ This is a new desktop app.
 15. Overlay alerts may overlap. Interrupt is TTS only ([020](docs/architecture/020-obs-html-alert-overlap.md)).
 16. Overlay placement follows `resize` ([021](docs/architecture/021-obs-html-resize-placement.md)).
 17. Chat keeps 100 newest rows by default ([022](docs/architecture/022-obs-html-chat-cap.md)).
+18. Chat avatar URL errors use the letter canvas ([023](docs/architecture/023-obs-html-chat-avatar-fallback.md)).
 
 | Method | Route | Role |
 |---|---|---|
@@ -130,6 +131,7 @@ Chat query `?transparent=1`:
 3. Overlay still needs Interact-once for audio autoplay.
 4. Chat keeps 100 newest rows by default ([022](docs/architecture/022-obs-html-chat-cap.md)).
 5. `?cap=none` (also `0`, `off`, `unlimited`) disables the cap.
+6. Failed chat avatar URLs use the letter canvas ([023](docs/architecture/023-obs-html-chat-avatar-fallback.md)).
 
 **Chat WS payload** (same as `ytmemchat/internal/chat/contract.go`, plus control `type`)
 
@@ -505,6 +507,7 @@ Official Wails layout:
 23. Overlay alert overlap: [020](docs/architecture/020-obs-html-alert-overlap.md).
 24. Overlay resize placement: [021](docs/architecture/021-obs-html-resize-placement.md).
 25. Chat message cap: [022](docs/architecture/022-obs-html-chat-cap.md).
+26. Chat avatar fallback: [023](docs/architecture/023-obs-html-chat-avatar-fallback.md).
 
 ### Go package documentation (godoc)
 

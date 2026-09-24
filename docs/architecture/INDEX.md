@@ -26,3 +26,4 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [020](020-obs-html-alert-overlap.md) | Overlay alerts may overlap; interrupt is TTS only | Accepted |
 | [021](021-obs-html-resize-placement.md) | Overlay alert placement follows Browser Source resize | Accepted |
 | [022](022-obs-html-chat-cap.md) | Chat overlay caps DOM rows; query can disable | Accepted |
+| [023](023-obs-html-chat-avatar-fallback.md) | Chat avatar URL failure uses the letter canvas | Accepted |

@@ -77,6 +77,9 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(string(cb), "trimChatMessages") {
 		t.Fatal("chat html must trim old rows")
 	}
+	if !strings.Contains(string(cb), "avatar.onerror") {
+		t.Fatal("chat html must fall back when an avatar URL fails")
+	}
 
 	ov, err := http.Get(ts.URL + PathOverlay)
 	if err != nil {
