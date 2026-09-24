@@ -83,6 +83,15 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(string(cb), "if (!ctx)") {
 		t.Fatal("chat html must not throw when canvas 2d is missing")
 	}
+	if strings.Contains(string(cb), "Ready for media alerts.") {
+		t.Fatal("chat html must not log overlay media-alert copy")
+	}
+	if !strings.Contains(string(cb), "Ready for chat.") {
+		t.Fatal("chat html must log chat socket ready")
+	}
+	if !strings.Contains(string(cb), `textColor.charAt(0) !== '#'`) {
+		t.Fatal("chat html must accept textColor with or without #")
+	}
 
 	ov, err := http.Get(ts.URL + PathOverlay)
 	if err != nil {

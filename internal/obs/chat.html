@@ -130,7 +130,11 @@
         document.documentElement.style.setProperty('--font-size', params.get('fontSize'));
     }
     if (params.get('textColor')) {
-        document.documentElement.style.setProperty('--text-color', '#' + params.get('textColor'));
+        let textColor = params.get('textColor');
+        if (textColor.charAt(0) !== '#') {
+            textColor = '#' + textColor;
+        }
+        document.documentElement.style.setProperty('--text-color', textColor);
     }
     if (params.get('transparent') === '1' || params.get('transparent') === 'true') {
         document.body.classList.add('transparent');
