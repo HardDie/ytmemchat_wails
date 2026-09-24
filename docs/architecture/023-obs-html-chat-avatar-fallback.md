@@ -28,7 +28,7 @@ Use option 2.
 3. Then set `src` to `generateAvatar(authorName)`.
 4. If that throws, remove `src`.
 5. Missing / `placeholder` URLs use the same fallback path.
-6. The `placeholder` substring check stays as a skip of a known dummy URL.
+7. If `getContext('2d')` is null, `generateAvatar` returns `''`.
 
 ## Consequences
 
@@ -38,8 +38,8 @@ Use option 2.
 
 ### Negative and risks
 
-* `getContext('2d')` null still throws inside `generateAvatar` (review item 17).
+* Empty `src` if canvas 2d is unavailable.
 
 ### Neutral
 
-* Review notes: `docs/obs-html-review.md` item 16.
+* Review notes: `docs/obs-html-review.md` items 16 and 17.

@@ -181,6 +181,9 @@
         canvas.width = 64;
         canvas.height = 64;
         const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            return '';
+        }
         let hash = 0;
         for (let i = 0; i < name.length; i++) {
             hash = name.charCodeAt(i) + ((hash << 5) - hash);

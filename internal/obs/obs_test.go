@@ -80,6 +80,9 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(string(cb), "avatar.onerror") {
 		t.Fatal("chat html must fall back when an avatar URL fails")
 	}
+	if !strings.Contains(string(cb), "if (!ctx)") {
+		t.Fatal("chat html must not throw when canvas 2d is missing")
+	}
 
 	ov, err := http.Get(ts.URL + PathOverlay)
 	if err != nil {
