@@ -433,7 +433,9 @@
 	const STATUS_LOST = '⚠️ WEB SOCKET DISCONNECTED - RETRYING...';
 	const STATUS_CLOSED = 'ytmemchat is closed — reconnecting when it starts…';
 	const RETRY_INTERVAL = 500;
+	const CONNECTING_TIMEOUT_MS = 2500;
 	let reconnectTimer = null;
+	let connectingTimer = null;
 	let websocket = null;
 	const wsUri = ((window.location.protocol === 'https:') ? 'wss://' : 'ws://') + window.location.host + window.location.pathname.replace(/\/$/, '') + '/ws';
 
@@ -451,11 +453,19 @@
 		}, RETRY_INTERVAL);
 	}
 
+	function clearConnectingTimer() {
+		if (connectingTimer) {
+			clearTimeout(connectingTimer);
+			connectingTimer = null;
+		}
+	}
+
 	function connectWebSocket() {
 		if (reconnectTimer) {
 			clearTimeout(reconnectTimer);
 			reconnectTimer = null;
 		}
+		clearConnectingTimer();
 		if (websocket) {
 			console.log("Cleaning up old WebSocket before reconnecting...");
 			websocket.onopen = null;
@@ -466,7 +476,15 @@
 			websocket = null;
 		}
 		websocket = new WebSocket(wsUri);
+		const thisSocket = websocket;
+		connectingTimer = setTimeout(function() {
+			connectingTimer = null;
+			if (websocket === thisSocket && thisSocket.readyState === WebSocket.CONNECTING) {
+				thisSocket.close();
+			}
+		}, CONNECTING_TIMEOUT_MS);
 		websocket.onopen = function() {
+			clearConnectingTimer();
 			console.log("WebSocket Connected! Ready for media alerts.");
 			appClosed = false;
 			statusEl.classList.remove('app-closed');
@@ -474,6 +492,7 @@
 		};
 		websocket.onmessage = handleOverlayMessage;
 		websocket.onclose = function() {
+			clearConnectingTimer();
 			websocket = null;
 			clearOverlayPlayback();
 			showConnectionStatus();

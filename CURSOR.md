@@ -107,6 +107,7 @@ This is a new desktop app.
 16. Overlay placement follows `resize` ([021](docs/architecture/021-obs-html-resize-placement.md)).
 17. Chat keeps 100 newest rows by default ([022](docs/architecture/022-obs-html-chat-cap.md)).
 18. Chat avatar URL errors use the letter canvas ([023](docs/architecture/023-obs-html-chat-avatar-fallback.md)).
+19. A stuck `CONNECTING` socket is closed after 2.5s ([015](docs/architecture/015-obs-html-reconnect-timer.md)).
 
 | Method | Route | Role |
 |---|---|---|

@@ -33,6 +33,10 @@ Use option 2.
 7. Retry stays in `onclose`.
 8. Same logic in `overlay.html` and `chat.html`.
 9. First connect is still a direct `connectWebSocket` ([014](014-obs-html-one-websocket.md)).
+10. `CONNECTING_TIMEOUT_MS` is 2500.
+11. A watchdog `close()`s a socket still in `CONNECTING`.
+12. Retry still goes through `onclose` → `scheduleReconnect`.
+13. `onopen` and `onclose` clear the watchdog.
 
 ## Consequences
 
@@ -43,9 +47,8 @@ Use option 2.
 
 ### Negative and risks
 
-* If `onclose` is lost and no one calls `connectWebSocket`, retry never starts.
-* That was already true of a single `setTimeout`.
+* A slow handshake that takes more than 2.5s is aborted and retried.
 
 ### Neutral
 
-* Review notes: `docs/obs-html-review.md` item 2.
+* Review notes: `docs/obs-html-review.md` items 2 and 21.

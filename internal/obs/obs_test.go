@@ -89,6 +89,9 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(string(cb), "Ready for chat.") {
 		t.Fatal("chat html must log chat socket ready")
 	}
+	if !strings.Contains(string(cb), "CONNECTING_TIMEOUT_MS") {
+		t.Fatal("chat html must abort a stuck CONNECTING socket")
+	}
 	if !strings.Contains(string(cb), `textColor.charAt(0) !== '#'`) {
 		t.Fatal("chat html must accept textColor with or without #")
 	}
@@ -164,6 +167,9 @@ func TestIndexAndOBSPages(t *testing.T) {
 	}
 	if !strings.Contains(htmlOv, "scheduleAudioTeardown") {
 		t.Fatal("overlay audio alerts must drop after max(duration, min sticker time)")
+	}
+	if !strings.Contains(htmlOv, "CONNECTING_TIMEOUT_MS") {
+		t.Fatal("overlay html must abort a stuck CONNECTING socket")
 	}
 }
 
