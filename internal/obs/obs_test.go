@@ -120,6 +120,15 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(clearFn, "alertQueue = []") {
 		t.Fatal("overlay teardown must dump the TTS queue")
 	}
+	if !strings.Contains(intFn, "bumpTTSGeneration") {
+		t.Fatal("tts_interrupt must invalidate in-flight TTS decode")
+	}
+	if !strings.Contains(clearFn, "bumpTTSGeneration") {
+		t.Fatal("overlay teardown must invalidate in-flight TTS decode")
+	}
+	if !strings.Contains(htmlOv, "generation !== ttsGeneration") {
+		t.Fatal("overlay TTS decode must ignore a stale generation")
+	}
 }
 
 func overlayJSFunc(html, name string) string {

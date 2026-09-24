@@ -36,6 +36,8 @@ Use option 2.
 10. After interrupt, `onMediaFinished` / `processQueue` plays the next queued TTS.
 11. `clearOverlayPlayback` still empties the queue and stops the source (teardown).
 12. Alert overlap and no alert interrupt: [020](020-obs-html-alert-overlap.md).
+13. `ttsGeneration` increments on interrupt and teardown.
+14. Decode `.then` / `.catch` start or finish the queue only if the generation still matches.
 
 ## Consequences
 
@@ -48,7 +50,6 @@ Use option 2.
 
 * A long TTS queue can lag behind chat.
 * Interrupt skips one line; later queued TTS still play.
-* In-flight `decodeAudioData` can still start after interrupt (review item 10).
 
 ### Neutral
 

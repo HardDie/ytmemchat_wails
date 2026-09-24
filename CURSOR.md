@@ -158,6 +158,7 @@ Chat query `?transparent=1`:
 16. `tts_interrupt` stops only the playing TTS. Queue stays.
 17. Overlay `.gif` alerts are `<img>` ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 18. Overlay alerts may overlap. Interrupt is TTS only ([020](docs/architecture/020-obs-html-alert-overlap.md)).
+19. In-flight TTS decode is dropped after interrupt / teardown ([019](docs/architecture/019-obs-html-tts-queue.md)).
 
 Do not invent a parallel Wails Events protocol for OBS.
 

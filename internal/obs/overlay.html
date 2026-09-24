@@ -125,6 +125,7 @@
 	let alertQueue = [];
 	let isPlaying = false;
 	let currentTtsSource = null;
+	let ttsGeneration = 0;
 
 	function addToQueue(data) {
 		alertQueue.push(data);
@@ -155,7 +156,12 @@
 		}
 	}
 
+	function bumpTTSGeneration() {
+		ttsGeneration++;
+	}
+
 	function interruptCurrentTTS() {
+		bumpTTSGeneration();
 		stopCurrentTTSSource();
 		isPlaying = false;
 		processQueue();
@@ -175,6 +181,7 @@
 			el.remove();
 		});
 		alertQueue = [];
+		bumpTTSGeneration();
 		stopCurrentTTSSource();
 		isPlaying = false;
 	}
@@ -281,6 +288,7 @@
 			onMediaFinished();
 			return;
 		}
+		const generation = ttsGeneration;
 		const binaryString = atob(payload);
 		const len = binaryString.length;
 		const bytes = new Uint8Array(len);
@@ -289,6 +297,9 @@
 		}
 		audioContext.decodeAudioData(bytes.buffer)
 			.then(function(audioBuffer) {
+				if (generation !== ttsGeneration) {
+					return;
+				}
 				const source = audioContext.createBufferSource();
 				source.buffer = audioBuffer;
 				currentTtsSource = source;
@@ -309,6 +320,9 @@
 			})
 			.catch(function(err) {
 				console.error("Error decoding TTS audio:", err);
+				if (generation !== ttsGeneration) {
+					return;
+				}
 				onMediaFinished();
 			});
 	}
