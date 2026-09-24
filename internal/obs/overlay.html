@@ -181,7 +181,7 @@
 
 	function displayMediaAlert(filename, volume, scale) {
 		const mediaUrl = '/obs/media/' + filename;
-		const isVideo = filename.match(/\.(mp4|webm|mov|gif)$/i);
+		const isVideo = filename.match(/\.(mp4|webm|mov)$/i);
 		const isAudio = filename.match(/\.(mp3|ogg|wav|aac|flac)$/i);
 		if (isAudio) {
 			const audioElement = document.createElement('audio');

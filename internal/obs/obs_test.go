@@ -103,6 +103,12 @@ func TestIndexAndOBSPages(t *testing.T) {
 		t.Fatal("overlay html must drop media that never loads")
 	}
 	htmlOv := string(ob)
+	if strings.Contains(htmlOv, "mp4|webm|mov|gif") {
+		t.Fatal("overlay gif alerts must use img, not video")
+	}
+	if !strings.Contains(htmlOv, `filename.match(/\.(mp4|webm|mov)$/i)`) {
+		t.Fatal("overlay video match must be mp4 webm mov")
+	}
 	intFn := overlayJSFunc(htmlOv, "interruptCurrentTTS")
 	if intFn == "" {
 		t.Fatal("overlay html must define interruptCurrentTTS")

@@ -42,6 +42,7 @@ Use option 2.
 13. That backstop no-ops once `laidOut` is true.
 14. Audio-only also drops on `error` / `abort`.
 15. Audio that never reaches `loadedmetadata` is dropped after 5s.
+16. `.gif` is `<img>`, not `<video>`.
 
 ## Consequences
 
@@ -56,4 +57,4 @@ Use option 2.
 
 ### Neutral
 
-* Review notes: `docs/obs-html-review.md` items 6 and 7.
+* Review notes: `docs/obs-html-review.md` items 6, 7, and 8.

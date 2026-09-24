@@ -155,6 +155,7 @@ Chat query `?transparent=1`:
 14. Overlay video min play 5s ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 15. Overlay TTS queue ([019](docs/architecture/019-obs-html-tts-queue.md)).
 16. `tts_interrupt` stops only the playing TTS. Queue stays.
+17. Overlay `.gif` alerts are `<img>` ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 
 Do not invent a parallel Wails Events protocol for OBS.
 
