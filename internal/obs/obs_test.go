@@ -135,6 +135,9 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(htmlOv, "addEventListener('resize'") {
 		t.Fatal("overlay html must listen for window resize")
 	}
+	if !strings.Contains(htmlOv, `charset="UTF-8"`) {
+		t.Fatal("overlay html must set UTF-8 charset")
+	}
 }
 
 func overlayJSFunc(html, name string) string {
