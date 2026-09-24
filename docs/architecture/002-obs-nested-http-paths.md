@@ -40,7 +40,10 @@ Use option 2.
 5. Optional `?transparent=1` on `/obs/chat` maps to the existing transparent body class.
 6. Optional `?fontSize=` on `/obs/chat` (CSS size with a unit).
 7. Optional `?textColor=` on `/obs/chat` (hex without `#`).
-8. `/obs/overlay` has no query parameters.
+8. Overlay query is `debugAudio` only ([024](024-obs-html-audio-sticker.md)).
+9. Overlay `?debugAudio=1` shows the audio debug square ([024](024-obs-html-audio-sticker.md)).
+10. Chat `?cap=` ([022](022-obs-html-chat-cap.md)).
+11. Chat `textColor` may include `#`.
 
 ## Consequences
 

@@ -49,7 +49,7 @@ Follow [Getting Started](https://github.com/HardDie/ytmemchat_wails/wiki/Getting
 | Chat | `http://127.0.0.1:8080/obs/chat` |
 | Alerts + TTS | `http://127.0.0.1:8080/obs/overlay` |
 
-Do not use `http://127.0.0.1:8080/` as an OBS source. Chat query parameters (`transparent`, `fontSize`, `textColor`) are on [Chat URL](https://github.com/HardDie/ytmemchat_wails/wiki/Chat-URL). Overlay needs **Interact** once so audio can autoplay.
+Do not use `http://127.0.0.1:8080/` as an OBS source. Chat query parameters are on [Chat URL](https://github.com/HardDie/ytmemchat_wails/wiki/Chat-URL). Overlay needs no click for TTS or command audio; `?debugAudio=1` shows a debug square ([ADR 024](docs/architecture/024-obs-html-audio-sticker.md)).
 
 Alerts and TTS are off until you enable them. See [Configuration](https://github.com/HardDie/ytmemchat_wails/wiki/Configuration), [Commands](https://github.com/HardDie/ytmemchat_wails/wiki/Commands), and [YouTube API key](https://github.com/HardDie/ytmemchat_wails/wiki/YouTube-API-key).
 

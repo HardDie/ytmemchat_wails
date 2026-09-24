@@ -25,3 +25,4 @@
 
 * On success, exactly one `Speech` value was sent and the temp WAV file was deleted.
 * Local `Speak` is a separate path (speakers on the host), not used by the OBS overlay.
+* Overlay TTS is an HTML audio sticker. OBS needs no click ([024](../../architecture/024-obs-html-audio-sticker.md)).

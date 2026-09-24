@@ -168,6 +168,15 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(htmlOv, "scheduleAudioTeardown") {
 		t.Fatal("overlay audio alerts must drop after max(duration, min sticker time)")
 	}
+	if strings.Contains(htmlOv, "start-btn") {
+		t.Fatal("overlay html must not require an audio unlock button")
+	}
+	if strings.Contains(htmlOv, "decodeAudioData") {
+		t.Fatal("overlay TTS must not use AudioContext decodeAudioData")
+	}
+	if !strings.Contains(htmlOv, "startAudibleSticker") {
+		t.Fatal("overlay TTS and command audio must use an HTML audio sticker")
+	}
 	if !strings.Contains(htmlOv, "CONNECTING_TIMEOUT_MS") {
 		t.Fatal("overlay html must abort a stuck CONNECTING socket")
 	}

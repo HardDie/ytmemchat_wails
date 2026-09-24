@@ -55,6 +55,19 @@ http://127.0.0.1:8080/obs/chat?cap=none
 - `transparent=1` is what drops ytmemchat’s own dark page fill. Without it, the source is an opaque rectangle even if OBS CSS is transparent.
 - After editing the URL, click **Refresh cache of current page** on the source if the old look sticks.
 - Test pane **Flush chat** sends `type: chat_flush` on the chat socket. On-screen lines are removed. Overlay alerts stay. See [Test](Test).
-- The **Overlay** URL (`/obs/overlay`) has no query parameters. That page is already transparent; use **Interact** once so alert and TTS audio can autoplay.
+
+## Overlay URL
+
+```text
+http://127.0.0.1:8080/obs/overlay
+```
+
+The page is already transparent. TTS and command audio play with **no click** in an OBS Browser Source. There is no Enable Audio button.
+
+| Parameter | Default | Values | What it changes |
+|---|---|---|---|
+| `debugAudio` | off | `1` or `true` | Shows a green square while TTS or command audio plays. Off: nothing on screen for sound-only alerts. |
+
+A desktop Chrome tab may still block `play()`. OBS Browser Source does not.
 
 Then continue with [Getting Started](Getting-Started) (Start chat) or [Configuration](Configuration) (port and overlay).

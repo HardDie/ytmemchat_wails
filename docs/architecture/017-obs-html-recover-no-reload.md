@@ -36,22 +36,22 @@ Use option 3.
 10. Overlay `JSON.parse` uses the same try/catch in `handleOverlayMessage`.
 11. HTML is split into `<script>` blocks by role.
 12. Banners: `/* <====== … ======> */`.
-13. Shared: overlay `appClosed`, `audioContext`; chat `appClosed`.
+13. Shared: overlay `appClosed`; chat `appClosed`.
 14. Those stay `var` (classic scripts do not share `let`/`const`).
 15. Other bindings are `let` / `const` in the block that uses them.
+16. Overlay has no `audioContext` ([024](024-obs-html-audio-sticker.md)).
 
 ## Consequences
 
 ### Positive
 
-* An unexpected throw does not reset OBS Interact or chat history.
+* An unexpected throw does not reset chat history.
 * Recovery uses the same socket loop as [014](014-obs-html-one-websocket.md) / [015](015-obs-html-reconnect-timer.md).
 * Script roles are easy to find.
 
 ### Negative and risks
 
 * A bug inside `connectWebSocket` is throttled, not reloaded away.
-* A dead `AudioContext` still needs Interact (rare).
 
 ### Neutral
 

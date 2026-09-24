@@ -40,6 +40,7 @@ Use option 3 plus option 4.
 11. Intentional reconnect nulls `onclose` before `close()`, so that path does not clear.
 12. `tts_interrupt` does not flush the queue ([019](019-obs-html-tts-queue.md)).
 13. `clearOverlayPlayback` must still empty `alertQueue` itself.
+14. TTS and command audio stickers are `.alert-container` ([024](024-obs-html-audio-sticker.md)).
 
 ## Consequences
 
@@ -52,7 +53,7 @@ Use option 3 plus option 4.
 ### Negative and risks
 
 * An HTTP listener restart fades a playing alert.
-* In-flight `decodeAudioData` can still start (item 10).
+* A late `play()` after teardown is skipped via `ttsGeneration` (item 10).
 
 ### Neutral
 

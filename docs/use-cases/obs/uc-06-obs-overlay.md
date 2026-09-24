@@ -16,7 +16,7 @@
 ## Alternative scenarios and errors
 
 * **4a. Empty MediaPath:** `/obs/media/` is not registered (404).
-* **TTS audio:** `payload` is WAVE bytes (JSON base64), same as the console overlay.
+* **TTS audio:** `payload` is WAVE bytes (JSON base64). Overlay plays them as an HTML `<audio>` sticker with no click in OBS ([024](../../architecture/024-obs-html-audio-sticker.md)).
 * **Process exit:** overlay receives `type: app_closed` (not an alert clip). Retry continues.
 
 ## Postconditions

@@ -32,6 +32,7 @@ Use option 2. Do not use option 3.
 6. Home / hotkey / `/api/interrupt` stay TTS-only ([010](010-global-interrupt-hotkey.md)).
 7. Commands YAML is the moderation gate, not the overlay.
 8. `clearOverlayPlayback` still drops all alerts on teardown ([016](016-obs-html-app-closed-teardown.md)).
+9. Command audio uses the HTML sticker ([024](024-obs-html-audio-sticker.md)).
 
 ## Consequences
 

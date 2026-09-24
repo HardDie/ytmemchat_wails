@@ -46,6 +46,9 @@ Use option 2.
 17. After audio metadata, drop after `max(duration, 5s)`.
 18. That audio timer does not subtract fade (no picture).
 19. Audio `ended` / `error` / `abort` still drop immediately. Drop is idempotent.
+20. That `max(duration, 5s)` timer starts when `play()` starts, after fade-in.
+21. That play-start timer is TTS and command audio only.
+22. Video still fades 500ms early from layout (`scheduleVideoTeardown`).
 
 ## Consequences
 

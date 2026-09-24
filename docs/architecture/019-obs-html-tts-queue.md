@@ -26,9 +26,9 @@ Use option 2.
 
 1. `type: tts` calls `addToQueue`.
 2. `processQueue` starts the next item only when `isPlaying` is false.
-3. `displayTTS` decodes the WAV with `AudioContext.decodeAudioData`.
-4. `source.onended` calls `onMediaFinished` → next in queue.
-5. Decode failure also calls `onMediaFinished` (queue does not stick).
+3. `displayTTS` builds a WAV blob URL and calls `startAudibleSticker`.
+4. `<audio>` `ended` calls `onMediaFinished` → next in queue.
+5. Blob/build failure also calls `onMediaFinished` (queue does not stick).
 6. `tts_interrupt` `stop()`s only the current source. Queue stays.
 7. Alert media is not this queue. It is `displayMediaAlert` (may overlap; review item 9).
 8. The 5s never-ready timer applies only to alert `<audio>` files.
@@ -37,7 +37,9 @@ Use option 2.
 11. `clearOverlayPlayback` still empties the queue and stops the source (teardown).
 12. Alert overlap and no alert interrupt: [020](020-obs-html-alert-overlap.md).
 13. `ttsGeneration` increments on interrupt and teardown.
-14. Decode `.then` / `.catch` start or finish the queue only if the generation still matches.
+14. Stale `ttsGeneration` skips `play()` and queue finish.
+15. TTS now plays through `startAudibleSticker` ([024](024-obs-html-audio-sticker.md)).
+16. WAV is a blob URL on `<audio>`, not `decodeAudioData`.
 
 ## Consequences
 

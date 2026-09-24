@@ -55,7 +55,7 @@ http://127.0.0.1:8080/obs/chat?transparent=1
 
 Font size, text color, and other chat query parameters are on [Chat URL](Chat-URL).
 
-You can ignore the **Overlay** URL for this guide. Do not use the index URL (`http://127.0.0.1:8080/`) as an OBS source.
+You can ignore the **Overlay** URL for this guide. When you add it later, OBS does not need **Interact** for TTS or command audio. Do not use the index URL (`http://127.0.0.1:8080/`) as an OBS source.
 
 ## 4. Start live chat
 

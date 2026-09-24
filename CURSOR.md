@@ -108,6 +108,7 @@ This is a new desktop app.
 17. Chat keeps 100 newest rows by default ([022](docs/architecture/022-obs-html-chat-cap.md)).
 18. Chat avatar URL errors use the letter canvas ([023](docs/architecture/023-obs-html-chat-avatar-fallback.md)).
 19. A stuck `CONNECTING` socket is closed after 2.5s ([015](docs/architecture/015-obs-html-reconnect-timer.md)).
+20. Overlay TTS/command audio uses a fading HTML sticker ([024](docs/architecture/024-obs-html-audio-sticker.md)).
 
 | Method | Route | Role |
 |---|---|---|
@@ -129,10 +130,12 @@ Chat query `?transparent=1`:
 
 1. Drops the opaque background.
 2. Maps onto the existing `body.transparent` class.
-3. Overlay still needs Interact-once for audio autoplay.
+3. Overlay TTS/command audio has no click unlock ([024](docs/architecture/024-obs-html-audio-sticker.md)).
 4. Chat keeps 100 newest rows by default ([022](docs/architecture/022-obs-html-chat-cap.md)).
 5. `?cap=none` (also `0`, `off`, `unlimited`) disables the cap.
 6. Failed chat avatar URLs use the letter canvas ([023](docs/architecture/023-obs-html-chat-avatar-fallback.md)).
+7. Overlay TTS uses a fading HTML audio sticker ([024](docs/architecture/024-obs-html-audio-sticker.md)).
+8. `?debugAudio=1` shows the debug square (off by default).
 
 **Chat WS payload** (same as `ytmemchat/internal/chat/contract.go`, plus control `type`)
 
@@ -166,6 +169,9 @@ Chat query `?transparent=1`:
 17. Overlay `.gif` alerts are `<img>` ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 18. Overlay alerts may overlap. Interrupt is TTS only ([020](docs/architecture/020-obs-html-alert-overlap.md)).
 19. In-flight TTS decode is dropped after interrupt / teardown ([019](docs/architecture/019-obs-html-tts-queue.md)).
+20. Overlay placement follows `resize` ([021](docs/architecture/021-obs-html-resize-placement.md)).
+21. Overlay audio alerts drop after `max(duration, 5s)` ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
+22. Overlay TTS is an HTML audio sticker ([024](docs/architecture/024-obs-html-audio-sticker.md)).
 20. Overlay placement follows `resize` ([021](docs/architecture/021-obs-html-resize-placement.md)).
 21. Overlay audio alerts drop after `max(duration, 5s)` ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 
@@ -386,7 +392,7 @@ OBS after start:
 
 1. YouTube Data API v3 is only required when the user saves an API key.
 2. Add OBS Browser Sources to `http://127.0.0.1:<port>/obs/chat` and `http://127.0.0.1:<port>/obs/overlay`.
-3. Click Interact on the overlay source once so the browser can autoplay audio.
+3. Overlay audio has no click unlock ([024](docs/architecture/024-obs-html-audio-sticker.md)).
 
 ---
 
@@ -509,6 +515,7 @@ Official Wails layout:
 24. Overlay resize placement: [021](docs/architecture/021-obs-html-resize-placement.md).
 25. Chat message cap: [022](docs/architecture/022-obs-html-chat-cap.md).
 26. Chat avatar fallback: [023](docs/architecture/023-obs-html-chat-avatar-fallback.md).
+27. Overlay audio sticker: [024](docs/architecture/024-obs-html-audio-sticker.md).
 
 ### Go package documentation (godoc)
 

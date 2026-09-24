@@ -47,37 +47,39 @@
 		height: 100%;
 	}
 
-    #start-btn {
-        /* Positioning logic */
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%); /* Perfectly offsets the button's own width/height */
-        z-index: 9999;
+	.alert-container.audio-sticker {
+		border: none;
+		border-radius: 0;
+		box-shadow: none;
+		background: transparent;
+	}
 
-        /* Visual Styling */
-        padding: 20px 40px;
-        font-size: 24px;
-        font-weight: bold;
-        color: white;
-        background: linear-gradient(135deg, #6e8efb, #a777e3);
-        border: none;
-        border-radius: 50px;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
-        z-index: 9999; /* Ensure it's above everything */
-    }
+	.audio-sticker audio {
+		position: absolute;
+		width: 8px;
+		height: 8px;
+		opacity: 0.01;
+		pointer-events: none;
+	}
 
-    #start-btn:hover {
-        transform: translate(-50%, -52%) scale(1.05);
-        box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
-        filter: brightness(1.1);
-    }
+	.audio-sticker-rect {
+		width: 0;
+		height: 0;
+		overflow: hidden;
+		opacity: 0;
+		border: none;
+		background: transparent;
+		pointer-events: none;
+	}
 
-    #start-btn:active {
-        transform: translate(-50%, -48%) scale(0.95);
-    }
+	body.debug-audio .audio-sticker-rect {
+		width: 80px;
+		height: 80px;
+		opacity: 1;
+		background: rgba(50, 255, 80, 0.5);
+		border: 2px solid #33ff66;
+		box-sizing: border-box;
+	}
 
     #connection-status {
         position: absolute;
@@ -108,13 +110,11 @@
 </head>
 
 <body>
-    <button id="start-btn">Enable Audio & Connect</button>
     <div id="connection-status">⚠️ WEB SOCKET DISCONNECTED - RETRYING...</div>
 
 	<script>
 	/* <====== Shared state ======> */
 	var appClosed = false;
-	var audioContext;
 	</script>
 
 	<script>
@@ -127,9 +127,13 @@
 	});
 	const MIN_STICKER_PLAYING_SEC = 5;
 	const MEDIA_FADE_MS = 500;
+	const debugParam = new URLSearchParams(window.location.search).get('debugAudio');
+	if (debugParam === '1' || debugParam === 'true') {
+		document.body.classList.add('debug-audio');
+	}
 	let alertQueue = [];
 	let isPlaying = false;
-	let currentTtsSource = null;
+	let currentTtsDrop = null;
 	let ttsGeneration = 0;
 
 	function addToQueue(data) {
@@ -151,13 +155,9 @@
 	}
 
 	function stopCurrentTTSSource() {
-		if (currentTtsSource) {
-			try {
-				currentTtsSource.stop();
-			} catch (e) {
-				/* already stopped */
-			}
-			currentTtsSource = null;
+		if (currentTtsDrop) {
+			currentTtsDrop();
+			currentTtsDrop = null;
 		}
 	}
 
@@ -191,37 +191,141 @@
 		isPlaying = false;
 	}
 
+	function placeAlertContainer(container, scale) {
+		const originalWidth = container.offsetWidth;
+		const originalHeight = container.offsetHeight;
+		const scaledWidth = originalWidth * scale;
+		const scaledHeight = originalHeight * scale;
+		const randomRotation = (Math.random() * 20) - 10;
+		container.style.transform = 'rotate(' + randomRotation + 'deg) scale(' + scale + ')';
+		const safeXRange = OBS_WIDTH - scaledWidth;
+		const safeYRange = OBS_HEIGHT - scaledHeight;
+		const randomX = Math.random() * Math.max(0, safeXRange);
+		const randomY = Math.random() * Math.max(0, safeYRange);
+		const offsetX = (scaledWidth - originalWidth) / 2;
+		const offsetY = (scaledHeight - originalHeight) / 2;
+		container.style.left = (randomX - offsetX) + 'px';
+		container.style.top = (randomY - offsetY) + 'px';
+	}
+
+	function startAudibleSticker(src, volume, opts) {
+		opts = opts || {};
+		const generation = opts.generation;
+		const container = document.createElement('div');
+		container.className = 'alert-container audio-sticker';
+		const rect = document.createElement('div');
+		rect.className = 'audio-sticker-rect';
+		const audioElement = document.createElement('audio');
+		audioElement.preload = 'auto';
+		audioElement.volume = volume;
+		container.appendChild(rect);
+		container.appendChild(audioElement);
+		document.body.appendChild(container);
+		placeAlertContainer(container, 1);
+
+		let faded = false;
+		let ready = false;
+		let started = false;
+		let queueDone = false;
+		let dropping = false;
+
+		const finishQueue = function() {
+			if (queueDone) return;
+			queueDone = true;
+			if (opts.onEnded) {
+				opts.onEnded();
+			}
+		};
+
+		const stale = function() {
+			return generation !== undefined && generation !== ttsGeneration;
+		};
+
+		const drop = function() {
+			if (dropping || container.dataset.removed) return;
+			dropping = true;
+			try { audioElement.pause(); } catch (e) { /* ignore */ }
+			audioElement.removeAttribute('src');
+			try { audioElement.load(); } catch (e) { /* ignore */ }
+			if (opts.onDrop) {
+				opts.onDrop();
+			}
+			removeMediaElement(container);
+		};
+
+		const tryPlay = function() {
+			if (stale()) {
+				drop();
+				return;
+			}
+			if (!faded || !ready || started) return;
+			started = true;
+			if (opts.holdMin) {
+				scheduleAudioTeardown(audioElement, drop);
+			}
+			const playAttempt = audioElement.play();
+			if (playAttempt && playAttempt.catch) {
+				playAttempt.catch(function(err) {
+					console.error('Audio play blocked:', err);
+					drop();
+					if (!stale()) {
+						finishQueue();
+					}
+				});
+			}
+		};
+
+		audioElement.addEventListener('ended', function() {
+			drop();
+			finishQueue();
+		});
+		audioElement.addEventListener('error', function() {
+			if (dropping) return;
+			const skip = stale();
+			drop();
+			if (!skip) {
+				finishQueue();
+			}
+		});
+		audioElement.addEventListener('abort', function() {
+			if (dropping) return;
+			const skip = stale();
+			drop();
+			if (!skip) {
+				finishQueue();
+			}
+		});
+		audioElement.addEventListener('loadedmetadata', function() {
+			ready = true;
+			tryPlay();
+		});
+		audioElement.addEventListener('canplay', function() {
+			ready = true;
+			tryPlay();
+		});
+		setTimeout(function() {
+			if (!ready) {
+				drop();
+				if (!stale()) {
+					finishQueue();
+				}
+			}
+		}, MIN_STICKER_PLAYING_SEC * 1000);
+		audioElement.src = src;
+		container.style.opacity = 1;
+		setTimeout(function() {
+			faded = true;
+			tryPlay();
+		}, MEDIA_FADE_MS);
+		return drop;
+	}
+
 	function displayMediaAlert(filename, volume, scale) {
 		const mediaUrl = '/obs/media/' + filename;
 		const isVideo = filename.match(/\.(mp4|webm|mov)$/i);
 		const isAudio = filename.match(/\.(mp3|ogg|wav|aac|flac)$/i);
 		if (isAudio) {
-			const audioElement = document.createElement('audio');
-			audioElement.autoplay = true;
-			audioElement.volume = volume;
-			let audioReady = false;
-			const drop = function() {
-				if (audioElement.dataset.removed) return;
-				audioElement.dataset.removed = '1';
-				try { audioElement.pause(); } catch (e) { /* ignore */ }
-				audioElement.removeAttribute('src');
-				try { audioElement.load(); } catch (e) { /* ignore */ }
-				audioElement.remove();
-			};
-			audioElement.addEventListener('ended', drop);
-			audioElement.addEventListener('error', drop);
-			audioElement.addEventListener('abort', drop);
-			audioElement.addEventListener('loadedmetadata', function() {
-				audioReady = true;
-				scheduleAudioTeardown(audioElement, drop);
-			});
-			setTimeout(function() {
-				if (!audioReady) {
-					drop();
-				}
-			}, MIN_STICKER_PLAYING_SEC * 1000);
-			audioElement.src = mediaUrl;
-			document.body.appendChild(audioElement);
+			startAudibleSticker(mediaUrl, volume, { holdMin: true });
 			return;
 		}
 		let mediaElement;
@@ -257,20 +361,7 @@
 			laidOut = true;
 			mediaElement.removeEventListener('load', handleMediaLoad);
 			mediaElement.removeEventListener('loadedmetadata', handleMediaLoad);
-			const originalWidth = container.offsetWidth;
-			const originalHeight = container.offsetHeight;
-			const scaledWidth = originalWidth * scale;
-			const scaledHeight = originalHeight * scale;
-			const randomRotation = (Math.random() * 20) - 10;
-			container.style.transform = 'rotate(' + randomRotation + 'deg) scale(' + scale + ')';
-			const safeXRange = OBS_WIDTH - scaledWidth;
-			const safeYRange = OBS_HEIGHT - scaledHeight;
-			const randomX = Math.random() * Math.max(0, safeXRange);
-			const randomY = Math.random() * Math.max(0, safeYRange);
-			const offsetX = (scaledWidth - originalWidth) / 2;
-			const offsetY = (scaledHeight - originalHeight) / 2;
-			container.style.left = (randomX - offsetX) + 'px';
-			container.style.top = (randomY - offsetY) + 'px';
+			placeAlertContainer(container, scale);
 			container.style.opacity = 1;
 			if (isVideo) {
 				const playAttempt = mediaElement.play();
@@ -293,48 +384,34 @@
 	}
 
 	function displayTTS(payload, volume) {
-		if (!audioContext) {
-			console.warn("AudioContext not initialized. Click the 'Start' button first.");
+		const generation = ttsGeneration;
+		let objectUrl = '';
+		try {
+			const binaryString = atob(payload);
+			const bytes = new Uint8Array(binaryString.length);
+			for (let i = 0; i < binaryString.length; i++) {
+				bytes[i] = binaryString.charCodeAt(i);
+			}
+			objectUrl = URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' }));
+		} catch (err) {
+			console.error('Error decoding TTS audio:', err);
 			onMediaFinished();
 			return;
 		}
-		const generation = ttsGeneration;
-		const binaryString = atob(payload);
-		const len = binaryString.length;
-		const bytes = new Uint8Array(len);
-		for (let i = 0; i < len; i++) {
-			bytes[i] = binaryString.charCodeAt(i);
-		}
-		audioContext.decodeAudioData(bytes.buffer)
-			.then(function(audioBuffer) {
-				if (generation !== ttsGeneration) {
-					return;
+		currentTtsDrop = startAudibleSticker(objectUrl, volume, {
+			generation: generation,
+			holdMin: true,
+			onDrop: function() {
+				if (objectUrl) {
+					URL.revokeObjectURL(objectUrl);
+					objectUrl = '';
 				}
-				const source = audioContext.createBufferSource();
-				source.buffer = audioBuffer;
-				currentTtsSource = source;
-				const gainNode = audioContext.createGain();
-				gainNode.gain.value = volume;
-				source.connect(gainNode);
-				gainNode.connect(audioContext.destination);
-				source.onended = function() {
-					source.disconnect();
-					gainNode.disconnect();
-					if (currentTtsSource !== source) {
-						return;
-					}
-					currentTtsSource = null;
-					onMediaFinished();
-				};
-				source.start(0);
-			})
-			.catch(function(err) {
-				console.error("Error decoding TTS audio:", err);
-				if (generation !== ttsGeneration) {
-					return;
-				}
+				currentTtsDrop = null;
+			},
+			onEnded: function() {
 				onMediaFinished();
-			});
+			}
+		});
 	}
 
 	function stickerHoldSec(mediaElement) {
@@ -347,10 +424,12 @@
 	}
 
 	function scheduleAudioTeardown(audioElement, drop) {
+		/* TTS and command audio only. Full duration from play(); no early fade. */
 		setTimeout(drop, stickerHoldSec(audioElement) * 1000);
 	}
 
 	function scheduleVideoTeardown(mediaElement, container) {
+		/* Video stickers only. Visual fade starts 500ms before duration. */
 		const fadeAt = Math.max(0, stickerHoldSec(mediaElement) * 1000 - MEDIA_FADE_MS);
 		setTimeout(function() {
 			removeMediaElement(container);
@@ -428,7 +507,6 @@
 
 	<script>
 	/* <====== Connection ======> */
-	const startBtn = document.getElementById('start-btn');
 	const statusEl = document.getElementById('connection-status');
 	const STATUS_LOST = '⚠️ WEB SOCKET DISCONNECTED - RETRYING...';
 	const STATUS_CLOSED = 'ytmemchat is closed — reconnecting when it starts…';
@@ -505,17 +583,7 @@
 		};
 	}
 
-	startBtn.addEventListener('click', async function() {
-		if (!audioContext) {
-			audioContext = new (window.AudioContext || window.webkitAudioContext)();
-		}
-		if (audioContext.state === 'suspended') {
-			await audioContext.resume();
-		}
-		console.log('AudioContext is active:', audioContext.state);
-		startBtn.style.display = 'none';
-		connectWebSocket();
-	});
+	connectWebSocket();
 	</script>
 </body>
 

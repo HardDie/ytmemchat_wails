@@ -29,7 +29,7 @@ Use option 3.
 1. `let websocket = null`.
 2. The only `new WebSocket` is inside `connectWebSocket`.
 3. Chat calls it on load.
-4. Overlay calls it after “Enable Audio & Connect”.
+4. Overlay also calls it on load ([024](024-obs-html-audio-sticker.md)).
 5. No 300ms wait on first connect.
 6. That wait existed to finish `CLOSING` on the dummy socket.
 7. It was not an AudioContext or OBS load requirement in this repo.
@@ -37,6 +37,7 @@ Use option 3.
 9. `onclose` sets `websocket = null` before that timer.
 10. Do not `close()` then `new WebSocket` on the same tick for first connect.
 11. Do not put the 300ms delay back unless OBS CEF fails a same-tick first connect.
+12. Overlay also calls `connectWebSocket` on load ([024](024-obs-html-audio-sticker.md)).
 
 ## Consequences
 
@@ -52,5 +53,5 @@ Use option 3.
 
 ### Neutral
 
-* Overlay still needs Interact / the audio button.
+* Overlay load connect and HTML audio: [024](024-obs-html-audio-sticker.md).
 * Review notes: `docs/obs-html-review.md` item 1.

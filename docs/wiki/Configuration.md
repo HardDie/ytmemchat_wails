@@ -22,7 +22,7 @@ Alerts and TTS both play on the overlay page, not in the operator window. Add an
 http://127.0.0.1:8080/obs/overlay
 ```
 
-Click **Interact** on that source once and use the page’s enable-audio control so the browser is allowed to autoplay sound. Chat Browser Source query parameters are on [Chat URL](Chat-URL).
+TTS and command audio play through a fading HTML sticker (no click). The sticker is invisible by default; `?debugAudio=1` shows a green square. A desktop Chrome tab may still block autoplay; OBS Browser Source usually does not. Chat Browser Source query parameters are on [Chat URL](Chat-URL).
 
 ---
 
@@ -90,7 +90,7 @@ If Alerts is off, every chat line can be spoken (including `@jump` as ordinary t
 
 ## Interrupt shortcut
 
-Stops **current and queued TTS** on the overlay. It does not stop a meme alert that is already playing.
+Stops **only the TTS line that is playing**. Queued speech still plays. It does not stop a meme alert that is already playing.
 
 On by default. Default combination is `Ctrl+Shift+I` (Control, not Command, so it does not steal macOS app shortcuts).
 
