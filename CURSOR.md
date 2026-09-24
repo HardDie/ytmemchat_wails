@@ -161,6 +161,7 @@ Chat query `?transparent=1`:
 18. Overlay alerts may overlap. Interrupt is TTS only ([020](docs/architecture/020-obs-html-alert-overlap.md)).
 19. In-flight TTS decode is dropped after interrupt / teardown ([019](docs/architecture/019-obs-html-tts-queue.md)).
 20. Overlay placement follows `resize` ([021](docs/architecture/021-obs-html-resize-placement.md)).
+21. Overlay audio alerts drop after `max(duration, 5s)` ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 
 Do not invent a parallel Wails Events protocol for OBS.
 

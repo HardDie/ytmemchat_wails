@@ -138,6 +138,9 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(htmlOv, `charset="UTF-8"`) {
 		t.Fatal("overlay html must set UTF-8 charset")
 	}
+	if !strings.Contains(htmlOv, "scheduleAudioTeardown") {
+		t.Fatal("overlay audio alerts must drop after max(duration, min sticker time)")
+	}
 }
 
 func overlayJSFunc(html, name string) string {

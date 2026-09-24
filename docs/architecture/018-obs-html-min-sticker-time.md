@@ -43,6 +43,9 @@ Use option 2.
 14. Audio-only also drops on `error` / `abort`.
 15. Audio that never reaches `loadedmetadata` is dropped after 5s.
 16. `.gif` is `<img>`, not `<video>`.
+17. After audio metadata, drop after `max(duration, 5s)`.
+18. That audio timer does not subtract fade (no picture).
+19. Audio `ended` / `error` / `abort` still drop immediately. Drop is idempotent.
 
 ## Consequences
 
@@ -57,4 +60,4 @@ Use option 2.
 
 ### Neutral
 
-* Review notes: `docs/obs-html-review.md` items 6, 7, and 8.
+* Review notes: `docs/obs-html-review.md` items 6, 7, 8, and 13.

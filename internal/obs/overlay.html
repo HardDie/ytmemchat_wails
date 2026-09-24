@@ -201,7 +201,11 @@
 			audioElement.volume = volume;
 			let audioReady = false;
 			const drop = function() {
+				if (audioElement.dataset.removed) return;
+				audioElement.dataset.removed = '1';
 				try { audioElement.pause(); } catch (e) { /* ignore */ }
+				audioElement.removeAttribute('src');
+				try { audioElement.load(); } catch (e) { /* ignore */ }
 				audioElement.remove();
 			};
 			audioElement.addEventListener('ended', drop);
@@ -209,6 +213,7 @@
 			audioElement.addEventListener('abort', drop);
 			audioElement.addEventListener('loadedmetadata', function() {
 				audioReady = true;
+				scheduleAudioTeardown(audioElement, drop);
 			});
 			setTimeout(function() {
 				if (!audioReady) {
@@ -332,13 +337,21 @@
 			});
 	}
 
-	function scheduleVideoTeardown(mediaElement, container) {
+	function stickerHoldSec(mediaElement) {
 		const d = mediaElement.duration;
 		let sec = MIN_STICKER_PLAYING_SEC;
 		if (Number.isFinite(d) && d > 0) {
 			sec = Math.max(d, MIN_STICKER_PLAYING_SEC);
 		}
-		const fadeAt = Math.max(0, sec * 1000 - MEDIA_FADE_MS);
+		return sec;
+	}
+
+	function scheduleAudioTeardown(audioElement, drop) {
+		setTimeout(drop, stickerHoldSec(audioElement) * 1000);
+	}
+
+	function scheduleVideoTeardown(mediaElement, container) {
+		const fadeAt = Math.max(0, stickerHoldSec(mediaElement) * 1000 - MEDIA_FADE_MS);
 		setTimeout(function() {
 			removeMediaElement(container);
 		}, fadeAt);
