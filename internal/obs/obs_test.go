@@ -102,6 +102,32 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(string(ob), "!laidOut") {
 		t.Fatal("overlay html must drop media that never loads")
 	}
+	htmlOv := string(ob)
+	intFn := overlayJSFunc(htmlOv, "interruptCurrentTTS")
+	if intFn == "" {
+		t.Fatal("overlay html must define interruptCurrentTTS")
+	}
+	if strings.Contains(intFn, "alertQueue = []") {
+		t.Fatal("tts_interrupt must not flush the TTS queue")
+	}
+	clearFn := overlayJSFunc(htmlOv, "clearOverlayPlayback")
+	if !strings.Contains(clearFn, "alertQueue = []") {
+		t.Fatal("overlay teardown must dump the TTS queue")
+	}
+}
+
+func overlayJSFunc(html, name string) string {
+	sig := "function " + name + "("
+	start := strings.Index(html, sig)
+	if start < 0 {
+		return ""
+	}
+	rest := html[start+len(sig):]
+	next := strings.Index(rest, "\n\tfunction ")
+	if next < 0 {
+		return html[start:]
+	}
+	return html[start : start+len(sig)+next]
 }
 
 func TestChatTrailingSlashNotFound(t *testing.T) {

@@ -144,8 +144,7 @@
 		processQueue();
 	}
 
-	function interruptCurrentTTS() {
-		alertQueue = [];
+	function stopCurrentTTSSource() {
 		if (currentTtsSource) {
 			try {
 				currentTtsSource.stop();
@@ -154,7 +153,12 @@
 			}
 			currentTtsSource = null;
 		}
+	}
+
+	function interruptCurrentTTS() {
+		stopCurrentTTSSource();
 		isPlaying = false;
+		processQueue();
 	}
 
 	function clearOverlayPlayback() {
@@ -170,7 +174,9 @@
 			try { el.pause(); } catch (e) { /* ignore */ }
 			el.remove();
 		});
-		interruptCurrentTTS();
+		alertQueue = [];
+		stopCurrentTTSSource();
+		isPlaying = false;
 	}
 
 	function displayMediaAlert(filename, volume, scale) {
@@ -293,6 +299,9 @@
 				source.onended = function() {
 					source.disconnect();
 					gainNode.disconnect();
+					if (currentTtsSource !== source) {
+						return;
+					}
 					currentTtsSource = null;
 					onMediaFinished();
 				};

@@ -154,6 +154,7 @@ Chat query `?transparent=1`:
 13. OBS pages recover without reload ([017](docs/architecture/017-obs-html-recover-no-reload.md)).
 14. Overlay video min play 5s ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 15. Overlay TTS queue ([019](docs/architecture/019-obs-html-tts-queue.md)).
+16. `tts_interrupt` stops only the playing TTS. Queue stays.
 
 Do not invent a parallel Wails Events protocol for OBS.
 
