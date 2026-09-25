@@ -315,7 +315,7 @@
                         type="button"
                         title={canTest ? 'Play this command on the OBS overlay' : 'OBS overlay is offline'}
                         on:click={() => { closeMenu(); onTest(i) }}
-                      >Test on overlay</button>
+                      >Play</button>
                       <button class="menu-danger" type="button" on:click={() => requestDelete(i)}>Delete</button>
                     {/if}
                   </div>
