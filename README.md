@@ -14,7 +14,7 @@ A viewer types a command in chat. A visual alert shows on top of the stream, or 
 
 This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) desktop app. You configure and start the pipeline in a native window. OBS Browser Sources load local HTTP pages that update over WebSocket. The Wails window is a control panel; it is not the on-stream chat renderer.
 
-**Project status:** early development. Start/Stop YouTube chat from Home. Alerts and TTS play on the overlay.
+**Project status:** ready to use. Start and stop YouTube chat from Home. Alerts and text-to-speech play on the OBS overlay.
 
 ## Features
 
