@@ -1,10 +1,16 @@
 * [Home](Home)
-* [Getting Started](Getting-Started)
-* [Running on macOS](Running-on-macOS)
-* [Chat URL](Chat-URL)
-* [Configuration](Configuration)
-* [Commands](Commands)
-* [Test](Test)
-* [YouTube API key](YouTube-API-key)
-* [Update](Update)
+* Start
+  * [Getting Started](Getting-Started)
+  * [Running on macOS](Running-on-macOS)
+* OBS
+  * [Chat URL](Chat-URL)
+* Setup
+  * [Configuration](Configuration)
+  * [Setting up commands](Setting-up-commands)
+    * [Commands](Commands)
+  * [Text to speech](Text-to-speech)
+  * [YouTube API key](YouTube-API-key)
+* Tools
+  * [Test](Test)
+  * [Update](Update)
 * [Contributing](Contributing)

@@ -1,6 +1,6 @@
 # Commands
 
-The **Commands** pane edits the YAML file used for overlay alerts. It is not shown on stream. Set the file path and media folder on [Configuration](Configuration) first (Alerts on), then return here.
+The **Commands** pane edits the YAML file used for overlay alerts. It is not shown on stream. Set the file path and media folder on [Configuration](Configuration) first (Alerts on), then return here. The full path (OBS Browser Source included) is [Setting up commands](Setting-up-commands).
 
 ![Commands pane](https://raw.githubusercontent.com/HardDie/ytmemchat_wails/main/docs/screenshots/commands.png)
 

@@ -4,7 +4,7 @@ The **Test** pane injects one chat line into the same alerts-then-TTS path as li
 
 ![Test pane: Send a fake chat line and Flush chat](https://raw.githubusercontent.com/HardDie/ytmemchat_wails/main/docs/screenshots/test.png)
 
-Open the [Chat](Chat-URL) and [overlay](Configuration#alerts-run-before-tts) Browser Sources first. Overlay sound needs no **Interact** click.
+Open the [Chat](Chat-URL) and [overlay](Configuration#alerts-run-before-tts) Browser Sources first.
 
 ## Send
 

@@ -64,14 +64,12 @@ http://127.0.0.1:8080/obs/chat?cap=none
 http://127.0.0.1:8080/obs/overlay
 ```
 
-The page is already transparent. TTS and command audio play with **no click** in an OBS Browser Source. There is no Enable Audio button.
+The page is already transparent. Setup is on [Setting up commands](Setting-up-commands) and [Text to speech](Text-to-speech).
 
 | Parameter | Default | Values | What it changes |
 |---|---|---|---|
 | `debugAudio` | off | `1` or `true` | Shows a green square while TTS or command audio plays. Off: nothing on screen for sound-only alerts. |
 
 The same `v` query is added on this page. Do not put it in the Browser Source URL.
-
-A desktop Chrome tab may still block `play()`. OBS Browser Source does not.
 
 Then continue with [Getting Started](Getting-Started) (Start chat) or [Configuration](Configuration) (port and overlay).

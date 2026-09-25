@@ -14,7 +14,7 @@ Each new chat line is handled in this order:
 2. If **Alerts** is on and the text matches a command, the **overlay** plays that media. TTS is skipped for that line.
 3. If there was no alert match and **Text to speech** is on, the overlay speaks the line.
 
-So a viewer who types `@jump` sees the message in chat and gets the jump clip. The message is **not** read aloud. A line with no matching command can be spoken.
+So a viewer who types `@jump` sees the message in chat and gets the jump clip. The message is **not** read aloud. A line with no matching command can be spoken. Step-by-step: [Setting up commands](Setting-up-commands) and [Text to speech](Text-to-speech).
 
 Alerts and TTS both play on the overlay page, not in the operator window. Add an OBS **Browser Source** for:
 
@@ -22,7 +22,7 @@ Alerts and TTS both play on the overlay page, not in the operator window. Add an
 http://127.0.0.1:8080/obs/overlay
 ```
 
-TTS and command audio play through a fading HTML sticker (no click). The sticker is invisible by default; `?debugAudio=1` shows a green square. A desktop Chrome tab may still block autoplay; OBS Browser Source usually does not. Chat Browser Source query parameters are on [Chat URL](Chat-URL).
+Sound-only TTS and command audio draw nothing. Chat Browser Source query parameters are on [Chat URL](Chat-URL).
 
 ---
 
