@@ -31,6 +31,6 @@ commands:
     scale: 1.2
 ```
 
-**Add command** appends a row. **Save YAML** writes the file. **Reload** discards unsaved edits. Sort by Command or Filename only changes the order on screen until you save. The per-row test control sends that clip to the overlay without a live chat line.
+**Add command** appends a row. **Save YAML** writes the file. **Reload** discards unsaved edits. Sort by Command or Filename only changes the order on screen until you save. **Play random** sends one command that has a file, chosen at random, using the volume and scale currently in the editor. Commands with a blank file are skipped. The per-row menu still has **Test on overlay** for one specific command. Both need the overlay listening.
 
 The folder icon on File needs a media folder on Configuration. Paths outside that folder are rejected.

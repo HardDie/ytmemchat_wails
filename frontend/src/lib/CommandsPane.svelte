@@ -108,6 +108,27 @@
     onReorder([...rows].sort((a, b) => cmp(a[field], b[field])))
   }
 
+  function playableIndexes(list: typeof rows): number[] {
+    const out: number[] = []
+    list.forEach((row, i) => {
+      if (row.file.trim()) {
+        out.push(i)
+      }
+    })
+    return out
+  }
+
+  $: playable = playableIndexes(rows)
+  $: canPlayRandom = canTest && playable.length > 0
+
+  function playRandom(): void {
+    if (!canPlayRandom) {
+      return
+    }
+    const index = playable[Math.floor(Math.random() * playable.length)]
+    void onTest(index)
+  }
+
   function clampDecimal(raw: string): string {
     let s = raw.replace(/,/g, '.').replace(/[^\d.]/g, '')
     const dot = s.indexOf('.')
@@ -312,6 +333,13 @@
   <div class="pane-footer">
     <div class="actions">
       <button class="btn" disabled={loading || !path} type="button" on:click={addAndFocus}>Add command</button>
+      <button
+        class="btn"
+        disabled={loading || !canPlayRandom}
+        title={canTest ? (playable.length ? 'Play a random command on the OBS overlay' : 'Add a command with a file') : 'OBS overlay is offline'}
+        type="button"
+        on:click={playRandom}
+      >Play random</button>
       <button class="btn" disabled={loading || saving} type="button" on:click={onReload}>Reload</button>
       <button
         class="btn btn-primary"

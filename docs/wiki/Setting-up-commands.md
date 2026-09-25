@@ -95,6 +95,6 @@ A file the overlay cannot load disappears. Check that the name in **File** exist
 
 ## Try it without YouTube
 
-On **Commands**, open the row menu and click **Test on overlay**. That sends the clip with no chat line. The overlay Browser Source must be open (Home shows **Listening**).
+On **Commands**, **Play random** sends one command that has a file. Open a row menu and click **Test on overlay** to send one specific clip. Neither needs a chat line. The overlay Browser Source must be open (Home shows **Listening**).
 
 On **Test**, type `@jump` and click **Send**. The chat page shows author `test`, and the overlay plays the clip. **Start** is not required. See [Test](Test).

@@ -336,7 +336,8 @@
       const volume = row.volume.trim() ? Number(row.volume) : 1
       const scale = row.scale.trim() ? Number(row.scale) : 1
       await PreviewAlert(row.file.trim(), volume, scale)
-      status = 'Alert sent to overlay'
+      const label = row.name.trim()
+      status = label ? `Alert sent to overlay: ${label}` : 'Alert sent to overlay'
     } catch (e) {
       error = String(e)
     }
