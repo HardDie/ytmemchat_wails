@@ -31,3 +31,4 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [025](025-obs-html-shared-script.md) | Chat and overlay share one socket script | Accepted |
 | [026](026-obs-html-version-query.md) | OBS pages and sockets carry the app version | Accepted |
 | [027](027-default-commands-yaml-in-media-folder.md) | Default commands.yaml lives in the media folder | Accepted |
+| [028](028-commands-pane-unique-names.md) | Commands pane blocks duplicate names before save | Accepted |

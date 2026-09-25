@@ -259,6 +259,7 @@ Idiomatic pattern:
    28. GitHub self-update is [013](docs/architecture/013-github-self-update.md).
    29. Empty `commandsFilePath` uses `<mediaPath>/commands.yaml` ([027](docs/architecture/027-default-commands-yaml-in-media-folder.md)).
    30. A missing default `commands.yaml` skips the matcher. A missing custom file fails Start.
+   31. Commands pane blocks Save YAML when two names match ignoring case ([028](docs/architecture/028-commands-pane-unique-names.md)).
 7. **What belongs here**
    1. Stream ID (required to Start).
    2. Optional YouTube API key.
@@ -279,6 +280,7 @@ Idiomatic pattern:
    17. **What does not**: chat history, live iterator state.
    18. **Update**: check GitHub, download, quit and replace.
    19. Alerts YAML defaults to `<media folder>/commands.yaml`. Custom path is optional ([027](docs/architecture/027-default-commands-yaml-in-media-folder.md)).
+   20. Duplicate command names are flagged on the Name field. Save stays off until they differ ([028](docs/architecture/028-commands-pane-unique-names.md)).
 8. **API key**
    1. Optional.
    2. Empty means use `youtube/nokey`.

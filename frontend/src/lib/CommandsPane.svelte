@@ -19,6 +19,45 @@
 
   let menu = -1
   let confirmDelete = -1
+  let namesTick = 0
+
+  function nameKey(name: string): string {
+    return name.trim().toLowerCase()
+  }
+
+  function onNameInput(row: { name: string }, ev: Event): void {
+    row.name = (ev.currentTarget as HTMLInputElement).value
+    namesTick += 1
+  }
+
+  function collectDuplicateNames(list: typeof rows, tick: number): Set<string> {
+    void tick
+    const counts = new Map<string, number>()
+    for (const row of list) {
+      const key = nameKey(row.name)
+      if (key === '') {
+        continue
+      }
+      counts.set(key, (counts.get(key) ?? 0) + 1)
+    }
+    const dup = new Set<string>()
+    for (const [key, n] of counts) {
+      if (n > 1) {
+        dup.add(key)
+      }
+    }
+    return dup
+  }
+
+  $: duplicateNames = collectDuplicateNames(rows, namesTick)
+  $: hasDuplicateNames = duplicateNames.size > 0
+
+  async function save(): Promise<void> {
+    if (hasDuplicateNames) {
+      return
+    }
+    await onSave()
+  }
 
   function closeMenu(): void {
     menu = -1
@@ -155,7 +194,19 @@
             <div class="command-main">
               <label class="field">
                 Name
-                <input autocomplete="off" bind:value={row.name} placeholder="jump" spellcheck="false" type="text" />
+                <input
+                  autocomplete="off"
+                  class:name-dup={duplicateNames.has(nameKey(row.name))}
+                  aria-invalid={duplicateNames.has(nameKey(row.name))}
+                  value={row.name}
+                  placeholder="jump"
+                  spellcheck="false"
+                  type="text"
+                  on:input={(e) => onNameInput(row, e)}
+                />
+                {#if duplicateNames.has(nameKey(row.name))}
+                  <span class="name-error">This command already exists</span>
+                {/if}
               </label>
               <label class="field">
                 File
@@ -245,7 +296,13 @@
     <div class="actions">
       <button class="btn" disabled={loading || !path} type="button" on:click={onAdd}>Add command</button>
       <button class="btn" disabled={loading || saving} type="button" on:click={onReload}>Reload</button>
-      <button class="btn btn-primary" disabled={loading || saving} type="button" on:click={onSave}>
+      <button
+        class="btn btn-primary"
+        disabled={loading || saving || hasDuplicateNames}
+        title={hasDuplicateNames ? 'Fix duplicate command names before saving' : undefined}
+        type="button"
+        on:click={save}
+      >
         {saving ? 'Saving…' : 'Save YAML'}
       </button>
     </div>
