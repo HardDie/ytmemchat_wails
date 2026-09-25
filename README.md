@@ -6,6 +6,12 @@
 
 ytmemchat is a desktop companion for [YouTube](https://www.youtube.com/) Live. It reads live chat and drives an [OBS](https://obsproject.com/) overlay: on-stream messages, meme alerts, and text-to-speech.
 
+## Who it's for
+
+YouTube Live streamers with a small audience who want every viewer to take part for free.
+
+A viewer types a command in chat. A visual alert shows on top of the stream, or an audio command plays. The streamer can also read text messages aloud, so each line is heard. Viewers feel noticed and stay involved.
+
 This repository is a [Wails](https://wails.io) + [Svelte](https://svelte.dev) desktop app. You configure and start the pipeline in a native window. OBS Browser Sources load local HTTP pages that update over WebSocket. The Wails window is a control panel; it is not the on-stream chat renderer.
 
 **Project status:** early development. Start/Stop YouTube chat from Home. Alerts and TTS play on the overlay.
