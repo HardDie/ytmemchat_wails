@@ -145,6 +145,8 @@
   })
 </script>
 
+<div class="pane-dock">
+<div class="pane-scroll">
 <p class="lead">Stored on this machine. Chat and overlay URLs are on Home.</p>
 
 <section class="card">
@@ -318,12 +320,15 @@
   <p class="hint">For external automation. The Test pane does not require this.</p>
 </section>
 
-<div class="actions">
-  <button class="btn btn-primary" disabled={saving} type="button" on:click={onSave}>
-    {saving ? 'Saving…' : 'Save changes'}
-  </button>
-</div>
-
 {#if configPath}
   <p class="path">Settings file <code>{configPath}</code></p>
 {/if}
+</div>
+<div class="pane-footer">
+  <div class="actions">
+    <button class="btn btn-primary" disabled={saving} type="button" on:click={onSave}>
+      {saving ? 'Saving…' : 'Save changes'}
+    </button>
+  </div>
+</div>
+</div>

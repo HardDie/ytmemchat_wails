@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, onMount } from 'svelte'
+  import { onDestroy, onMount, tick } from 'svelte'
 
   export let path: string
   export let rows: Array<{ name: string; file: string; volume: string; scale: string }>
@@ -20,6 +20,7 @@
   let menu = -1
   let confirmDelete = -1
   let namesTick = 0
+  let paneScroll: HTMLElement
 
   function nameKey(name: string): string {
     return name.trim().toLowerCase()
@@ -57,6 +58,15 @@
       return
     }
     await onSave()
+  }
+
+  async function addAndFocus(): Promise<void> {
+    onAdd()
+    await tick()
+    const row = paneScroll?.querySelector<HTMLElement>('.command-row:last-child')
+    const name = row?.querySelector<HTMLInputElement>('.command-main input')
+    row?.scrollIntoView({ block: 'end' })
+    name?.focus({ preventScroll: true })
   }
 
   function closeMenu(): void {
@@ -159,6 +169,8 @@
   }
 </script>
 
+<div class="pane-dock">
+<div class="pane-scroll" bind:this={paneScroll}>
 <p class="lead">Edits the YAML file used for overlay alerts. Leave volume and scale blank to omit them (playback uses 1). When set, they must be non-negative numbers with at most two digits after the decimal point. The folder icon on File picks a file inside the Config media folder (including subfolders) and stores the path without that folder prefix.</p>
 
 {#if !path}
@@ -293,8 +305,13 @@
         {/each}
       </div>
     {/if}
+  </section>
+{/if}
+</div>
+{#if path}
+  <div class="pane-footer">
     <div class="actions">
-      <button class="btn" disabled={loading || !path} type="button" on:click={onAdd}>Add command</button>
+      <button class="btn" disabled={loading || !path} type="button" on:click={addAndFocus}>Add command</button>
       <button class="btn" disabled={loading || saving} type="button" on:click={onReload}>Reload</button>
       <button
         class="btn btn-primary"
@@ -306,5 +323,6 @@
         {saving ? 'Saving…' : 'Save YAML'}
       </button>
     </div>
-  </section>
+  </div>
 {/if}
+</div>
