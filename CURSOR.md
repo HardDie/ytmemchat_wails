@@ -247,7 +247,7 @@ Idiomatic pattern:
    16. Connect runs in a goroutine.
    17. After each chat line (YouTube, `POST /api/webhook`, or **Send**): overlay `alert` on a command match, else TTS when enabled.
    18. Inject/test run while OBS HTTP is up. YouTube Start is not required.
-   19. Empty `commandsFilePath` skips the matcher.
+   19. Empty `commandsFilePath` with no media folder skips the matcher.
    20. A bad commands file fails Start (inject logs and skips the matcher).
    21. `SaveAlertCommands` writes `commands.yaml` (omits unset `volume`/`scale`).
    22. Save reloads the matcher without YouTube Start.
@@ -257,6 +257,8 @@ Idiomatic pattern:
    26. `make version` writes that tag into `wails.json` (`make dev` / `make build` do this first).
    27. Windows VERSIONINFO uses that same tag (`FileVersion` / `ProductVersion`; binary 4-part adds `.0`).
    28. GitHub self-update is [013](docs/architecture/013-github-self-update.md).
+   29. Empty `commandsFilePath` uses `<mediaPath>/commands.yaml` ([027](docs/architecture/027-default-commands-yaml-in-media-folder.md)).
+   30. A missing default `commands.yaml` skips the matcher. A missing custom file fails Start.
 7. **What belongs here**
    1. Stream ID (required to Start).
    2. Optional YouTube API key.
@@ -276,6 +278,7 @@ Idiomatic pattern:
    16. **Test**: send a fake chat line.
    17. **What does not**: chat history, live iterator state.
    18. **Update**: check GitHub, download, quit and replace.
+   19. Alerts YAML defaults to `<media folder>/commands.yaml`. Custom path is optional ([027](docs/architecture/027-default-commands-yaml-in-media-folder.md)).
 8. **API key**
    1. Optional.
    2. Empty means use `youtube/nokey`.

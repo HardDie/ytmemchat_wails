@@ -52,6 +52,7 @@ func TestInject_alertWithoutStart(t *testing.T) {
 		f.AlertsEnabled = true
 		f.AlertsToken = "@"
 		f.AlertsCommandsFilePath = yaml
+		f.AlertsCommandsFileCustom = true
 		f.TTSEnabled = true
 	})
 	obsSt := a.GetOBSStatus()

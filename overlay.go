@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
+	"os"
 	"strings"
 	"sync"
 
@@ -141,15 +143,26 @@ func defaultMatcher(s config.Settings, srv *obs.Server) (alertMatcher, error) {
 	if !s.Alerts.Enabled {
 		return nil, nil
 	}
-	if strings.TrimSpace(s.Alerts.CommandsFilePath) == "" {
+	path := s.Alerts.EffectiveCommandsPath()
+	if path == "" {
 		slog.Info("alerts enabled but commandsFilePath is empty; skipping matcher")
 		return nil, nil
+	}
+	if strings.TrimSpace(s.Alerts.CommandsFilePath) == "" {
+		_, err := os.Stat(path)
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				slog.Info("alerts enabled but default commands.yaml is missing; skipping matcher")
+				return nil, nil
+			}
+			return nil, fmt.Errorf("alerts commands file: %w", err)
+		}
 	}
 	out := make(chan alerts.Clip, 1)
 	inner, err := alerts.New(alerts.Config{
 		Token:            s.Alerts.Token,
 		MediaPath:        s.Alerts.MediaPath,
-		CommandsFilePath: s.Alerts.CommandsFilePath,
+		CommandsFilePath: path,
 		Out:              out,
 	})
 	if err != nil {

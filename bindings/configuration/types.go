@@ -19,7 +19,10 @@ type SettingsForm struct {
 	// AlertsMediaPath is the directory served at /obs/media/.
 	AlertsMediaPath string `json:"alertsMediaPath"`
 	// AlertsCommandsFilePath is the YAML command list.
+	// GetSettings returns the effective path. Save stores a custom path only.
 	AlertsCommandsFilePath string `json:"alertsCommandsFilePath"`
+	// AlertsCommandsFileCustom shows the path field. Off stores an empty path.
+	AlertsCommandsFileCustom bool `json:"alertsCommandsFileCustom"`
 	// WebhookEnabled serves POST /api/webhook and /api/interrupt.
 	WebhookEnabled bool `json:"webhookEnabled"`
 	// InterruptHotkeyEnabled registers an OS-wide interrupt shortcut.

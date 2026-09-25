@@ -65,6 +65,7 @@ export namespace configuration {
 	    alertsToken: string;
 	    alertsMediaPath: string;
 	    alertsCommandsFilePath: string;
+	    alertsCommandsFileCustom: boolean;
 	    webhookEnabled: boolean;
 	    interruptHotkeyEnabled: boolean;
 	    interruptHotkeyChord: string;
@@ -86,6 +87,7 @@ export namespace configuration {
 	        this.alertsToken = source["alertsToken"];
 	        this.alertsMediaPath = source["alertsMediaPath"];
 	        this.alertsCommandsFilePath = source["alertsCommandsFilePath"];
+	        this.alertsCommandsFileCustom = source["alertsCommandsFileCustom"];
 	        this.webhookEnabled = source["webhookEnabled"];
 	        this.interruptHotkeyEnabled = source["interruptHotkeyEnabled"];
 	        this.interruptHotkeyChord = source["interruptHotkeyChord"];

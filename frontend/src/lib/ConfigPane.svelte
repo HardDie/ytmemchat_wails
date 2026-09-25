@@ -12,6 +12,7 @@
   export let alertsToken: string
   export let alertsMediaPath: string
   export let alertsCommandsFilePath: string
+  export let alertsCommandsFileCustom: boolean
   export let webhookEnabled: boolean
   export let interruptHotkeyEnabled: boolean
   export let interruptHotkeyChord: string
@@ -206,21 +207,27 @@
     </label>
     <p class="hint">Single character, for example <code>@</code>.</p>
     <label class="field">
-      commands.yaml
-      <span class="path-row">
-        <input autocomplete="off" bind:value={alertsCommandsFilePath} spellcheck="false" type="text" />
-        <button class="btn btn-small" type="button" on:click={onPickYaml}>Browse</button>
-      </span>
-    </label>
-    <p class="hint">Edit names, files, volume, and scale in the Commands pane after this path is saved.</p>
-    <label class="field">
       Media folder
       <span class="path-row">
         <input autocomplete="off" bind:value={alertsMediaPath} spellcheck="false" type="text" />
         <button class="btn btn-small" type="button" on:click={onPickMedia}>Browse</button>
       </span>
     </label>
-    <p class="hint">Files are served at <code>/obs/media/</code>. An empty YAML path skips matching; a bad file fails Start.</p>
+    <p class="hint">Files are served at <code>/obs/media/</code>. <code>commands.yaml</code> in this folder is created when you save the first command.</p>
+    <label class="toggle">
+      Use custom commands.yaml path
+      <input bind:checked={alertsCommandsFileCustom} type="checkbox" />
+    </label>
+    {#if alertsCommandsFileCustom}
+      <label class="field">
+        commands.yaml
+        <span class="path-row">
+          <input autocomplete="off" bind:value={alertsCommandsFilePath} spellcheck="false" type="text" />
+          <button class="btn btn-small" type="button" on:click={onPickYaml}>Browse</button>
+        </span>
+      </label>
+      <p class="hint">Edit names, files, volume, and scale in the Commands pane after this path is saved. A missing custom file fails Start.</p>
+    {/if}
   {/if}
 </section>
 

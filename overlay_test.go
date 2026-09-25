@@ -95,6 +95,45 @@ func TestDispatchChat_nilMessage(t *testing.T) {
 	}
 }
 
+func TestStart_missingDefaultCommandsFile(t *testing.T) {
+	store := config.NewStore(t.TempDir() + "/c.json")
+	a := newAppWithStore(store)
+	a.listenOverride = "127.0.0.1:0"
+	a.skipHTTP = false
+	a.mu.Lock()
+	if err := a.startHTTPLocked(); err != nil {
+		a.mu.Unlock()
+		t.Fatal(err)
+	}
+	a.mu.Unlock()
+	t.Cleanup(func() {
+		a.Stop()
+		a.mu.Lock()
+		a.stopHTTPLocked()
+		a.mu.Unlock()
+	})
+	media := t.TempDir()
+	savePatched(t, a, func(f *SettingsForm) {
+		f.StreamID = "vid"
+		f.Port = "8080"
+		f.AlertsEnabled = true
+		f.AlertsToken = "@"
+		f.AlertsMediaPath = media
+		f.AlertsCommandsFileCustom = false
+	})
+	a.newSynth = func(config.Settings, *obs.Server) (synthesizer, error) {
+		return synthFunc(func(string) error { return nil }), nil
+	}
+	ch := make(chan *youtube.ChatMessage, 1)
+	a.clientFn = func(config.Settings) (youtube.Client, error) {
+		return &fakeClient{it: &fakeIterator{ch: ch}}, nil
+	}
+	if err := a.Start(); err != nil {
+		t.Fatal(err)
+	}
+	a.Stop()
+}
+
 func TestStart_missingCommandsFile(t *testing.T) {
 	store := config.NewStore(t.TempDir() + "/c.json")
 	a := newAppWithStore(store)

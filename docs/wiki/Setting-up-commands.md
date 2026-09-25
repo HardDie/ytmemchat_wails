@@ -15,13 +15,13 @@ Alerts are off on first launch. Finish [Getting Started](Getting-Started) first 
 1. Open **Configuration**.
 2. Turn **Alerts** on.
 3. Leave **Command token** at `@` unless you want a different single character.
-4. Set **commands.yaml** to a path on this machine. **Browse** picks an existing `.yaml` or `.yml`. You can also type a new path; the file is created when you save commands later.
-5. Set **Media folder** to the directory that holds the clips. **Browse** picks a folder.
+4. Set **Media folder** to the directory that holds the clips. **Browse** picks a folder. `commands.yaml` is created in that folder when you save the first command.
+5. Leave **Use custom commands.yaml path** off unless the YAML file lives somewhere else. **Browse** picks an existing `.yaml` or `.yml`.
 6. Click **Save changes**.
 
 ![Configuration pane with Alerts on](https://raw.githubusercontent.com/HardDie/ytmemchat_wails/main/docs/screenshots/config.png)
 
-If the YAML path is empty, matching is skipped and Start still works. A missing, unreadable, or invalid file **fails Start**.
+If the media folder is empty, matching is skipped and Start still works. A missing default `commands.yaml` also skips matching. A missing custom file, or invalid YAML, **fails Start**.
 
 ## 2. Add commands
 

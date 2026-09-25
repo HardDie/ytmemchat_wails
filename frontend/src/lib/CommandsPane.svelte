@@ -128,7 +128,7 @@
       <h2>commands.yaml</h2>
       <span class="badge badge-warn">Not set</span>
     </header>
-    <p class="hint">Choose a commands.yaml path in Configuration, then return here to edit it.</p>
+    <p class="hint">Set a media folder in Configuration, or turn on a custom commands.yaml path, then return here.</p>
   </section>
 {:else}
   <section class="card">

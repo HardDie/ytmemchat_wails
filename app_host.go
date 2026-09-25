@@ -63,11 +63,12 @@ func (a *App) DialogContext() context.Context {
 	return a.ctx
 }
 
-// CommandsPath is the saved commands.yaml path.
+// CommandsPath is the commands.yaml path the editor uses.
+// An empty saved path uses commands.yaml inside the media folder.
 func (a *App) CommandsPath() string {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	return a.settings.Alerts.CommandsFilePath
+	return a.settings.Alerts.EffectiveCommandsPath()
 }
 
 // MediaPath is the saved alerts media folder.

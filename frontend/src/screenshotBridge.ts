@@ -17,6 +17,7 @@ const settings = {
   alertsToken: '@',
   alertsMediaPath: '/Users/demo/ytmemchat/media',
   alertsCommandsFilePath: '/Users/demo/ytmemchat/commands.yaml',
+  alertsCommandsFileCustom: true,
   webhookEnabled: false,
   interruptHotkeyEnabled: true,
   interruptHotkeyChord: 'Ctrl+Shift+I',

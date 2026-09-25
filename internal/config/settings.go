@@ -1,6 +1,7 @@
 package config
 
 import (
+	"path/filepath"
 	"strings"
 
 	"github.com/HardDie/ytmemchat_wails/internal/hotkey"
@@ -69,7 +70,34 @@ type Alerts struct {
 	// MediaPath is the directory of alert media files.
 	MediaPath string `json:"mediaPath"`
 	// CommandsFilePath is the YAML file of command names to files.
+	// Empty means <MediaPath>/commands.yaml when MediaPath is set.
 	CommandsFilePath string `json:"commandsFilePath"`
+}
+
+// EffectiveCommandsPath is the YAML file the editor and matcher use.
+// A stored path wins. An empty path uses commands.yaml inside MediaPath.
+func (a Alerts) EffectiveCommandsPath() string {
+	if path := strings.TrimSpace(a.CommandsFilePath); path != "" {
+		return path
+	}
+	media := strings.TrimSpace(a.MediaPath)
+	if media == "" {
+		return ""
+	}
+	return filepath.Join(media, "commands.yaml")
+}
+
+// CommandsFileCustom reports whether CommandsFilePath is a non-default file.
+func (a Alerts) CommandsFileCustom() bool {
+	path := strings.TrimSpace(a.CommandsFilePath)
+	if path == "" {
+		return false
+	}
+	media := strings.TrimSpace(a.MediaPath)
+	if media == "" {
+		return true
+	}
+	return filepath.Clean(path) != filepath.Clean(filepath.Join(media, "commands.yaml"))
 }
 
 // Webhook toggles the local operator HTTP API.

@@ -56,13 +56,15 @@ A single character that marks a command in chat. Default `@`. Example: token `@`
 
 If the token is present but the name is not in `commands.yaml`, that is not an alert. TTS may still speak the line.
 
-### commands.yaml
-
-Path to the YAML file of command names. Edit it in the **Commands** pane after this path is saved. See [Commands](Commands).
-
 ### Media folder
 
 Directory of those files. They are served at `/obs/media/`. The overlay loads `/obs/media/<file>`. If this folder is empty, media URLs 404.
+
+`commands.yaml` is `<media folder>/commands.yaml`. The Commands pane creates that file when you save the first command. See [Commands](Commands).
+
+### Use custom commands.yaml path
+
+Off by default. Turn it on to pick a YAML file outside the media folder. Browse still picks an existing `.yaml` or `.yml`. A missing custom file fails Start. Unchecking this and saving returns to the file inside the media folder. The old custom file stays on disk.
 
 Typical files: sound (`mp3`, `wav`), video (`webm`, `mp4`), or a GIF. Keep files inside this tree; the picker rejects paths outside it.
 

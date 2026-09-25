@@ -3,6 +3,8 @@ package configuration
 
 import (
 	"context"
+	"path/filepath"
+	"strings"
 
 	"github.com/HardDie/ytmemchat_wails/internal/config"
 )
@@ -48,20 +50,21 @@ func (c *Configuration) SaveSettings(in SettingsForm) error {
 
 func formFrom(s config.Settings, hotkeyErr string) SettingsForm {
 	return SettingsForm{
-		StreamID:               s.Youtube.StreamID,
-		APIKey:                 s.Youtube.APIKey,
-		Port:                   s.Server.Port,
-		TTSEnabled:             s.TTS.Enabled,
-		TTSVoiceName:           s.TTS.VoiceName,
-		AlertsEnabled:          s.Alerts.Enabled,
-		AlertsToken:            s.Alerts.Token,
-		AlertsMediaPath:        s.Alerts.MediaPath,
-		AlertsCommandsFilePath: s.Alerts.CommandsFilePath,
-		WebhookEnabled:         s.Webhook.Enabled,
-		InterruptHotkeyEnabled: s.InterruptHotkey.IsEnabled(),
-		InterruptHotkeyChord:   s.InterruptHotkey.Chord,
-		InterruptHotkeyError:   hotkeyErr,
-		APIKeyInKeychain:       s.APIKeyInKeychain,
+		StreamID:                 s.Youtube.StreamID,
+		APIKey:                   s.Youtube.APIKey,
+		Port:                     s.Server.Port,
+		TTSEnabled:               s.TTS.Enabled,
+		TTSVoiceName:             s.TTS.VoiceName,
+		AlertsEnabled:            s.Alerts.Enabled,
+		AlertsToken:              s.Alerts.Token,
+		AlertsMediaPath:          s.Alerts.MediaPath,
+		AlertsCommandsFilePath:   s.Alerts.EffectiveCommandsPath(),
+		AlertsCommandsFileCustom: s.Alerts.CommandsFileCustom(),
+		WebhookEnabled:           s.Webhook.Enabled,
+		InterruptHotkeyEnabled:   s.InterruptHotkey.IsEnabled(),
+		InterruptHotkeyChord:     s.InterruptHotkey.Chord,
+		InterruptHotkeyError:     hotkeyErr,
+		APIKeyInKeychain:         s.APIKeyInKeychain,
 	}
 }
 
@@ -74,9 +77,22 @@ func applyForm(dst *config.Settings, in SettingsForm) {
 	dst.Alerts.Enabled = in.AlertsEnabled
 	dst.Alerts.Token = in.AlertsToken
 	dst.Alerts.MediaPath = in.AlertsMediaPath
-	dst.Alerts.CommandsFilePath = in.AlertsCommandsFilePath
+	dst.Alerts.CommandsFilePath = storedCommandsPath(in.AlertsMediaPath, in.AlertsCommandsFilePath, in.AlertsCommandsFileCustom)
 	dst.Webhook.Enabled = in.WebhookEnabled
 	en := in.InterruptHotkeyEnabled
 	dst.InterruptHotkey.Enabled = &en
 	dst.InterruptHotkey.Chord = in.InterruptHotkeyChord
+}
+
+// storedCommandsPath keeps a custom YAML path. Default mode stores an empty path.
+func storedCommandsPath(media, path string, custom bool) string {
+	path = strings.TrimSpace(path)
+	media = strings.TrimSpace(media)
+	if !custom || path == "" {
+		return ""
+	}
+	if media != "" && filepath.Clean(path) == filepath.Clean(filepath.Join(media, "commands.yaml")) {
+		return ""
+	}
+	return path
 }

@@ -34,6 +34,7 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 		f.AlertsEnabled = true
 		f.AlertsToken = "#"
 		f.AlertsMediaPath = " /tmp/media "
+		f.AlertsCommandsFileCustom = true
 		f.AlertsCommandsFilePath = " /tmp/commands.yaml "
 		f.WebhookEnabled = true
 		f.InterruptHotkeyEnabled = true
@@ -46,7 +47,7 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 	if got.TTSEnabled || got.TTSVoiceName != "Milena" {
 		t.Fatalf("tts %+v", got)
 	}
-	if !got.AlertsEnabled || got.AlertsToken != "#" || got.AlertsMediaPath != "/tmp/media" || got.AlertsCommandsFilePath != "/tmp/commands.yaml" {
+	if !got.AlertsEnabled || got.AlertsToken != "#" || got.AlertsMediaPath != "/tmp/media" || got.AlertsCommandsFilePath != "/tmp/commands.yaml" || !got.AlertsCommandsFileCustom {
 		t.Fatalf("alerts %+v", got)
 	}
 	if !got.WebhookEnabled {
@@ -57,6 +58,61 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 	}
 	if c.ConfigPath() != st.Path() {
 		t.Fatalf("path %q", c.ConfigPath())
+	}
+}
+
+func TestGetSettings_legacyCommandsPath(t *testing.T) {
+	s := config.Defaults()
+	s.Alerts.MediaPath = "/tmp/media"
+	s.Alerts.CommandsFilePath = filepath.Join("/tmp/media", "commands.yaml")
+	got := New(&configStub{settings: s}).GetSettings()
+	if got.AlertsCommandsFileCustom || got.AlertsCommandsFilePath != filepath.Join("/tmp/media", "commands.yaml") {
+		t.Fatalf("legacy default %+v", got)
+	}
+	s.Alerts.CommandsFilePath = "/tmp/other.yaml"
+	got = New(&configStub{settings: s}).GetSettings()
+	if !got.AlertsCommandsFileCustom || got.AlertsCommandsFilePath != "/tmp/other.yaml" {
+		t.Fatalf("other path %+v", got)
+	}
+}
+
+func TestSaveSettings_commandsPathMode(t *testing.T) {
+	c := New(&configStub{settings: config.Defaults(), store: config.NewStore(filepath.Join(t.TempDir(), "config.json"))})
+	savePatched(t, c, func(f *SettingsForm) {
+		f.Port = "8080"
+		f.AlertsMediaPath = "/tmp/media"
+		f.AlertsCommandsFilePath = "/tmp/other.yaml"
+		f.AlertsCommandsFileCustom = false
+	})
+	got := c.GetSettings()
+	if got.AlertsCommandsFileCustom || got.AlertsCommandsFilePath != filepath.Join("/tmp/media", "commands.yaml") {
+		t.Fatalf("default mode %+v", got)
+	}
+	savePatched(t, c, func(f *SettingsForm) {
+		f.AlertsCommandsFilePath = "/tmp/other.yaml"
+		f.AlertsCommandsFileCustom = true
+	})
+	got = c.GetSettings()
+	if !got.AlertsCommandsFileCustom || got.AlertsCommandsFilePath != "/tmp/other.yaml" {
+		t.Fatalf("custom mode %+v", got)
+	}
+	savePatched(t, c, func(f *SettingsForm) {
+		f.AlertsMediaPath = "/tmp/media"
+		f.AlertsCommandsFilePath = filepath.Join("/tmp/media", "commands.yaml")
+		f.AlertsCommandsFileCustom = false
+	})
+	got = c.GetSettings()
+	if got.AlertsCommandsFileCustom {
+		t.Fatalf("legacy default file %+v", got)
+	}
+	savePatched(t, c, func(f *SettingsForm) {
+		f.AlertsMediaPath = "/tmp/media"
+		f.AlertsCommandsFilePath = "/tmp/custom.yaml"
+		f.AlertsCommandsFileCustom = true
+	})
+	got = c.GetSettings()
+	if !got.AlertsCommandsFileCustom || got.AlertsCommandsFilePath != "/tmp/custom.yaml" {
+		t.Fatalf("other path %+v", got)
 	}
 }
 

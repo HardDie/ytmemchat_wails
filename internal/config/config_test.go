@@ -202,6 +202,36 @@ func TestErrorMessages_omitAPIKey(t *testing.T) {
 	}
 }
 
+func TestEffectiveCommandsPath(t *testing.T) {
+	def := Alerts{MediaPath: "/tmp/media"}
+	if got := def.EffectiveCommandsPath(); got != filepath.Join("/tmp/media", "commands.yaml") {
+		t.Fatalf("default = %q", got)
+	}
+	custom := Alerts{MediaPath: "/tmp/media", CommandsFilePath: "/tmp/other.yaml"}
+	if got := custom.EffectiveCommandsPath(); got != "/tmp/other.yaml" {
+		t.Fatalf("custom = %q", got)
+	}
+	if got := (Alerts{}).EffectiveCommandsPath(); got != "" {
+		t.Fatalf("empty = %q", got)
+	}
+}
+
+func TestCommandsFileCustom(t *testing.T) {
+	media := Alerts{MediaPath: "/tmp/media", CommandsFilePath: filepath.Join("/tmp/media", "commands.yaml")}
+	if media.CommandsFileCustom() {
+		t.Fatal("default file is not custom")
+	}
+	if (Alerts{MediaPath: "/tmp/media"}).CommandsFileCustom() {
+		t.Fatal("empty path is not custom")
+	}
+	if !(Alerts{MediaPath: "/tmp/media", CommandsFilePath: "/tmp/other.yaml"}).CommandsFileCustom() {
+		t.Fatal("other path is custom")
+	}
+	if !(Alerts{CommandsFilePath: "/tmp/other.yaml"}).CommandsFileCustom() {
+		t.Fatal("path without media is custom")
+	}
+}
+
 func TestJSON_doesNotRequireEnv(t *testing.T) {
 	var s Settings
 	if err := json.Unmarshal([]byte(`{}`), &s); err != nil {

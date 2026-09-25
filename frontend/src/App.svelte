@@ -52,6 +52,7 @@
   let alertsToken = '@'
   let alertsMediaPath = ''
   let alertsCommandsFilePath = ''
+  let alertsCommandsFileCustom = false
   let webhookEnabled = false
   let interruptHotkeyEnabled = true
   let interruptHotkeyChord = 'Ctrl+Shift+I'
@@ -85,6 +86,7 @@
     alertsToken = s.alertsToken || '@'
     alertsMediaPath = s.alertsMediaPath ?? ''
     alertsCommandsFilePath = s.alertsCommandsFilePath ?? ''
+    alertsCommandsFileCustom = !!s.alertsCommandsFileCustom
     webhookEnabled = !!s.webhookEnabled
     interruptHotkeyEnabled = s.interruptHotkeyEnabled !== false
     interruptHotkeyChord = s.interruptHotkeyChord || 'Ctrl+Shift+I'
@@ -103,6 +105,7 @@
       alertsToken,
       alertsMediaPath,
       alertsCommandsFilePath,
+      alertsCommandsFileCustom,
       webhookEnabled,
       interruptHotkeyEnabled,
       interruptHotkeyChord,
@@ -314,6 +317,7 @@
         return
       }
       alertsCommandsFilePath = p
+      alertsCommandsFileCustom = true
       await save()
     } catch (e) {
       error = String(e)
@@ -500,6 +504,7 @@
           bind:alertsToken
           bind:alertsMediaPath
           bind:alertsCommandsFilePath
+          bind:alertsCommandsFileCustom
           bind:webhookEnabled
           bind:interruptHotkeyEnabled
           bind:interruptHotkeyChord
