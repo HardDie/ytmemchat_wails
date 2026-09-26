@@ -110,13 +110,13 @@
 <style>
   .notices {
     position: fixed;
-    top: 14px;
-    right: 14px;
+    top: 16px;
+    right: 22px;
     z-index: 40;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    width: min(300px, calc(100% - 28px));
+    width: min(320px, calc(100% - 44px));
     pointer-events: none;
   }
 
@@ -124,23 +124,18 @@
     pointer-events: auto;
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
-    padding: 13px 16px;
-    border-radius: 16px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
     background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05)),
-      rgba(58, 58, 62, 0.94);
-    -webkit-backdrop-filter: blur(28px) saturate(1.6);
-    backdrop-filter: blur(28px) saturate(1.6);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow:
-      0 0 0 0.5px rgba(0, 0, 0, 0.45),
-      0 16px 40px rgba(0, 0, 0, 0.45);
-    color: #f2f2f7;
+      linear-gradient(0deg, rgba(52, 211, 153, 0.12), rgba(52, 211, 153, 0.12)),
+      var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow);
+    color: var(--text);
     font-size: 13px;
-    line-height: 1.35;
-    letter-spacing: -0.011em;
+    line-height: 1.45;
   }
 
   .notice p {
@@ -151,14 +146,20 @@
 
   .notice-mark {
     flex: 0 0 auto;
-    width: 8px;
-    height: 8px;
-    margin-top: 5px;
+    width: 6px;
+    height: 6px;
+    margin-top: 6px;
     border-radius: 50%;
-    background: #32d74b;
+    background: var(--ok);
+  }
+
+  .notice.notice-err {
+    background:
+      linear-gradient(0deg, rgba(248, 113, 113, 0.12), rgba(248, 113, 113, 0.12)),
+      var(--bg-elevated);
   }
 
   .notice.notice-err .notice-mark {
-    background: #ff453a;
+    background: var(--danger);
   }
 </style>
