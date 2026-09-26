@@ -18,6 +18,7 @@
   export let interruptHotkeyChord: string
   export let interruptHotkeyError: string
   export let apiKeyInKeychain: boolean
+  export let debug: boolean
   export let saving: boolean
   export let configPath: string
   export let onSave: () => Promise<void>
@@ -318,6 +319,17 @@
     <input bind:checked={webhookEnabled} type="checkbox" />
   </label>
   <p class="hint">For external automation. The Test pane does not require this.</p>
+</section>
+
+<section class="card">
+  <header class="card-head">
+    <h2>Debug</h2>
+    <label class="toggle toggle-head">
+      {debug ? 'On' : 'Off'}
+      <input bind:checked={debug} type="checkbox" />
+    </label>
+  </header>
+  <p class="hint">Off by default. When on, the app log and the OBS browser console record each chat line, command match, and text-to-speech step.</p>
 </section>
 
 {#if configPath}

@@ -65,6 +65,7 @@ func formFrom(s config.Settings, hotkeyErr string) SettingsForm {
 		InterruptHotkeyChord:     s.InterruptHotkey.Chord,
 		InterruptHotkeyError:     hotkeyErr,
 		APIKeyInKeychain:         s.APIKeyInKeychain,
+		Debug:                    s.Debug,
 	}
 }
 
@@ -82,6 +83,7 @@ func applyForm(dst *config.Settings, in SettingsForm) {
 	en := in.InterruptHotkeyEnabled
 	dst.InterruptHotkey.Enabled = &en
 	dst.InterruptHotkey.Chord = in.InterruptHotkeyChord
+	dst.Debug = in.Debug
 }
 
 // storedCommandsPath keeps a custom YAML path. Default mode stores an empty path.

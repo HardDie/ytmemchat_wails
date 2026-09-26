@@ -130,37 +130,59 @@
 	let isPlaying = false;
 	let currentTtsDrop = null;
 	let ttsGeneration = 0;
+	var webDebug = false;
+
+	function debugStep(step, extra) {
+		if (!webDebug) return;
+		if (extra === undefined) {
+			console.log('debug: ' + step);
+			return;
+		}
+		console.log('debug: ' + step, typeof extra === 'string' ? extra : JSON.stringify(extra));
+	}
 
 	function addToQueue(data) {
+		debugStep('addToQueue', { queued: alertQueue.length + 1 });
 		alertQueue.push(data);
 		processQueue();
 	}
 
 	function processQueue() {
-		if (isPlaying || alertQueue.length === 0) return;
+		debugStep('processQueue', { isPlaying: isPlaying, queued: alertQueue.length });
+		if (isPlaying || alertQueue.length === 0) {
+			debugStep('processQueue: wait', { isPlaying: isPlaying, queued: alertQueue.length });
+			return;
+		}
 		isPlaying = true;
 		const nextAlert = alertQueue.shift();
+		webDebug = !!nextAlert.debug;
 		const volume = nextAlert.volume !== undefined ? nextAlert.volume : 0.8;
+		debugStep('processQueue: displayTTS');
 		displayTTS(nextAlert.payload, volume);
 	}
 
 	function onMediaFinished() {
+		debugStep('onMediaFinished');
 		isPlaying = false;
 		processQueue();
 	}
 
 	function stopCurrentTTSSource() {
+		debugStep('stopCurrentTTSSource', { active: !!currentTtsDrop });
 		if (currentTtsDrop) {
+			debugStep('stopCurrentTTSSource: drop');
 			currentTtsDrop();
 			currentTtsDrop = null;
 		}
 	}
 
 	function bumpTTSGeneration() {
+		debugStep('bumpTTSGeneration', { generation: ttsGeneration + 1 });
 		ttsGeneration++;
 	}
 
 	function interruptCurrentTTS() {
+		debugStep('interruptCurrentTTS');
 		bumpTTSGeneration();
 		stopCurrentTTSSource();
 		isPlaying = false;
@@ -168,6 +190,7 @@
 	}
 
 	function clearOverlayPlayback() {
+		debugStep('clearOverlayPlayback');
 		document.querySelectorAll('.alert-container').forEach(function(container) {
 			container.querySelectorAll('video, audio').forEach(function(el) {
 				try { el.pause(); } catch (e) { /* ignore */ }
@@ -187,6 +210,7 @@
 	}
 
 	function placeAlertContainer(container, scale) {
+		debugStep('placeAlertContainer', { scale: scale });
 		const originalWidth = container.offsetWidth;
 		const originalHeight = container.offsetHeight;
 		const scaledWidth = originalWidth * scale;
@@ -205,6 +229,7 @@
 
 	function startAudibleSticker(src, volume, opts) {
 		opts = opts || {};
+		debugStep('startAudibleSticker', { volume: volume, holdMin: !!opts.holdMin });
 		const generation = opts.generation;
 		const container = document.createElement('div');
 		container.className = 'alert-container audio-sticker';
@@ -225,43 +250,57 @@
 		let dropping = false;
 
 		const finishQueue = function() {
+			debugStep('finishQueue', { done: queueDone });
 			if (queueDone) return;
 			queueDone = true;
 			if (opts.onEnded) {
+				debugStep('finishQueue: onEnded');
 				opts.onEnded();
 			}
 		};
 
 		const stale = function() {
-			return generation !== undefined && generation !== ttsGeneration;
+			const gone = generation !== undefined && generation !== ttsGeneration;
+			if (gone) debugStep('stale');
+			return gone;
 		};
 
 		const drop = function() {
+			debugStep('drop', { dropping: dropping });
 			if (dropping || container.dataset.removed) return;
 			dropping = true;
 			try { audioElement.pause(); } catch (e) { /* ignore */ }
 			audioElement.removeAttribute('src');
 			try { audioElement.load(); } catch (e) { /* ignore */ }
 			if (opts.onDrop) {
+				debugStep('drop: onDrop');
 				opts.onDrop();
 			}
 			removeMediaElement(container);
 		};
 
 		const tryPlay = function() {
+			debugStep('tryPlay', { faded: faded, ready: ready, started: started });
 			if (stale()) {
+				debugStep('tryPlay: stale');
 				drop();
 				return;
 			}
-			if (!faded || !ready || started) return;
+			if (!faded || !ready || started) {
+				debugStep('tryPlay: not ready');
+				return;
+			}
 			started = true;
+			debugStep('tryPlay: play');
 			if (opts.holdMin) {
+				debugStep('tryPlay: scheduleAudioTeardown');
 				scheduleAudioTeardown(audioElement, drop);
 			}
 			const playAttempt = audioElement.play();
 			if (playAttempt && playAttempt.catch) {
 				playAttempt.catch(function(err) {
 					console.error('Audio play blocked:', err);
+					debugStep('tryPlay: play blocked', String(err));
 					drop();
 					if (!stale()) {
 						finishQueue();
@@ -271,10 +310,12 @@
 		};
 
 		audioElement.addEventListener('ended', function() {
+			debugStep('audio: ended');
 			drop();
 			finishQueue();
 		});
 		audioElement.addEventListener('error', function() {
+			debugStep('audio: error', { dropping: dropping });
 			if (dropping) return;
 			const skip = stale();
 			drop();
@@ -283,6 +324,7 @@
 			}
 		});
 		audioElement.addEventListener('abort', function() {
+			debugStep('audio: abort', { dropping: dropping });
 			if (dropping) return;
 			const skip = stale();
 			drop();
@@ -291,15 +333,18 @@
 			}
 		});
 		audioElement.addEventListener('loadedmetadata', function() {
+			debugStep('audio: loadedmetadata');
 			ready = true;
 			tryPlay();
 		});
 		audioElement.addEventListener('canplay', function() {
+			debugStep('audio: canplay');
 			ready = true;
 			tryPlay();
 		});
 		setTimeout(function() {
 			if (!ready) {
+				debugStep('audio: load timeout');
 				drop();
 				if (!stale()) {
 					finishQueue();
@@ -309,6 +354,7 @@
 		audioElement.src = src;
 		container.style.opacity = 1;
 		setTimeout(function() {
+			debugStep('audio: faded in');
 			faded = true;
 			tryPlay();
 		}, MEDIA_FADE_MS);
@@ -316,10 +362,12 @@
 	}
 
 	function displayMediaAlert(filename, volume, scale) {
+		debugStep('displayMediaAlert', { filename: filename, volume: volume, scale: scale });
 		const mediaUrl = '/obs/media/' + filename;
 		const isVideo = filename.match(/\.(mp4|webm|mov)$/i);
 		const isAudio = filename.match(/\.(mp3|ogg|wav|aac|flac)$/i);
 		if (isAudio) {
+			debugStep('displayMediaAlert: audio');
 			startAudibleSticker(mediaUrl, volume, { holdMin: true });
 			return;
 		}
@@ -327,6 +375,7 @@
 		const container = document.createElement('div');
 		container.className = 'alert-container';
 		if (isVideo) {
+			debugStep('displayMediaAlert: video');
 			mediaElement = document.createElement('video');
 			mediaElement.autoplay = true;
 			mediaElement.loop = false;
@@ -335,6 +384,7 @@
 			mediaElement.playsInline = true;
 			mediaElement.preload = "metadata";
 		} else {
+			debugStep('displayMediaAlert: image');
 			mediaElement = document.createElement('img');
 		}
 		mediaElement.className = 'media-alert';
@@ -342,16 +392,19 @@
 		document.body.appendChild(container);
 		let laidOut = false;
 		const failLoad = function() {
+			debugStep('displayMediaAlert: load failed');
 			removeMediaElement(container);
 		};
 		mediaElement.addEventListener('error', failLoad);
 		mediaElement.addEventListener('abort', failLoad);
 		setTimeout(function() {
 			if (!laidOut) {
+				debugStep('displayMediaAlert: layout timeout');
 				removeMediaElement(container);
 			}
 		}, isVideo ? MIN_STICKER_PLAYING_SEC * 1000 : 6000);
 		const handleMediaLoad = function() {
+			debugStep('handleMediaLoad', { laidOut: laidOut, video: !!isVideo });
 			if (laidOut) return;
 			laidOut = true;
 			mediaElement.removeEventListener('load', handleMediaLoad);
@@ -359,12 +412,16 @@
 			placeAlertContainer(container, scale);
 			container.style.opacity = 1;
 			if (isVideo) {
+				debugStep('handleMediaLoad: play video');
 				const playAttempt = mediaElement.play();
 				if (playAttempt && playAttempt.catch) {
-					playAttempt.catch(function() { /* autoplay blocked */ });
+					playAttempt.catch(function(err) {
+						debugStep('handleMediaLoad: play blocked', String(err));
+					});
 				}
 				scheduleVideoTeardown(mediaElement, container);
 			} else {
+				debugStep('handleMediaLoad: image hold');
 				setTimeout(function() {
 					removeMediaElement(container);
 				}, 6000);
@@ -374,11 +431,13 @@
 		mediaElement.addEventListener('loadedmetadata', handleMediaLoad);
 		mediaElement.src = mediaUrl;
 		if (mediaElement.complete || (mediaElement.readyState >= 1 && isVideo)) {
+			debugStep('displayMediaAlert: already loaded');
 			handleMediaLoad();
 		}
 	}
 
 	function displayTTS(payload, volume) {
+		debugStep('displayTTS', { volume: volume, bytes: payload ? payload.length : 0 });
 		const generation = ttsGeneration;
 		let objectUrl = '';
 		try {
@@ -390,13 +449,16 @@
 			objectUrl = URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' }));
 		} catch (err) {
 			console.error('Error decoding TTS audio:', err);
+			debugStep('displayTTS: decode error', String(err));
 			onMediaFinished();
 			return;
 		}
+		debugStep('displayTTS: startAudibleSticker');
 		currentTtsDrop = startAudibleSticker(objectUrl, volume, {
 			generation: generation,
 			holdMin: true,
 			onDrop: function() {
+				debugStep('displayTTS: onDrop');
 				if (objectUrl) {
 					URL.revokeObjectURL(objectUrl);
 					objectUrl = '';
@@ -404,12 +466,14 @@
 				currentTtsDrop = null;
 			},
 			onEnded: function() {
+				debugStep('displayTTS: onEnded');
 				onMediaFinished();
 			}
 		});
 	}
 
 	function stickerHoldSec(mediaElement) {
+		debugStep('stickerHoldSec');
 		const d = mediaElement.duration;
 		let sec = MIN_STICKER_PLAYING_SEC;
 		if (Number.isFinite(d) && d > 0) {
@@ -420,11 +484,13 @@
 
 	function scheduleAudioTeardown(audioElement, drop) {
 		/* TTS and command audio only. Full duration from play(); no early fade. */
+		debugStep('scheduleAudioTeardown');
 		setTimeout(drop, stickerHoldSec(audioElement) * 1000);
 	}
 
 	function scheduleVideoTeardown(mediaElement, container) {
 		/* Video stickers only. Visual fade starts 500ms before duration. */
+		debugStep('scheduleVideoTeardown');
 		const fadeAt = Math.max(0, stickerHoldSec(mediaElement) * 1000 - MEDIA_FADE_MS);
 		setTimeout(function() {
 			removeMediaElement(container);
@@ -432,6 +498,7 @@
 	}
 
 	function removeMediaElement(container) {
+		debugStep('removeMediaElement', { removed: !!(container && container.dataset.removed) });
 		if (!container || container.dataset.removed) return;
 		container.dataset.removed = '1';
 		container.style.opacity = 0;
@@ -443,6 +510,29 @@
 
 	<script>
 	/* <====== Messages ======> */
+	function debugProcessKind(data) {
+		const type = data.type;
+		if (type === 'app_closed' || type === 'tts_interrupt') return '';
+		if (type === 'tts') return 'tts';
+		if (type === 'alert') {
+			const name = String(data.filename || '');
+			if (/\.(mp4|webm|mov)$/i.test(name)) return 'video command';
+			if (/\.(mp3|ogg|wav|aac|flac)$/i.test(name)) return 'audio command';
+			if (/\.(gif|png|jpe?g|webp)$/i.test(name)) return 'image command';
+			return 'not found type';
+		}
+		return 'not found type';
+	}
+
+	function debugOverlayMessage(data) {
+		webDebug = !!(data && data.debug);
+		if (!webDebug) return;
+		console.log('debug: received message', JSON.stringify(data));
+		const kind = debugProcessKind(data);
+		if (!kind) return;
+		console.log('debug: processing as ' + kind);
+	}
+
 	function handleOverlayMessage(event) {
 		let data;
 		try {
@@ -451,10 +541,14 @@
 			console.error("Error processing WebSocket message:", e);
 			return;
 		}
+		debugOverlayMessage(data);
+		debugStep('handleOverlayMessage', data.type || '');
 		const type = data.type;
 		if (type === 'app_closed') {
+			debugStep('handleOverlayMessage: app_closed');
 			appClosed = true;
 			clearOverlayPlayback();
+			debugStep('showConnectionStatus');
 			showConnectionStatus();
 			return;
 		}
@@ -462,11 +556,16 @@
 		const volume = data.volume !== undefined ? data.volume : 0.8;
 		const scale = data.scale !== undefined ? data.scale : 1.0;
 		if (type === 'alert') {
+			debugStep('handleOverlayMessage: alert');
 			displayMediaAlert(filename, volume, scale);
 		} else if (type === 'tts') {
+			debugStep('handleOverlayMessage: tts');
 			addToQueue(data);
 		} else if (type === 'tts_interrupt') {
+			debugStep('handleOverlayMessage: tts_interrupt');
 			interruptCurrentTTS();
+		} else {
+			debugStep('handleOverlayMessage: not found type', type || '');
 		}
 	}
 

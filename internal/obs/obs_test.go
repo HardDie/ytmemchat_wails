@@ -89,6 +89,9 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(string(cb), "Ready for chat.") {
 		t.Fatal("chat html must log chat socket ready")
 	}
+	if !strings.Contains(string(cb), "debug: received message") {
+		t.Fatal("chat html must log received messages when debug is set")
+	}
 	if !strings.Contains(string(cb), `textColor.charAt(0) !== '#'`) {
 		t.Fatal("chat html must accept textColor with or without #")
 	}
@@ -125,6 +128,11 @@ func TestIndexAndOBSPages(t *testing.T) {
 	}
 	if !strings.Contains(string(ob), "MIN_STICKER_PLAYING_SEC") {
 		t.Fatal("overlay html must keep video on screen at least min sticker time")
+	}
+	for _, phrase := range []string{"debug: received message", "video command", "audio command", "image command", "'tts'", "not found type"} {
+		if !strings.Contains(string(ob), phrase) {
+			t.Fatalf("overlay html missing debug phrase %q", phrase)
+		}
 	}
 	if strings.Contains(string(ob), "mediaElement.onended") {
 		t.Fatal("overlay video must not hide on ended")
@@ -493,6 +501,53 @@ func TestOverlayWebSocketAndInterrupt(t *testing.T) {
 	}
 	if got.Type != PayloadTypeTTSInterrupt {
 		t.Fatalf("%+v", got)
+	}
+}
+
+func TestPublishDebugFlag(t *testing.T) {
+	s, ts := startTest(t, Config{})
+	chatURL := "ws" + strings.TrimPrefix(ts.URL, "http") + PathChatWS + SocketQuery("")
+	overURL := "ws" + strings.TrimPrefix(ts.URL, "http") + PathOverlayWS + SocketQuery("")
+	chat, _, err := websocket.DefaultDialer.Dial(chatURL, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer chat.Close()
+	over, _, err := websocket.DefaultDialer.Dial(overURL, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer over.Close()
+	time.Sleep(30 * time.Millisecond)
+
+	s.SetDebug(true)
+	s.PublishChat(NewChatEvent("Ada", "", "hi", time.Time{}))
+	s.PublishOverlay(AlertOverlay("jump.mp3", 1, 1))
+	_ = chat.SetReadDeadline(time.Now().Add(2 * time.Second))
+	_ = over.SetReadDeadline(time.Now().Add(2 * time.Second))
+	var ce ChatEvent
+	if err := chat.ReadJSON(&ce); err != nil {
+		t.Fatal(err)
+	}
+	if !ce.Debug || ce.AuthorName != "Ada" || ce.MessageText != "hi" {
+		t.Fatalf("chat %+v", ce)
+	}
+	var oe OverlayEvent
+	if err := over.ReadJSON(&oe); err != nil {
+		t.Fatal(err)
+	}
+	if !oe.Debug || oe.Type != PayloadTypeAlert || oe.Filename != "jump.mp3" {
+		t.Fatalf("overlay %+v", oe)
+	}
+
+	s.SetDebug(false)
+	s.PublishChat(NewChatEvent("Ada", "", "next", time.Time{}))
+	ce = ChatEvent{}
+	if err := chat.ReadJSON(&ce); err != nil {
+		t.Fatal(err)
+	}
+	if ce.Debug || ce.MessageText != "next" {
+		t.Fatalf("chat after off %+v", ce)
 	}
 }
 

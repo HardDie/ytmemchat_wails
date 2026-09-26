@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -20,6 +21,8 @@ type Server struct {
 	chat     *hub[ChatEvent]
 	overlay  *hub[OverlayEvent]
 	injected chan InjectedMessage
+	mu       sync.Mutex
+	debug    bool
 }
 
 // New registers routes and starts WebSocket broadcasters. It does not listen.
@@ -78,13 +81,33 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	return err
 }
 
+// SetDebug stamps later chat and overlay events with Debug when on.
+// The OBS pages log those events in the browser console.
+func (s *Server) SetDebug(on bool) {
+	s.mu.Lock()
+	s.debug = on
+	s.mu.Unlock()
+}
+
+func (s *Server) debugOn() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.debug
+}
+
 // PublishChat sends a message to all /obs/chat/ws clients.
 func (s *Server) PublishChat(msg ChatEvent) {
+	if s.debugOn() {
+		msg.Debug = true
+	}
 	s.chat.publish(msg)
 }
 
 // PublishOverlay sends an event to all /obs/overlay/ws clients.
 func (s *Server) PublishOverlay(msg OverlayEvent) {
+	if s.debugOn() {
+		msg.Debug = true
+	}
 	s.overlay.publish(msg)
 }
 

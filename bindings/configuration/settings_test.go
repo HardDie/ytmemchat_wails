@@ -16,7 +16,7 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 	if got.Port != "8080" || got.StreamID != "" || got.APIKey != "" {
 		t.Fatalf("%+v", got)
 	}
-	if got.TTSEnabled || got.AlertsEnabled || got.AlertsToken != "@" || got.WebhookEnabled {
+	if got.TTSEnabled || got.AlertsEnabled || got.AlertsToken != "@" || got.WebhookEnabled || got.Debug {
 		t.Fatalf("defaults %+v", got)
 	}
 	if !got.InterruptHotkeyEnabled || got.InterruptHotkeyChord != "Ctrl+Shift+I" {
@@ -39,6 +39,7 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 		f.WebhookEnabled = true
 		f.InterruptHotkeyEnabled = true
 		f.InterruptHotkeyChord = " ctrl+alt+f8 "
+		f.Debug = true
 	})
 	got = c.GetSettings()
 	if got.StreamID != "liveid" || got.APIKey != "secret" || got.Port != ":9090" {
@@ -55,6 +56,9 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 	}
 	if !got.InterruptHotkeyEnabled || got.InterruptHotkeyChord != "Ctrl+Alt+F8" {
 		t.Fatalf("hotkey after save %+v", got)
+	}
+	if !got.Debug {
+		t.Fatal("debug")
 	}
 	if c.ConfigPath() != st.Path() {
 		t.Fatalf("path %q", c.ConfigPath())

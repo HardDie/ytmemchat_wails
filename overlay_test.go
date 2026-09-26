@@ -1,12 +1,16 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/HardDie/ytmemchat_wails/internal/alerts"
 	"github.com/HardDie/ytmemchat_wails/internal/config"
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
 	"github.com/HardDie/ytmemchat_wails/internal/youtube"
@@ -307,3 +311,69 @@ func TestStart_plainChatUsesTTS(t *testing.T) {
 type synthFunc func(string) error
 
 func (f synthFunc) SynthesizeAudio(text string) error { return f(text) }
+
+func TestTTSDebugMessage(t *testing.T) {
+	missing := fmt.Errorf("synthesis failed: %w", &exec.Error{Name: "say", Err: exec.ErrNotFound})
+	if got := ttsDebugMessage(missing); got != "debug: app for tts not found" {
+		t.Fatalf("missing app %q", got)
+	}
+	if got := ttsDebugMessage(errors.New("tts: no speakable text")); got != "debug: error text to message" {
+		t.Fatalf("other %q", got)
+	}
+}
+
+func TestAlertPublisher_debugLogs(t *testing.T) {
+	media := t.TempDir()
+	if err := os.WriteFile(filepath.Join(media, "jump.mp3"), []byte("x"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	yamlPath := filepath.Join(t.TempDir(), "commands.yaml")
+	body := "commands:\n  - name: jump\n    file: jump.mp3\n  - name: gone\n    file: missing.mp3\n"
+	if err := os.WriteFile(yamlPath, []byte(body), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	out := make(chan alerts.Clip, 1)
+	inner, err := alerts.New(alerts.Config{
+		Token:            "@",
+		MediaPath:        media,
+		CommandsFilePath: yamlPath,
+		Out:              out,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	sink := &recSink{}
+	p := &alertPublisher{inner: inner, out: out, srv: sink, debug: true}
+	var lines []string
+	prev := debugLog
+	debugLog = func(msg string, _ ...any) {
+		lines = append(lines, msg)
+	}
+	t.Cleanup(func() { debugLog = prev })
+
+	if !p.Alert("please @jump") {
+		t.Fatal("expected jump")
+	}
+	if !p.Alert("@gone") {
+		t.Fatal("expected gone")
+	}
+	if p.Alert("hello") {
+		t.Fatal("expected no command")
+	}
+	want := []string{
+		"debug: started parsing command",
+		"debug: found command",
+		"debug: success",
+		"debug: started parsing command",
+		"debug: found command",
+		"debug: error path to the file",
+		"debug: started parsing command",
+		"debug: command not found",
+	}
+	if strings.Join(lines, "\n") != strings.Join(want, "\n") {
+		t.Fatalf("logs:\n%s", strings.Join(lines, "\n"))
+	}
+	if len(sink.over) != 2 || sink.over[0].Filename != "jump.mp3" || sink.over[1].Filename != "missing.mp3" {
+		t.Fatalf("overlay %+v", sink.over)
+	}
+}

@@ -23,6 +23,9 @@ func TestDefaults(t *testing.T) {
 	if d.TTS.Enabled {
 		t.Fatal("tts must be off on first launch")
 	}
+	if d.Debug {
+		t.Fatal("debug must be off on first launch")
+	}
 	if d.Youtube.APIKey != "" || d.Youtube.StreamID != "" {
 		t.Fatal("youtube fields must be empty on first launch")
 	}

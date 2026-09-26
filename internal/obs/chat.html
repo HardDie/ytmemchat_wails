@@ -138,32 +138,55 @@
 
     <script>
     /* <====== Draw ======> */
+    var webDebug = false;
+
+    function debugStep(step, extra) {
+        if (!webDebug) return;
+        if (extra === undefined) {
+            console.log('debug: ' + step);
+            return;
+        }
+        console.log('debug: ' + step, typeof extra === 'string' ? extra : JSON.stringify(extra));
+    }
+
     function buildAvatarElement(msg) {
+        debugStep('buildAvatarElement');
         const avatar = document.createElement('img');
         avatar.className = 'avatar';
         const fallback = function() {
+            debugStep('buildAvatarElement: fallback');
             avatar.onerror = null;
             try {
                 avatar.src = generateAvatar(msg.authorName || "?");
             } catch (e) {
+                debugStep('buildAvatarElement: fallback failed', String(e));
                 avatar.removeAttribute('src');
             }
         };
         avatar.onerror = fallback;
         if (msg.authorPicture && !msg.authorPicture.includes('placeholder')) {
+            debugStep('buildAvatarElement: picture');
             avatar.referrerPolicy = "no-referrer";
             avatar.src = msg.authorPicture;
         } else {
+            debugStep('buildAvatarElement: no picture');
             fallback();
         }
         return avatar;
     }
 
     function buildContentElement(msg) {
+        debugStep('buildContentElement');
         const content = document.createElement('div');
         content.className = 'content';
-        if (msg.isOwner) content.innerHTML += '<span class="badge" style="background:#ffd700; color:black">Host</span>';
-        if (msg.isModerator) content.innerHTML += '<span class="badge">Mod</span>';
+        if (msg.isOwner) {
+            debugStep('buildContentElement: host');
+            content.innerHTML += '<span class="badge" style="background:#ffd700; color:black">Host</span>';
+        }
+        if (msg.isModerator) {
+            debugStep('buildContentElement: moderator');
+            content.innerHTML += '<span class="badge">Mod</span>';
+        }
         const authorSpan = document.createElement('span');
         authorSpan.className = 'author';
         authorSpan.textContent = msg.authorName + ": ";
@@ -176,11 +199,13 @@
     }
 
     function generateAvatar(name) {
+        debugStep('generateAvatar');
         const canvas = document.createElement('canvas');
         canvas.width = 64;
         canvas.height = 64;
         const ctx = canvas.getContext('2d');
         if (!ctx) {
+            debugStep('generateAvatar: no canvas');
             return '';
         }
         let hash = 0;
@@ -210,15 +235,24 @@
             console.error("Error processing WebSocket message:", e);
             return;
         }
+        webDebug = !!(msg && msg.debug);
+        if (webDebug) {
+            console.log('debug: received message', JSON.stringify(msg));
+        }
+        debugStep('handleChatMessage', msg.type || 'chat');
         if (msg.type === 'app_closed') {
+            debugStep('handleChatMessage: app_closed');
             appClosed = true;
+            debugStep('showConnectionStatus');
             showConnectionStatus();
             return;
         }
         if (msg.type === 'chat_flush') {
+            debugStep('handleChatMessage: chat_flush');
             document.getElementById('chat-container').replaceChildren();
             return;
         }
+        debugStep('handleChatMessage: chat line');
         const container = document.getElementById('chat-container');
         const div = document.createElement('div');
         div.className = 'message-row';
@@ -252,7 +286,9 @@
     const chatCap = parseChatCap();
 
     function trimChatMessages() {
+        debugStep('trimChatMessages', { cap: chatCap });
         if (chatCap <= 0) {
+            debugStep('trimChatMessages: uncapped');
             return;
         }
         const container = document.getElementById('chat-container');

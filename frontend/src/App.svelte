@@ -58,6 +58,7 @@
   let interruptHotkeyChord = 'Ctrl+Shift+I'
   let interruptHotkeyError = ''
   let apiKeyInKeychain = false
+  let debug = false
   let testMessage = ''
   let configPath = ''
   let status = ''
@@ -92,6 +93,7 @@
     interruptHotkeyChord = s.interruptHotkeyChord || 'Ctrl+Shift+I'
     interruptHotkeyError = s.interruptHotkeyError ?? ''
     apiKeyInKeychain = !!s.apiKeyInKeychain
+    debug = !!s.debug
   }
 
   function formPayload(): configuration.SettingsForm {
@@ -109,6 +111,7 @@
       webhookEnabled,
       interruptHotkeyEnabled,
       interruptHotkeyChord,
+      debug,
     })
   }
 
@@ -511,6 +514,7 @@
           bind:interruptHotkeyChord
           interruptHotkeyError={interruptHotkeyError}
           {apiKeyInKeychain}
+          bind:debug
           {saving}
           {configPath}
           onSave={save}

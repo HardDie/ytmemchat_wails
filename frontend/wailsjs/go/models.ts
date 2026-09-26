@@ -71,6 +71,7 @@ export namespace configuration {
 	    interruptHotkeyChord: string;
 	    interruptHotkeyError: string;
 	    apiKeyInKeychain: boolean;
+	    debug: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new SettingsForm(source);
@@ -93,6 +94,7 @@ export namespace configuration {
 	        this.interruptHotkeyChord = source["interruptHotkeyChord"];
 	        this.interruptHotkeyError = source["interruptHotkeyError"];
 	        this.apiKeyInKeychain = source["apiKeyInKeychain"];
+	        this.debug = source["debug"];
 	    }
 	}
 	export class TTSVoice {

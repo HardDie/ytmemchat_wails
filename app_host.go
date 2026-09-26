@@ -101,7 +101,7 @@ func (a *App) OverlayServer() *obs.Server {
 
 // DispatchChat fans one line through the same overlay path as live chat.
 func (a *App) DispatchChat(fallback *obs.Server, author, text string) {
-	a.dispatchLine(fallback, &youtube.ChatMessage{
+	a.dispatchLine(fallback, msgFromTest, &youtube.ChatMessage{
 		Author:    author,
 		Message:   text,
 		Timestamp: time.Now(),

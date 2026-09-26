@@ -23,6 +23,7 @@ const settings = {
   interruptHotkeyChord: 'Ctrl+Shift+I',
   interruptHotkeyError: '',
   apiKeyInKeychain: true,
+  debug: false,
 }
 
 const obs = {

@@ -189,7 +189,7 @@ func (a *App) ingestChat(ctx context.Context, gen int, wg *sync.WaitGroup, setti
 				a.finishRun(gen)
 				return
 			}
-			a.dispatchLine(srv, msg)
+			a.dispatchLine(srv, msgFromChat, msg)
 		}
 	}
 }

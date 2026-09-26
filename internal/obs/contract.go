@@ -45,6 +45,9 @@ type OverlayEvent struct {
 	Volume float64 `json:"volume"`
 	// Scale is the visual size multiplier for alerts.
 	Scale float64 `json:"scale"`
+	// Debug is set when the operator enabled debug logs.
+	// The overlay page logs this event when it is true.
+	Debug bool `json:"debug,omitempty"`
 }
 
 // AlertOverlay builds an alert event for filename inside the media directory.
@@ -85,6 +88,9 @@ type ChatEvent struct {
 	IsModerator bool `json:"isModerator"`
 	// IsOwner is a host badge flag.
 	IsOwner bool `json:"isOwner"`
+	// Debug is set when the operator enabled debug logs.
+	// The chat page logs this event when it is true.
+	Debug bool `json:"debug,omitempty"`
 }
 
 // NewChatEvent fills [ChatEvent] with RFC3339 PublishedAt. Zero time uses now.

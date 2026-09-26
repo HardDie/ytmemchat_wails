@@ -33,6 +33,9 @@ type SettingsForm struct {
 	InterruptHotkeyError string `json:"interruptHotkeyError"`
 	// APIKeyInKeychain is true when the OS vault is available for the API key.
 	APIKeyInKeychain bool `json:"apiKeyInKeychain"`
+	// Debug logs chat, command matching, and TTS. Off by default.
+	// The same flag is sent on OBS WebSocket events.
+	Debug bool `json:"debug"`
 }
 
 // TTSVoice is one installed OS voice for the settings list.

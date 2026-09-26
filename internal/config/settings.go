@@ -32,6 +32,9 @@ type Settings struct {
 	Webhook Webhook `json:"webhook"`
 	// InterruptHotkey is the OS-wide shortcut that stops overlay TTS.
 	InterruptHotkey InterruptHotkey `json:"interruptHotkey"`
+	// Debug writes step logs for chat, commands, and TTS when true.
+	// OBS pages receive the same flag on each WebSocket event.
+	Debug bool `json:"debug"`
 	// Window is optional saved Wails window bounds.
 	Window *Window `json:"window,omitempty"`
 	// APIKeyInKeychain is true when the OS vault is in use.
