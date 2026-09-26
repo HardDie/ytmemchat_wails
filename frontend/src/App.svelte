@@ -31,6 +31,8 @@
   import CommandsPane from './lib/CommandsPane.svelte'
   import TestPane from './lib/TestPane.svelte'
   import UpdatePane from './lib/UpdatePane.svelte'
+  import Notifications from './lib/Notifications.svelte'
+  import type { Notice, NoticeKind } from './lib/Notifications.svelte'
 
   type Page = 'home' | 'config' | 'commands' | 'test' | 'update'
 
@@ -61,8 +63,6 @@
   let debug = false
   let testMessage = ''
   let configPath = ''
-  let status = ''
-  let error = ''
   let saving = false
   let starting = false
   let lookingUp = false
@@ -76,6 +76,14 @@
   let updateStatus: updateModels.Status | null = null
   let updateBusy = false
   let updateDownloaded = false
+
+  let notices: Notice[] = []
+  let noticeSeq = 0
+
+  function notify(text: string, kind: NoticeKind = 'ok'): void {
+    const id = ++noticeSeq
+    notices = [{ id, text, kind }, ...notices]
+  }
 
   function applyForm(s: configuration.SettingsForm): void {
     streamId = s.streamId ?? ''
@@ -144,30 +152,32 @@
       await refreshOBS()
       await refreshRun()
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
     }
     return () => {
       window.clearInterval(quotaTick)
     }
   })
 
-  async function save(): Promise<void> {
+  async function save(silent = false): Promise<boolean> {
     saving = true
-    error = ''
-    status = ''
     try {
       await SaveSettings(formPayload())
       applyForm(await GetSettings())
       await refreshOBS()
       await refreshRun()
-      status = 'Settings saved'
+      if (!silent) {
+        notify('Settings saved')
+      }
+      return true
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
       try {
         await refreshOBS()
       } catch {
         /* keep save error */
       }
+      return false
     } finally {
       saving = false
     }
@@ -175,18 +185,14 @@
 
   async function start(): Promise<void> {
     starting = true
-    error = ''
-    status = ''
     try {
-      await save()
-      if (error) {
+      if (!(await save(true))) {
         return
       }
       await Start()
       await refreshRun()
-      status = ''
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
       await refreshRun()
     } finally {
       starting = false
@@ -194,16 +200,13 @@
   }
 
   async function stop(): Promise<void> {
-    error = ''
-    status = ''
     await Stop()
     await refreshRun()
   }
 
   async function copy(url: string): Promise<void> {
     await ClipboardSetText(url)
-    status = 'URL copied'
-    error = ''
+    notify('URL copied')
   }
 
   function copyChat(): void {
@@ -215,37 +218,31 @@
   }
 
   async function sendTest(): Promise<void> {
-    error = ''
-    status = ''
     try {
       await SendTestMessage(testMessage)
-      status = 'Test message sent'
+      notify('Test message sent')
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
     }
   }
 
   async function flushChat(): Promise<void> {
-    error = ''
-    status = ''
     try {
       await FlushChat()
-      status = 'Chat flushed'
+      notify('Chat flushed')
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
     }
   }
 
   async function checkUpdate(): Promise<void> {
     updateBusy = true
-    error = ''
-    status = ''
     updateDownloaded = false
     try {
       updateStatus = await CheckUpdate()
-      status = 'Checked GitHub'
+      notify('Checked GitHub')
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
     } finally {
       updateBusy = false
     }
@@ -253,14 +250,12 @@
 
   async function downloadUpdate(): Promise<void> {
     updateBusy = true
-    error = ''
-    status = ''
     try {
       await DownloadUpdate()
       updateDownloaded = true
-      status = 'Archive verified'
+      notify('Archive verified')
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
     } finally {
       updateBusy = false
     }
@@ -268,13 +263,11 @@
 
   async function applyUpdate(): Promise<void> {
     updateBusy = true
-    error = ''
-    status = ''
     try {
       await ApplyAndQuit()
-      status = 'Installing…'
+      notify('Installing…')
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
       updateBusy = false
     }
   }
@@ -285,29 +278,25 @@
   }
 
   async function interruptTTS(): Promise<void> {
-    error = ''
-    status = ''
     try {
       await InterruptTTS()
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
     }
   }
 
   async function lookupLatest(): Promise<void> {
     lookingUp = true
-    error = ''
-    status = ''
     try {
       const got = await LookupLatestStream(streamId, apiKey)
       if (got && got.streamId) {
         streamId = got.streamId
         const kind = got.kind === 'upcoming' ? 'upcoming' : 'live'
-        status = `Latest ${kind} stream: ${got.streamId}`
+        notify(`Latest ${kind} stream: ${got.streamId}`)
       }
       await refreshRun()
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
     } finally {
       lookingUp = false
     }
@@ -323,16 +312,14 @@
       alertsCommandsFileCustom = true
       await save()
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
     }
   }
 
   async function testCommand(index: number): Promise<void> {
-    error = ''
-    status = ''
     const row = commandRows[index]
     if (!row || !row.file.trim()) {
-      error = 'Command needs a file'
+      notify('Command needs a file', 'err')
       return
     }
     try {
@@ -340,15 +327,13 @@
       const scale = row.scale.trim() ? Number(row.scale) : 1
       await PreviewAlert(row.file.trim(), volume, scale)
       const label = row.name.trim()
-      status = label ? `Alert sent to overlay: ${label}` : 'Alert sent to overlay'
+      notify(label ? `Alert sent to overlay: ${label}` : 'Alert sent to overlay')
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
     }
   }
 
   async function pickCommandFile(index: number): Promise<void> {
-    error = ''
-    status = ''
     try {
       const p = await PickAlertMediaFile(alertsMediaPath)
       if (!p) {
@@ -356,7 +341,7 @@
       }
       commandRows = commandRows.map((row, i) => (i === index ? { ...row, file: p } : row))
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
     }
   }
 
@@ -369,7 +354,7 @@
       alertsMediaPath = p
       await save()
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
     }
   }
 
@@ -403,7 +388,6 @@
       return
     }
     commandsLoading = true
-    error = ''
     try {
       const got = await GetAlertCommands()
       commandsPath = got.path ?? ''
@@ -416,7 +400,7 @@
     } catch (e) {
       commandsPath = ''
       commandRows = []
-      error = String(e)
+      notify(String(e), 'err')
     } finally {
       commandsLoading = false
     }
@@ -441,8 +425,6 @@
 
   async function saveCommands(): Promise<void> {
     commandsSaving = true
-    error = ''
-    status = ''
     try {
       const commands = commandRows.map((row, i) => {
         const name = row.name.trim()
@@ -463,9 +445,9 @@
       })
       await SaveAlertCommands(cmdModels.AlertCommandsFile.createFrom({ path: commandsPath, commands }))
       await loadCommands()
-      status = 'Commands saved'
+      notify('Commands saved')
     } catch (e) {
-      error = String(e)
+      notify(String(e), 'err')
     } finally {
       commandsSaving = false
     }
@@ -517,7 +499,9 @@
           bind:debug
           {saving}
           {configPath}
-          onSave={save}
+          onSave={async () => {
+            await save()
+          }}
           onLookup={lookupLatest}
           lookingUp={lookingUp}
           onPickYaml={pickYaml}
@@ -548,15 +532,7 @@
       {/if}
     </div>
 
-    {#if status || error}
-      <div class="flash">
-        {#if status}
-          <p class="ok">{status}</p>
-        {/if}
-        {#if error}
-          <p class="err">{error}</p>
-        {/if}
-      </div>
-    {/if}
   </div>
+
+  <Notifications bind:notices />
 </div>

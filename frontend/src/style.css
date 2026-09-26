@@ -187,28 +187,6 @@ body {
     margin-top: 0;
 }
 
-.flash {
-    flex: 0 0 auto;
-    padding: 8px 22px 12px;
-}
-
-.flash p {
-    margin: 0;
-    padding: 8px 10px;
-    border-radius: 6px;
-    font-size: 12px;
-}
-
-.flash .ok {
-    background: rgba(52, 211, 153, 0.12);
-    color: var(--ok);
-}
-
-.flash .err {
-    background: rgba(248, 113, 113, 0.12);
-    color: var(--danger);
-}
-
 .lead {
     margin: 0 0 16px;
     color: var(--muted);
