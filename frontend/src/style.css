@@ -187,6 +187,26 @@ body {
     margin-top: 0;
 }
 
+.command-footer {
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.command-footer-end {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+}
+
+.btn.btn-icon {
+    min-width: 32px;
+    width: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .lead {
     margin: 0 0 16px;
     color: var(--muted);

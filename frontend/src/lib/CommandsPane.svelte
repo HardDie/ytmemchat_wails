@@ -492,32 +492,64 @@
 </div>
 {#if path}
   <div class="pane-footer">
-    <div class="actions">
-      <button class="btn" disabled={loading || !path} type="button" on:click={addAndFocus}>Add command</button>
+    <div class="actions command-footer">
+      <button class="btn btn-icon" disabled={loading || !path} type="button" aria-label="Add command" title="Add command" on:click={addAndFocus}>
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M8 3.25v9.5M3.25 8h9.5" />
+        </svg>
+      </button>
+      <button class="btn btn-icon" disabled={loading || saving} type="button" aria-label="Reload" title="Reload" on:click={() => void load()}>
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M3.1 6.15A4.6 4.6 0 0 1 12.4 5.2" />
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12.9 9.85A4.6 4.6 0 0 1 3.6 10.8" />
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M11.15 2.7v2.85h2.7" />
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M4.85 13.3v-2.85H2.15" />
+        </svg>
+      </button>
       <button
-        class="btn"
-        disabled={loading || !canPlayRandom}
-        title={previewTitle || (playable.length ? 'Play a random command on the OBS overlay' : 'Add a command with a file')}
-        type="button"
-        on:click={playRandom}
-      >Play random</button>
-      <button
-        class="btn"
-        disabled={loading || copyLines.length === 0}
-        title={copyLines.length ? 'Copy each command with the token, one per line' : 'Add a command name first'}
-        type="button"
-        on:click={() => void copyCommands()}
-      >Copy commands</button>
-      <button class="btn" disabled={loading || saving} type="button" on:click={() => void load()}>Reload</button>
-      <button
-        class="btn btn-primary"
+        class="btn btn-icon btn-primary"
         disabled={loading || saving || hasDuplicateNames}
-        title={hasDuplicateNames ? 'Fix duplicate command names before saving' : undefined}
+        aria-label={saving ? 'Saving…' : 'Save YAML'}
+        title={hasDuplicateNames ? 'Fix duplicate command names before saving' : saving ? 'Saving…' : 'Save YAML'}
         type="button"
         on:click={save}
       >
-        {saving ? 'Saving…' : 'Save YAML'}
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M3 2.75h7.15L13.25 5.85V13.25H3V2.75z" />
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M5.25 2.75V6h4.6" />
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M5.25 13.25v-3.2h5.5v3.2" />
+        </svg>
       </button>
+      <div class="command-footer-end">
+        <button
+          class="btn btn-icon"
+          disabled={loading || !canPlayRandom}
+          aria-label="Play random"
+          title={previewTitle || (playable.length ? 'Play a random command on the OBS overlay' : 'Add a command with a file')}
+          type="button"
+          on:click={playRandom}
+        >
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+            <rect x="2.75" y="2.75" width="10.5" height="10.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <circle cx="5.75" cy="5.75" r="0.9" fill="currentColor" />
+            <circle cx="8" cy="8" r="0.9" fill="currentColor" />
+            <circle cx="10.25" cy="10.25" r="0.9" fill="currentColor" />
+          </svg>
+        </button>
+        <button
+          class="btn btn-icon"
+          disabled={loading || copyLines.length === 0}
+          aria-label="Copy commands"
+          title={copyLines.length ? 'Copy each command with the token, one per line' : 'Add a command name first'}
+          type="button"
+          on:click={() => void copyCommands()}
+        >
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+            <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M5.6 4.15h-1.1A1.25 1.25 0 0 0 3.25 5.4v7.1c0 .69.56 1.25 1.25 1.25h7c.69 0 1.25-.56 1.25-1.25V5.4c0-.69-.56-1.25-1.25-1.25H10.4" />
+            <rect x="5.85" y="2.2" width="4.3" height="2.7" rx="0.55" fill="none" stroke="currentColor" stroke-width="1.5" />
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 {/if}

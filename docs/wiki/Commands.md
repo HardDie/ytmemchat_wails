@@ -33,6 +33,10 @@ commands:
     scale: 1.2
 ```
 
+The footer buttons are icons. Hover one to see its name.
+
+**Add command**, **Reload**, and **Save YAML** sit on the left. **Play random** and **Copy commands** sit on the right.
+
 **Add command** appends a row. **Save YAML** writes the file. **Reload** discards unsaved edits. Sort by Command or Filename only changes the on-screen order until you save.
 
 **Copy commands** copies the names on screen. Each line starts with the token from Configuration. A blank name is skipped.
