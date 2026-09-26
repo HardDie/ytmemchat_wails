@@ -342,6 +342,20 @@ func TestMediaServesFile(t *testing.T) {
 	if res.StatusCode != http.StatusOK || string(b) != "hi" {
 		t.Fatalf("status %d body %q", res.StatusCode, b)
 	}
+	if got := res.Header.Get("Cache-Control"); got != "no-store" {
+		t.Fatalf("cache-control %q", got)
+	}
+	res, err = http.Get(ts.URL + PathMedia + "missing.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	if res.StatusCode != http.StatusNotFound {
+		t.Fatalf("missing status %d", res.StatusCode)
+	}
+	if got := res.Header.Get("Cache-Control"); got != "no-store" {
+		t.Fatalf("missing cache-control %q", got)
+	}
 }
 
 func TestWebhookInjectAndBadJSON(t *testing.T) {
