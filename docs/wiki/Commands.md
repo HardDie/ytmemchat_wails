@@ -43,4 +43,4 @@ The footer buttons are icons. Hover one to see its name.
 
 **Play random** sends one command that has a file, chosen at random, using the volume and scale in the editor. Commands with a blank file are skipped. The per-row **Play** sends that one command. Both need Alerts on and the overlay listening.
 
-The folder icon on File needs a media folder on Configuration. Paths outside that folder are rejected.
+The folder icon on File needs a media folder on Configuration. Paths outside that folder are rejected. If Name is empty, the filename without its extension becomes the Name. A Name already typed stays as it is.

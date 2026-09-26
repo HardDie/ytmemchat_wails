@@ -17,6 +17,7 @@
 
 * **1a. Empty commands.yaml path:** error telling the operator to set the path in Configuration.
 * **2a. Browse outside the media folder:** picker returns an error; the row is unchanged.
+* **2b. Empty Name and a chosen file:** Name is set from the filename without its extension. A Name already typed is left as-is.
 * **3a. Empty name or file:** save rejected; the previous file is left unchanged.
 * **3b. Volume or scale has more than two decimal digits, is negative, or is not a number:** save rejected.
 * **3c. Invalid YAML on load:** Get returns the decode error.

@@ -225,6 +225,17 @@ body {
     margin-bottom: 14px;
 }
 
+.config-pane .field:has(+ .hint),
+.config-pane .toggle:has(+ .hint) {
+    margin-bottom: 4px;
+}
+
+.config-pane .field + .hint,
+.config-pane .toggle + .hint {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
 .field > span.label,
 label {
     display: flex;
@@ -322,7 +333,8 @@ textarea:focus {
 }
 
 .card .hint:last-child,
-.card .path:last-child {
+.card .path:last-child,
+.config-pane .card .hint:last-child {
     margin-bottom: 0;
 }
 

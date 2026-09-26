@@ -40,7 +40,7 @@ Open **Commands**. Each row is one trigger.
 
 **Copy commands** copies every name with the token, one per line. Paste that text where viewers can read it.
 
-The folder icon rejects files outside the media folder. Put clips in that folder. Subfolders are fine.
+The folder icon rejects files outside the media folder. Put clips in that folder. Subfolders are fine. If Name is empty, the filename without its extension becomes the Name.
 
 Typical files:
 

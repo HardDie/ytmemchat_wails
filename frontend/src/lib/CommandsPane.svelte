@@ -288,6 +288,15 @@
     return { name: '', file: '', volume: '', scale: '' }
   }
 
+  function nameFromMediaPath(file: string): string {
+    const base = (file.split('/').pop() ?? '').trim()
+    const dot = base.lastIndexOf('.')
+    if (dot <= 0) {
+      return base
+    }
+    return base.slice(0, dot).trim()
+  }
+
   async function load(): Promise<void> {
     if (!commandsFilePath.trim()) {
       path = ''
@@ -344,7 +353,17 @@
       if (!p || !alive) {
         return
       }
-      rows = rows.map((row, i) => (i === index ? { ...row, file: p } : row))
+      rows = rows.map((row, i) => {
+        if (i !== index) {
+          return row
+        }
+        const next = { ...row, file: p }
+        if (row.name.trim() === '') {
+          next.name = nameFromMediaPath(p)
+        }
+        return next
+      })
+      namesTick += 1
     } catch (e) {
       notify(String(e), 'err')
     }
@@ -353,7 +372,7 @@
 
 <div class="pane-dock">
 <div class="pane-scroll" bind:this={paneScroll}>
-<p class="lead">Edits the YAML file used for overlay alerts. Leave volume and scale blank to omit them (playback uses 1). When set, they must be non-negative numbers with at most two digits after the decimal point. The folder icon on File picks a file inside the Config media folder (including subfolders) and stores the path without that folder prefix.</p>
+<p class="lead">Each command plays a clip on the overlay. Volume and scale can stay blank.</p>
 
 {#if !path}
   <section class="card">

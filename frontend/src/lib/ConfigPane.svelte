@@ -146,7 +146,7 @@
   })
 </script>
 
-<div class="pane-dock">
+<div class="pane-dock config-pane">
 <div class="pane-scroll">
 <p class="lead">Stored on this machine. Chat and overlay URLs are on Home.</p>
 
