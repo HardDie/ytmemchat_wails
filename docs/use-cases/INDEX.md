@@ -26,6 +26,10 @@ Copy [\_TEMPLATE.md](_TEMPLATE.md) when a module exists here.
 | UC-16 | Flush OBS chat from the Test pane | `internal/obs` | Implemented | [obs/uc-16-flush-chat.md](obs/uc-16-flush-chat.md) |
 | UC-17 | Store the YouTube API key in the OS keychain | `internal/secret` | Implemented | [secret/uc-17-os-keychain-api-key.md](secret/uc-17-os-keychain-api-key.md) |
 | UC-18 | Check GitHub for a newer app build | `internal/update` | Implemented | [update/uc-18-github-self-update.md](update/uc-18-github-self-update.md) |
+| UC-19 | YouTube live chat badge | `pipeline.go` | Implemented | [badge/uc-19-youtube-live-chat-badge.md](badge/uc-19-youtube-live-chat-badge.md) |
+| UC-20 | Overlay speech badge | `http.go` | Implemented | [badge/uc-20-overlay-speech-badge.md](badge/uc-20-overlay-speech-badge.md) |
+| UC-21 | OBS Browser Sources badge | `http.go` | Implemented | [badge/uc-21-obs-browser-sources-badge.md](badge/uc-21-obs-browser-sources-badge.md) |
+| UC-22 | Test payload badge | `http.go` | Implemented | [badge/uc-22-test-payload-badge.md](badge/uc-22-test-payload-badge.md) |
 
 ## Layout
 
@@ -57,6 +61,11 @@ docs/use-cases/
 │   └── uc-14-global-interrupt-hotkey.md
 ├── secret/
 │   └── uc-17-os-keychain-api-key.md
-└── update/
-    └── uc-18-github-self-update.md
+├── update/
+│   └── uc-18-github-self-update.md
+└── badge/
+    ├── uc-19-youtube-live-chat-badge.md
+    ├── uc-20-overlay-speech-badge.md
+    ├── uc-21-obs-browser-sources-badge.md
+    └── uc-22-test-payload-badge.md
 ```
