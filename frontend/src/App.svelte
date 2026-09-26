@@ -16,15 +16,9 @@
     PickMediaDirectory,
     SaveSettings,
   } from '../wailsjs/go/configuration/Configuration.js'
-  import {
-    GetAlertCommands,
-    PickAlertMediaFile,
-    PreviewAlert,
-    SaveAlertCommands,
-  } from '../wailsjs/go/commands/Commands.js'
   import { FlushChat, SendTestMessage } from '../wailsjs/go/test/Test.js'
   import { ApplyAndQuit, Check as CheckUpdate, Download as DownloadUpdate } from '../wailsjs/go/update/Update.js'
-  import { commands as cmdModels, configuration, home, update as updateModels } from '../wailsjs/go/models'
+  import { configuration, home, update as updateModels } from '../wailsjs/go/models'
   import { BrowserOpenURL, ClipboardSetText, EventsOn } from '../wailsjs/runtime/runtime'
   import HomePane from './lib/HomePane.svelte'
   import ConfigPane from './lib/ConfigPane.svelte'
@@ -66,10 +60,6 @@
   let saving = false
   let starting = false
   let lookingUp = false
-  let commandsSaving = false
-  let commandsLoading = false
-  let commandsPath = ''
-  let commandRows: Array<{ name: string; file: string; volume: string; scale: string }> = []
   let obs: home.OBSStatus | null = null
   let run: home.RunStatus | null = null
   let appVersion = ''
@@ -316,35 +306,6 @@
     }
   }
 
-  async function testCommand(index: number): Promise<void> {
-    const row = commandRows[index]
-    if (!row || !row.file.trim()) {
-      notify('Command needs a file', 'err')
-      return
-    }
-    try {
-      const volume = row.volume.trim() ? Number(row.volume) : 1
-      const scale = row.scale.trim() ? Number(row.scale) : 1
-      await PreviewAlert(row.file.trim(), volume, scale)
-      const label = row.name.trim()
-      notify(label ? `Alert sent to overlay: ${label}` : 'Alert sent to overlay')
-    } catch (e) {
-      notify(String(e), 'err')
-    }
-  }
-
-  async function pickCommandFile(index: number): Promise<void> {
-    try {
-      const p = await PickAlertMediaFile(alertsMediaPath)
-      if (!p) {
-        return
-      }
-      commandRows = commandRows.map((row, i) => (i === index ? { ...row, file: p } : row))
-    } catch (e) {
-      notify(String(e), 'err')
-    }
-  }
-
   async function pickMedia(): Promise<void> {
     try {
       const p = await PickMediaDirectory()
@@ -358,100 +319,6 @@
     }
   }
 
-  function optionalFloat(raw: string, label: string): number | undefined {
-    const t = raw.trim().replace(/,/g, '.').replace(/\.$/, '')
-    if (!t) {
-      return undefined
-    }
-    if (!/^(?:\d+(?:\.\d{1,2})?|\.\d{1,2})$/.test(t)) {
-      throw new Error(`${label} must be a number with at most two digits after the decimal point`)
-    }
-    const n = Number(t)
-    if (!Number.isFinite(n)) {
-      throw new Error(`${label} must be a number`)
-    }
-    return n
-  }
-
-  function formatDecimal(n: number): string {
-    return String(Number(n.toFixed(2)))
-  }
-
-  function emptyRow(): { name: string; file: string; volume: string; scale: string } {
-    return { name: '', file: '', volume: '', scale: '' }
-  }
-
-  async function loadCommands(): Promise<void> {
-    if (!alertsCommandsFilePath.trim()) {
-      commandsPath = ''
-      commandRows = []
-      return
-    }
-    commandsLoading = true
-    try {
-      const got = await GetAlertCommands()
-      commandsPath = got.path ?? ''
-      commandRows = (got.commands ?? []).map((c) => ({
-        name: c.name ?? '',
-        file: c.file ?? '',
-        volume: c.volume == null ? '' : formatDecimal(c.volume),
-        scale: c.scale == null ? '' : formatDecimal(c.scale),
-      }))
-    } catch (e) {
-      commandsPath = ''
-      commandRows = []
-      notify(String(e), 'err')
-    } finally {
-      commandsLoading = false
-    }
-  }
-
-  async function openCommands(): Promise<void> {
-    page = 'commands'
-    await loadCommands()
-  }
-
-  function reorderCommands(next: Array<{ name: string; file: string; volume: string; scale: string }>): void {
-    commandRows = next
-  }
-
-  function addCommand(): void {
-    commandRows = [...commandRows, emptyRow()]
-  }
-
-  function removeCommand(index: number): void {
-    commandRows = commandRows.filter((_, i) => i !== index)
-  }
-
-  async function saveCommands(): Promise<void> {
-    commandsSaving = true
-    try {
-      const commands = commandRows.map((row, i) => {
-        const name = row.name.trim()
-        const file = row.file.trim()
-        if (!name || !file) {
-          throw new Error(`Command ${i + 1} needs a name and file`)
-        }
-        const item: { name: string; file: string; volume?: number; scale?: number } = { name, file }
-        const volume = optionalFloat(row.volume, `Command ${name} volume`)
-        const scale = optionalFloat(row.scale, `Command ${name} scale`)
-        if (volume !== undefined) {
-          item.volume = volume
-        }
-        if (scale !== undefined) {
-          item.scale = scale
-        }
-        return item
-      })
-      await SaveAlertCommands(cmdModels.AlertCommandsFile.createFrom({ path: commandsPath, commands }))
-      await loadCommands()
-      notify('Commands saved')
-    } catch (e) {
-      notify(String(e), 'err')
-    } finally {
-      commandsSaving = false
-    }
-  }
 </script>
 
 <div class="shell">
@@ -463,7 +330,7 @@
     <nav class="panes" aria-label="Window panes">
       <button class="pane-btn" class:active={page === 'home'} type="button" on:click={() => { page = 'home' }}>Home</button>
       <button class="pane-btn" class:active={page === 'config'} type="button" on:click={() => { page = 'config' }}>Configuration</button>
-      <button class="pane-btn" class:active={page === 'commands'} type="button" on:click={openCommands}>Commands</button>
+      <button class="pane-btn" class:active={page === 'commands'} type="button" on:click={() => { page = 'commands' }}>Commands</button>
       <button class="pane-btn" class:active={page === 'test'} type="button" on:click={() => { page = 'test' }}>Test</button>
       <button class="pane-btn" class:active={page === 'update'} type="button" on:click={() => { page = 'update' }}>Update</button>
     </nav>
@@ -509,20 +376,11 @@
         />
       {:else if page === 'commands'}
         <CommandsPane
-          path={commandsPath}
-          rows={commandRows}
-          saving={commandsSaving}
-          loading={commandsLoading}
-          onAdd={addCommand}
-          onRemove={removeCommand}
-          onReorder={reorderCommands}
-          onSave={saveCommands}
-          onReload={loadCommands}
           mediaPath={alertsMediaPath}
-          onPickFile={pickCommandFile}
-          onTest={testCommand}
+          commandsFilePath={alertsCommandsFilePath}
           canTest={!!(obs && obs.listening)}
           {alertsEnabled}
+          {notify}
         />
       {:else if page === 'test'}
         <TestPane bind:testMessage {obs} onSend={sendTest} onFlush={flushChat} />
