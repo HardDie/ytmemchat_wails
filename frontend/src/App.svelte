@@ -522,6 +522,7 @@
           onPickFile={pickCommandFile}
           onTest={testCommand}
           canTest={!!(obs && obs.listening)}
+          {alertsEnabled}
         />
       {:else if page === 'test'}
         <TestPane bind:testMessage {obs} onSend={sendTest} onFlush={flushChat} />

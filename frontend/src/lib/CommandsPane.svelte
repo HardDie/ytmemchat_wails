@@ -14,6 +14,7 @@
   export let onPickFile: (index: number) => Promise<void>
   export let onTest: (index: number) => Promise<void>
   export let canTest: boolean
+  export let alertsEnabled: boolean
 
   $: hasMedia = mediaPath.trim() !== ''
 
@@ -119,7 +120,13 @@
   }
 
   $: playable = playableIndexes(rows)
-  $: canPlayRandom = canTest && playable.length > 0
+  $: canPreview = canTest && alertsEnabled
+  $: canPlayRandom = canPreview && playable.length > 0
+  $: previewTitle = !alertsEnabled
+    ? 'Alerts are off in Configuration'
+    : !canTest
+      ? 'OBS overlay is offline'
+      : ''
 
   function playRandom(): void {
     if (!canPlayRandom) {
@@ -311,9 +318,9 @@
                       <button class="menu-danger" type="button" on:click={() => confirmRemove(i)}>Delete</button>
                     {:else}
                       <button
-                        disabled={!canTest || !row.file.trim()}
+                        disabled={!canPreview || !row.file.trim()}
                         type="button"
-                        title={canTest ? 'Play this command on the OBS overlay' : 'OBS overlay is offline'}
+                        title={previewTitle || 'Play this command on the OBS overlay'}
                         on:click={() => { closeMenu(); onTest(i) }}
                       >Play</button>
                       <button class="menu-danger" type="button" on:click={() => requestDelete(i)}>Delete</button>
@@ -336,7 +343,7 @@
       <button
         class="btn"
         disabled={loading || !canPlayRandom}
-        title={canTest ? (playable.length ? 'Play a random command on the OBS overlay' : 'Add a command with a file') : 'OBS overlay is offline'}
+        title={previewTitle || (playable.length ? 'Play a random command on the OBS overlay' : 'Add a command with a file')}
         type="button"
         on:click={playRandom}
       >Play random</button>
