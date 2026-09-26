@@ -7,12 +7,14 @@
     SaveAlertCommands,
   } from '../../wailsjs/go/commands/Commands.js'
   import { commands as cmdModels } from '../../wailsjs/go/models'
+  import { ClipboardSetText } from '../../wailsjs/runtime/runtime'
   import type { NoticeKind } from './Notifications.svelte'
 
   type CommandRow = { name: string; file: string; volume: string; scale: string }
 
   export let mediaPath: string
   export let commandsFilePath: string
+  export let token: string
   export let canTest: boolean
   export let alertsEnabled: boolean
   export let notify: (text: string, kind?: NoticeKind) => void
@@ -166,6 +168,34 @@
     : !canTest
       ? 'OBS overlay is offline'
       : ''
+
+  function prefixedLines(list: CommandRow[], prefix: string, tick: number): string[] {
+    void tick
+    const p = prefix.trim() || '@'
+    const lines: string[] = []
+    for (const row of list) {
+      const name = row.name.trim()
+      if (name === '') {
+        continue
+      }
+      lines.push(p + name)
+    }
+    return lines
+  }
+
+  $: copyLines = prefixedLines(rows, token, namesTick)
+
+  async function copyCommands(): Promise<void> {
+    if (copyLines.length === 0) {
+      return
+    }
+    try {
+      await ClipboardSetText(copyLines.join('\n'))
+      notify('Commands copied')
+    } catch (e) {
+      notify(String(e), 'err')
+    }
+  }
 
   function playRandom(): void {
     if (!canPlayRandom) {
@@ -471,6 +501,13 @@
         type="button"
         on:click={playRandom}
       >Play random</button>
+      <button
+        class="btn"
+        disabled={loading || copyLines.length === 0}
+        title={copyLines.length ? 'Copy each command with the token, one per line' : 'Add a command name first'}
+        type="button"
+        on:click={() => void copyCommands()}
+      >Copy commands</button>
       <button class="btn" disabled={loading || saving} type="button" on:click={() => void load()}>Reload</button>
       <button
         class="btn btn-primary"

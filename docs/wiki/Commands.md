@@ -35,6 +35,8 @@ commands:
 
 **Add command** appends a row. **Save YAML** writes the file. **Reload** discards unsaved edits. Sort by Command or Filename only changes the on-screen order until you save.
 
+**Copy commands** copies the names on screen. Each line starts with the token from Configuration. A blank name is skipped.
+
 **Play random** sends one command that has a file, chosen at random, using the volume and scale in the editor. Commands with a blank file are skipped. The per-row **Play** sends that one command. Both need Alerts on and the overlay listening.
 
 The folder icon on File needs a media folder on Configuration. Paths outside that folder are rejected.

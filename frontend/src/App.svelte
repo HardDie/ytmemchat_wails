@@ -378,6 +378,7 @@
         <CommandsPane
           mediaPath={alertsMediaPath}
           commandsFilePath={alertsCommandsFilePath}
+          token={alertsToken}
           canTest={!!(obs && obs.listening)}
           {alertsEnabled}
           {notify}

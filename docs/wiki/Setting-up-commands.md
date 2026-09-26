@@ -38,6 +38,8 @@ Open **Commands**. Each row is one trigger.
 
 **Add command**, then **Save YAML**. Saving reloads the matcher. You do not need YouTube **Start**. **Reload** throws away unsaved edits.
 
+**Copy commands** copies every name with the token, one per line. Paste that text where viewers can read it.
+
 The folder icon rejects files outside the media folder. Put clips in that folder. Subfolders are fine.
 
 Typical files:
