@@ -1,0 +1,35 @@
+---
+description: Keep wiki pages short. Use a list only for a long line or a real group.
+globs: docs/wiki/**/*.md
+alwaysApply: true
+---
+
+# Short lines in wiki pages
+
+Never write long sentences in `docs/wiki/*.md`.
+
+Do not pack a paragraph of facts into a single line.
+
+Prefer short sentences. Do not turn every fact into a list.
+
+Use a list only when the line would be very long, or the items are a real group such as steps or flags.
+
+Use a number only when order matters. Otherwise `-` or `*`.
+
+A list still needs a grouping line first.
+
+```markdown
+Query parameters:
+
+- `transparent`
+- `fontSize`
+- `textColor`
+```
+
+Two or three short facts stay sentences:
+
+```markdown
+The window opens on **Home**. The local chat server starts with the app.
+```
+
+Tables and code fences may stay wide.

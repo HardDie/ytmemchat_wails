@@ -6,7 +6,7 @@ Copy the **Chat** URL from Home into an OBS **Browser Source**. With the default
 http://127.0.0.1:8080/obs/chat
 ```
 
-Do not use a trailing slash (`/obs/chat/` is a 404). Do not use the index URL (`http://127.0.0.1:8080/`) as an OBS source. Size the source to the chat area (a sidebar such as `400×800`, or full canvas `1920×1080`).
+Do not use a trailing slash (`/obs/chat/` is a 404). Do not use the index URL (`http://127.0.0.1:8080/`) as an OBS source. Size the source to the chat area, such as a sidebar `400×800` or full canvas `1920×1080`.
 
 Add query parameters after `?`, joined with `&`. Restart or refresh the Browser Source after you change the URL.
 
@@ -21,7 +21,9 @@ Add query parameters after `?`, joined with `&`. Restart or refresh the Browser 
 
 `transparent=0`, empty values, and unknown names are ignored.
 
-`v` is not one of these. The app adds it (release tag, or commit while developing) so OBS loads the page and `script.js` for the running build. Leave it off the Browser Source URL. A missing or old `v` is redirected to the current one. Your `cap`, `transparent`, `fontSize`, and `textColor` values stay.
+`v` is not one of these. The app adds it (the release tag, or the commit while developing) so OBS loads the page and `script.js` for the running build. Leave it off the Browser Source URL.
+
+A missing or old `v` is redirected to the current one. Your `cap`, `transparent`, `fontSize`, and `textColor` values stay.
 
 ## Examples
 
@@ -53,10 +55,13 @@ http://127.0.0.1:8080/obs/chat?cap=none
 
 ## OBS notes
 
-- Put this URL in the Browser Source **URL** field. Leave **Custom CSS** empty unless you are adding extra rules; OBS already uses a transparent body in its default CSS.
-- `transparent=1` is what drops ytmemchat’s own dark page fill. Without it, the source is an opaque rectangle even if OBS CSS is transparent.
-- After editing the URL, click **Refresh cache of current page** on the source if the old look sticks.
-- Test pane **Flush chat** sends `type: chat_flush` on the chat socket. On-screen lines are removed. Overlay alerts stay. See [Test](Test).
+Put this URL in the Browser Source **URL** field. Leave **Custom CSS** empty unless you are adding extra rules. OBS already uses a transparent body in its default CSS.
+
+`transparent=1` drops ytmemchat’s own dark page fill. Without it, the source is an opaque rectangle even if OBS CSS is transparent.
+
+After editing the URL, click **Refresh cache of current page** on the source if the old look sticks.
+
+Test pane **Flush chat** sends `type: chat_flush` on the chat socket. On-screen lines are removed. Overlay alerts stay. See [Test](Test).
 
 ## Overlay URL
 

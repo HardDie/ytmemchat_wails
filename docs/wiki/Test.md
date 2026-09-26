@@ -13,7 +13,7 @@ Open the [Chat](Chat-URL) and [overlay](Configuration#alerts-run-before-tts) Bro
 
 The author on the chat page is `test`. A token plus a name from [Commands](Commands) plays that clip on the overlay and skips TTS. Any other text can be spoken if TTS is on.
 
-Send is disabled while OBS HTTP is down (**OBS offline**). The listener starts with the app; you do not need YouTube Start.
+Send is disabled while OBS HTTP is down (**OBS offline**). The listener starts with the app. You do not need YouTube Start.
 
 `POST /api/webhook` is the same path with author `webhook`. That route needs the HTTP API toggle on [Configuration](Configuration#http-api). Send does not.
 

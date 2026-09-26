@@ -2,7 +2,9 @@
 
 Pull requests are welcome. For large changes, open an issue first.
 
-When **user-facing** behavior changes, update [README.md](https://github.com/HardDie/ytmemchat_wails/blob/main/README.md) (short facts only) and the matching wiki page. When the **window UI** changes, run `make screenshots`. Porting a module, tests, godoc, and ADRs are described in [CURSOR.md](https://github.com/HardDie/ytmemchat_wails/blob/main/CURSOR.md). Match Go style in [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat).
+When **user-facing** behavior changes, update [README.md](https://github.com/HardDie/ytmemchat_wails/blob/main/README.md) (short facts only) and the matching wiki page. When the **window UI** changes, run `make screenshots`.
+
+[CURSOR.md](https://github.com/HardDie/ytmemchat_wails/blob/main/CURSOR.md) describes porting a module, tests, godoc, and ADRs. Match Go style in [HardDie/ytmemchat](https://github.com/HardDie/ytmemchat).
 
 How to clone and build is in the repository [README](https://github.com/HardDie/ytmemchat_wails/blob/main/README.md#from-source).
 
@@ -18,7 +20,9 @@ make doc PKG=./internal/tts
 make doc-all PKG=./internal/tts
 ```
 
-GitHub Actions (`.github/workflows/test.yml`) runs the same `go test` commands as `make test`, then `make test-integration`, on every push and pull request. It does not invoke `make`. Push a `vMAJOR.MINOR.PATCH` tag to publish versioned release archives such as `ytmemchat-v0.1.0-linux-amd64.tar.gz` (`.github/workflows/release.yml`).
+GitHub Actions (`.github/workflows/test.yml`) runs the same `go test` commands as `make test`, then `make test-integration`, on every push and pull request. It does not invoke `make`.
+
+Push a `vMAJOR.MINOR.PATCH` tag to publish archives such as `ytmemchat-v0.1.0-linux-amd64.tar.gz` (`.github/workflows/release.yml`).
 
 ## Package documentation
 

@@ -17,13 +17,13 @@ ytmemchat reads YouTube live chat and drives an OBS overlay: on-stream messages,
 * [Setting up commands](Setting-up-commands) — alerts on, media folder, overlay Browser Source
   * [Commands](Commands) — edit `commands.yaml` (name, file, volume, scale)
 * [Text to speech](Text-to-speech) — voice, and the overlay source OBS must load
-* [YouTube API key](YouTube-API-key) — what the Google token is, how to create one, default quota; Home shows spent units when a key is set
+* [YouTube API key](YouTube-API-key) — what the Google token is, how to create one, and the default quota
 
 ## Tools
 
-* [Test](Test) — send a fake chat line; flush OBS chat
+* [Test](Test) — send a fake chat line, or flush OBS chat
 * [Update](Update) — check GitHub Releases and replace this install
 
 ## Contributing
 
-* [Contributing](Contributing) — make targets, tests, package docs
+* [Contributing](Contributing) — make targets, tests, and package docs

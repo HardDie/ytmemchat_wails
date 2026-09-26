@@ -33,14 +33,17 @@ Apple’s steps: [If you want to open an app that hasn’t been notarized](https
 
 ## Terminal (optional)
 
-If the dialogs never appear (for example you copied the app from Downloads), strip the quarantine flag and open it:
+If the dialogs never appear (for example you copied the app from Downloads):
+
+1. Strip the quarantine flag.
+2. Open the app.
 
 ```bash
 xattr -dr com.apple.quarantine /path/to/ytmemchat.app
 open /path/to/ytmemchat.app
 ```
 
-Use the real path (Downloads or Applications). Do not disable Gatekeeper system-wide.
+Use the real path, such as Downloads or Applications. Do not disable Gatekeeper system-wide.
 
 ## Built on this Mac
 

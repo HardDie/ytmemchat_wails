@@ -1,12 +1,14 @@
 # Commands
 
-The **Commands** pane edits the YAML file used for overlay alerts. It is not shown on stream. Set the file path and media folder on [Configuration](Configuration) first (Alerts on), then return here. The full path (OBS Browser Source included) is [Setting up commands](Setting-up-commands).
+The **Commands** pane edits the YAML file used for overlay alerts. It is not shown on stream.
+
+Set the file path and media folder on [Configuration](Configuration) first (Alerts on), then return here. The full path, including the OBS Browser Source, is [Setting up commands](Setting-up-commands).
 
 ![Commands pane](https://raw.githubusercontent.com/HardDie/ytmemchat_wails/main/docs/screenshots/commands.png)
 
 A chat line matches when it contains the command token from Configuration (default `@`) plus a **Name** from this list. Matching is case-insensitive (`@Jump` is `jump`). A match plays the media on the overlay and **skips TTS**. See [Configuration](Configuration#alerts-run-before-tts).
 
-If the YAML path is empty, matching is skipped (Start still works). A missing, unreadable, or invalid file **fails Start**. Saving here reloads the matcher without needing YouTube Start.
+If the YAML path is empty, matching is skipped and Start still works. A missing, unreadable, or invalid file **fails Start**. Saving here reloads the matcher. YouTube Start is not required.
 
 ## Each command
 
@@ -31,6 +33,8 @@ commands:
     scale: 1.2
 ```
 
-**Add command** appends a row. **Save YAML** writes the file. **Reload** discards unsaved edits. Sort by Command or Filename only changes the order on screen until you save. **Play random** sends one command that has a file, chosen at random, using the volume and scale currently in the editor. Commands with a blank file are skipped. The per-row menu still has **Play** for one specific command. Both need Alerts on in Configuration and the overlay listening.
+**Add command** appends a row. **Save YAML** writes the file. **Reload** discards unsaved edits. Sort by Command or Filename only changes the on-screen order until you save.
+
+**Play random** sends one command that has a file, chosen at random, using the volume and scale in the editor. Commands with a blank file are skipped. The per-row **Play** sends that one command. Both need Alerts on and the overlay listening.
 
 The folder icon on File needs a media folder on Configuration. Paths outside that folder are rejected.

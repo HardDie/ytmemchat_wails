@@ -1,18 +1,22 @@
 # Getting Started
 
-This is the simplest way to run ytmemchat: paste a live stream ID, leave everything else alone, and watch chat. You do not need a YouTube API key. Alerts and text-to-speech are off on first launch.
+This is the simplest way to run ytmemchat. Paste a live stream ID, leave everything else alone, and watch chat.
 
-The desktop window is only the operator console. Chat is a local web page that OBS (or a browser) loads.
+You do not need a YouTube API key. Alerts and text-to-speech are off on first launch.
+
+The desktop window is only the operator console. OBS or a browser loads the chat page.
 
 ## What you need
 
-- ytmemchat (a [GitHub Release](https://github.com/HardDie/ytmemchat_wails/releases) for your OS, or a binary you built). On macOS the release is unsigned: [Running on macOS](Running-on-macOS).
+- ytmemchat: a [GitHub Release](https://github.com/HardDie/ytmemchat_wails/releases) for your OS, or a binary you built. On macOS the release is unsigned. See [Running on macOS](Running-on-macOS).
 - A YouTube video that is **live right now**, with live chat enabled
 - Optional: [OBS Studio](https://obsproject.com/), if you want that chat on stream
 
 ## 1. Open the app
 
-Unpack the release and start ytmemchat. The window opens on **Home**. The local chat server starts with the app, even before you click Start. macOS may block the first launch; see [Running on macOS](Running-on-macOS).
+Unpack the release and start ytmemchat. The window opens on **Home**. The local chat server starts with the app, even before you click Start.
+
+macOS may block the first launch. See [Running on macOS](Running-on-macOS).
 
 ![Home pane: Start/Stop, interrupt, and OBS Browser Source URLs](https://raw.githubusercontent.com/HardDie/ytmemchat_wails/main/docs/screenshots/home.png)
 
@@ -45,7 +49,7 @@ On **Home**, copy the **Chat** URL. With the default port it is:
 http://127.0.0.1:8080/obs/chat
 ```
 
-Open that URL in a browser to preview, or add an OBS **Browser Source** pointed at it. Size the source to the area you want for chat (a sidebar such as `400×800`, or full canvas `1920×1080`).
+Open that URL in a browser to preview, or add an OBS **Browser Source**. Size the source to the chat area, such as a sidebar `400×800` or full canvas `1920×1080`.
 
 To drop the dark background when the source sits over gameplay, use:
 
@@ -53,23 +57,21 @@ To drop the dark background when the source sits over gameplay, use:
 http://127.0.0.1:8080/obs/chat?transparent=1
 ```
 
-Font size, text color, and other chat query parameters are on [Chat URL](Chat-URL).
-
-You can ignore the **Overlay** URL for this guide. Do not use the index URL (`http://127.0.0.1:8080/`) as an OBS source.
+Font size, text color, and other chat query parameters are on [Chat URL](Chat-URL). You can ignore the **Overlay** URL for this guide. Do not use the index URL (`http://127.0.0.1:8080/`) as an OBS source.
 
 ## 4. Start live chat
 
 On **Home**, click **Start**. The badge should move from **Connecting** to **Connected**. The detail line reads **No API key**.
 
-New messages appear on the chat page as viewers send them. ytmemchat does not replay history: lines that were already in chat before you clicked Start stay off the overlay.
+New messages appear on the chat page as viewers send them. ytmemchat does not replay history. Lines that were already in chat before you clicked Start stay off the overlay.
 
 ## Which messages you will see
 
-Without an API key (token), ytmemchat reads the **public** live chat page — the same feed an anonymous viewer gets in the browser.
+Without an API key (token), ytmemchat reads the **public** live chat page. That is the same feed an anonymous viewer gets in the browser.
 
-YouTube does not put every line on that page. If YouTube marks a message as spam or otherwise “bad”, it never reaches ytmemchat, so it will not appear in our chat overlay. That is YouTube filtering the public feed, not the overlay dropping a message.
+YouTube does not put every line on that page. If YouTube marks a message as spam or otherwise “bad”, it never reaches ytmemchat, so it will not appear on the overlay. That is YouTube filtering the public feed, not the overlay dropping a message.
 
-Studio chat (and a [YouTube API key](YouTube-API-key)) can show a fuller feed. For this getting-started path, expect some messages that you see as the channel owner to be missing here. A new Google key has a small daily limit; it is still enough for **Find latest**. See [YouTube API key](YouTube-API-key#default-quota-why-a-long-stream-may-run-out).
+Studio chat, or a [YouTube API key](YouTube-API-key), can show a fuller feed. On this path, some messages you see as the channel owner can be missing here. A new Google key has a small daily limit, and it is still enough for **Find latest**. See [YouTube API key](YouTube-API-key#default-quota-why-a-long-stream-may-run-out).
 
 ## If Start fails
 
@@ -83,4 +85,8 @@ Studio chat (and a [YouTube API key](YouTube-API-key)) can show a fuller feed. F
 
 ## Next
 
-When you want meme alerts, follow [Setting up commands](Setting-up-commands). Speech needs the overlay source: [Text to speech](Text-to-speech). A [YouTube API key](YouTube-API-key) and the interrupt shortcut are on [Configuration](Configuration). Edit alert clips on [Commands](Commands). Use [Test](Test) to send a fake line or flush OBS chat without YouTube Start.
+- Meme alerts: [Setting up commands](Setting-up-commands)
+- Speech: [Text to speech](Text-to-speech). The overlay source must be loaded.
+- API key and the interrupt shortcut: [Configuration](Configuration)
+- Alert clips: [Commands](Commands)
+- A fake line, or flush OBS chat, without YouTube Start: [Test](Test)
