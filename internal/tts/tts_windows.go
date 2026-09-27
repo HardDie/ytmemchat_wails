@@ -8,7 +8,21 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 )
+
+// createNoWindow is the Win32 CREATE_NO_WINDOW flag.
+// A GUI app otherwise opens a console for powershell.exe.
+const createNoWindow = 0x08000000
+
+func hiddenCommand(name string, args ...string) *exec.Cmd {
+	cmd := exec.Command(name, args...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		HideWindow:    true,
+		CreationFlags: createNoWindow,
+	}
+	return cmd
+}
 
 func speak(text, voiceName string) error {
 	text = strings.ReplaceAll(text, "'", "''")
@@ -19,7 +33,7 @@ func speak(text, voiceName string) error {
 		$synth.SelectVoice('%s');
 		$synth.Speak('%s');
 	`, voiceName, text)
-	cmd := exec.Command("powershell", "-NoProfile", "-Command", powershellScript)
+	cmd := hiddenCommand("powershell", "-NoProfile", "-Command", powershellScript)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("PowerShell execution failed (voice %s): %w. output: %s", voiceName, err, string(output))
@@ -46,7 +60,7 @@ func synthesize(text, voiceName string) ([]byte, string, error) {
 		$synth.Speak('%s');
 		$synth.Dispose();
 	`, safeVoice, tempFilePath, safeText)
-	cmd := exec.Command("powershell", "-NoProfile", "-Command", powershellScript)
+	cmd := hiddenCommand("powershell", "-NoProfile", "-Command", powershellScript)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return nil, "", fmt.Errorf("powershell audio write failed: %w: %s", err, string(out))
 	}
@@ -76,7 +90,7 @@ func getAvailableVoices() ([]VoiceInfo, error) {
 		Select-Object Name, Culture, Gender, Description |
 		ConvertTo-Json -Compress
 	`
-	cmd := exec.Command("powershell", "-NoProfile", "-Command", powershellCommand)
+	cmd := hiddenCommand("powershell", "-NoProfile", "-Command", powershellCommand)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute PowerShell for voice list: %w", err)
