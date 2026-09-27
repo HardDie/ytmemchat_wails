@@ -11,8 +11,11 @@
   import { commands as cmdModels } from '../../wailsjs/go/models'
   import { ClipboardSetText } from '../../wailsjs/runtime/runtime'
   import type { NoticeKind } from './Notifications.svelte'
-
-  type CommandRow = { name: string; file: string; volume: string; scale: string }
+  import CommandRow from './commands/CommandRow.svelte'
+  import CommandSearch from './commands/CommandSearch.svelte'
+  import IconButton from './commands/IconButton.svelte'
+  import { formatDecimal, optionalFloat } from './commands/decimal'
+  import type { CommandFields } from './commands/types'
 
   export let mediaPath: string
   export let commandsFilePath: string
@@ -23,7 +26,7 @@
   export let onImported: () => Promise<void> = async () => {}
 
   let path = ''
-  let rows: CommandRow[] = []
+  let rows: CommandFields[] = []
   let saving = false
   let exporting = false
   let importing = false
@@ -37,18 +40,12 @@
   let namesTick = 0
   let paneScroll: HTMLElement
   let query = ''
-  let searchInput: HTMLInputElement
 
   function nameKey(name: string): string {
     return name.trim().toLowerCase()
   }
 
-  function onNameInput(row: { name: string }, ev: Event): void {
-    row.name = (ev.currentTarget as HTMLInputElement).value
-    namesTick += 1
-  }
-
-  function collectDuplicateNames(list: CommandRow[], tick: number): Set<string> {
+  function collectDuplicateNames(list: CommandFields[], tick: number): Set<string> {
     void tick
     const counts = new Map<string, number>()
     for (const row of list) {
@@ -158,7 +155,7 @@
     rows = [...rows].sort((a, b) => cmp(a[field], b[field]))
   }
 
-  function rowMatches(row: CommandRow, raw: string): boolean {
+  function rowMatches(row: CommandFields, raw: string): boolean {
     const q = raw.trim().toLowerCase()
     if (q === '') {
       return true
@@ -166,9 +163,8 @@
     return row.name.toLowerCase().includes(q) || row.file.toLowerCase().includes(q)
   }
 
-  function onSearch(ev: Event): void {
-    query = (ev.currentTarget as HTMLInputElement).value
-    if (menu >= 0 && rows[menu] && !rowMatches(rows[menu], query)) {
+  function onSearch(next: string): void {
+    if (menu >= 0 && rows[menu] && !rowMatches(rows[menu], next)) {
       closeMenu()
     }
   }
@@ -176,14 +172,13 @@
   function clearSearch(): void {
     query = ''
     closeMenu()
-    searchInput?.focus()
   }
 
   $: visibleRows = rows
     .map((row, i) => ({ row, i }))
     .filter(({ row }) => rowMatches(row, query))
 
-  function playableIndexes(list: CommandRow[]): number[] {
+  function playableIndexes(list: CommandFields[]): number[] {
     const out: number[] = []
     list.forEach((row, i) => {
       if (row.file.trim()) {
@@ -202,7 +197,7 @@
       ? 'OBS overlay is offline'
       : ''
 
-  function prefixedLines(list: CommandRow[], prefix: string, tick: number): string[] {
+  function prefixedLines(list: CommandFields[], prefix: string, tick: number): string[] {
     void tick
     const p = prefix.trim() || '@'
     const lines: string[] = []
@@ -275,86 +270,7 @@
     void testCommand(index)
   }
 
-  function clampDecimal(raw: string): string {
-    let s = raw.replace(/,/g, '.').replace(/[^\d.]/g, '')
-    const dot = s.indexOf('.')
-    if (dot === -1) {
-      return s
-    }
-    return s.slice(0, dot + 1) + s.slice(dot + 1).replace(/\./g, '').slice(0, 2)
-  }
-
-  function setDecimal(row: { volume: string; scale: string }, field: 'volume' | 'scale', el: HTMLInputElement, next: string): void {
-    const v = clampDecimal(next)
-    row[field] = v
-    if (el.value !== v) {
-      el.value = v
-    }
-  }
-
-  function onDecimalKey(ev: KeyboardEvent): void {
-    if (ev.ctrlKey || ev.metaKey || ev.altKey) {
-      return
-    }
-    if (ev.key.length !== 1) {
-      return
-    }
-    const el = ev.currentTarget as HTMLInputElement
-    const start = el.selectionStart ?? el.value.length
-    const end = el.selectionEnd ?? el.value.length
-    const next = el.value.slice(0, start) + ev.key.replace(/,/g, '.') + el.value.slice(end)
-    if (clampDecimal(next) !== next) {
-      ev.preventDefault()
-    }
-  }
-
-  function onDecimalBefore(row: { volume: string; scale: string }, field: 'volume' | 'scale', ev: InputEvent): void {
-    const el = ev.currentTarget as HTMLInputElement
-    if (ev.inputType.startsWith('delete') || ev.inputType.startsWith('history')) {
-      return
-    }
-    const data = ev.data
-    if (data == null) {
-      return
-    }
-    const start = el.selectionStart ?? el.value.length
-    const end = el.selectionEnd ?? el.value.length
-    const insert = data.replace(/,/g, '.')
-    const next = el.value.slice(0, start) + insert + el.value.slice(end)
-    const clamped = clampDecimal(next)
-    if (clamped !== next) {
-      ev.preventDefault()
-      if (ev.inputType === 'insertFromPaste' || ev.inputType === 'insertFromDrop' || insert.length > 1) {
-        setDecimal(row, field, el, next)
-      }
-    }
-  }
-
-  function onDecimalInput(row: { volume: string; scale: string }, field: 'volume' | 'scale', ev: Event): void {
-    const el = ev.currentTarget as HTMLInputElement
-    setDecimal(row, field, el, el.value)
-  }
-
-  function optionalFloat(raw: string, label: string): number | undefined {
-    const t = raw.trim().replace(/,/g, '.').replace(/\.$/, '')
-    if (!t) {
-      return undefined
-    }
-    if (!/^(?:\d+(?:\.\d{1,2})?|\.\d{1,2})$/.test(t)) {
-      throw new Error(`${label} must be a number with at most two digits after the decimal point`)
-    }
-    const n = Number(t)
-    if (!Number.isFinite(n)) {
-      throw new Error(`${label} must be a number`)
-    }
-    return n
-  }
-
-  function formatDecimal(n: number): string {
-    return String(Number(n.toFixed(2)))
-  }
-
-  function emptyRow(): CommandRow {
+  function emptyRow(): CommandFields {
     return { name: '', file: '', volume: '', scale: '' }
   }
 
@@ -438,266 +354,153 @@
       notify(String(e), 'err')
     }
   }
+
+  $: busy = loading || saving || exporting || importing
+  $: saveTitle = hasDuplicateNames
+    ? 'Fix duplicate command names before saving'
+    : saving
+      ? 'Saving…'
+      : 'Save YAML'
 </script>
 
 <div class="pane-dock">
-<div class="pane-scroll" bind:this={paneScroll}>
-<p class="lead">Each command plays a clip on the overlay. Volume and scale can stay blank.</p>
+  <div class="pane-scroll" bind:this={paneScroll}>
+    <p class="lead">Each command plays a clip on the overlay. Volume and scale can stay blank.</p>
 
-{#if !path}
-  <section class="card">
-    <header class="card-head">
-      <h2>commands.yaml</h2>
-      <span class="badge badge-warn">Not set</span>
-    </header>
-    <p class="hint">Set a media folder in Configuration, or turn on a custom commands.yaml path, then return here.</p>
-    <p class="hint">Import unpacks a shared zip into a folder you choose.</p>
-  </section>
-{:else}
-  <section class="card">
-    <header class="card-head">
-      <h2>Commands</h2>
-      <div class="status-cluster">
-        <span class="badge">{rows.length}</span>
-      </div>
-    </header>
-    <p class="path">File <code>{path}</code></p>
-    {#if loading}
-      <p class="hint">Loading…</p>
-    {:else if rows.length === 0}
-      <p class="hint">No commands yet. Add one, then save.</p>
+    {#if !path}
+      <section class="card">
+        <header class="card-head">
+          <h2>commands.yaml</h2>
+          <span class="badge badge-warn">Not set</span>
+        </header>
+        <p class="hint">Set a media folder in Configuration, or turn on a custom commands.yaml path, then return here.</p>
+        <p class="hint">Import unpacks a shared zip into a folder you choose.</p>
+      </section>
     {:else}
-      <div class="sort-row">
-        <span>Sort by</span>
-        <button class="btn btn-small" disabled={loading || saving} type="button" on:click={() => sortBy('name')}>Command</button>
-        <button class="btn btn-small" disabled={loading || saving} type="button" on:click={() => sortBy('file')}>Filename</button>
-        <span class="command-search">
-          <input
-            bind:this={searchInput}
-            autocomplete="off"
-            aria-label="Search commands"
-            placeholder="Search"
-            spellcheck="false"
-            type="text"
-            value={query}
-            on:input={onSearch}
-          />
-          {#if query}
-            <button class="command-search-clear" type="button" aria-label="Clear search" title="Clear" on:click={clearSearch}>
-              <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
-                <path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" d="M4.5 4.5l7 7M11.5 4.5l-7 7" />
-              </svg>
-            </button>
-          {/if}
-        </span>
-      </div>
-      {#if visibleRows.length === 0}
-        <p class="hint">No commands match.</p>
-      {:else}
-      <div class="command-list">
-        {#each visibleRows as { row, i } (i)}
-          <div class="command-row">
-            <div class="command-main">
-              <label class="field">
-                Name
-                <input
-                  autocomplete="off"
-                  class:name-dup={duplicateNames.has(nameKey(row.name))}
-                  aria-invalid={duplicateNames.has(nameKey(row.name))}
-                  value={row.name}
-                  placeholder="jump"
-                  spellcheck="false"
-                  type="text"
-                  on:input={(e) => onNameInput(row, e)}
-                />
-                {#if duplicateNames.has(nameKey(row.name))}
-                  <span class="name-error">This command already exists</span>
-                {/if}
-              </label>
-              <label class="field">
-                File
-                <span class="file-in">
-                  <input
-                    readonly
-                    autocomplete="off"
-                    bind:value={row.file}
-                    placeholder="Choose a file"
-                    spellcheck="false"
-                    title={hasMedia ? 'Choose a file with the folder button' : 'Set a media folder in Configuration'}
-                    type="text"
-                  />
-                  <button
-                    class="file-in-btn"
-                    disabled={!hasMedia}
-                    title={hasMedia ? 'Choose a file inside the media folder' : 'Set a media folder in Configuration'}
-                    type="button"
-                    aria-label="Choose file"
-                    on:click={() => pickFile(i)}
-                  >
-                    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-                      <path fill="currentColor" d="M1.5 3.5A1.5 1.5 0 0 1 3 2h3.2c.3 0 .6.1.8.4L8 3.5h5A1.5 1.5 0 0 1 14.5 5v7A1.5 1.5 0 0 1 13 13.5H3A1.5 1.5 0 0 1 1.5 12Z" />
-                    </svg>
-                  </button>
-                </span>
-              </label>
-            </div>
-            <div class="command-meta">
-              <label class="field">
-                Volume
-                <input
-                  autocomplete="off"
-                  inputmode="decimal"
-                  value={row.volume}
-                  placeholder="omit"
-                  spellcheck="false"
-                  type="text"
-                  on:keydown={onDecimalKey}
-                  on:beforeinput={(e) => onDecimalBefore(row, 'volume', e)}
-                  on:input={(e) => onDecimalInput(row, 'volume', e)}
-                />
-              </label>
-              <label class="field">
-                Scale
-                <input
-                  autocomplete="off"
-                  inputmode="decimal"
-                  value={row.scale}
-                  placeholder="omit"
-                  spellcheck="false"
-                  type="text"
-                  on:keydown={onDecimalKey}
-                  on:beforeinput={(e) => onDecimalBefore(row, 'scale', e)}
-                  on:input={(e) => onDecimalInput(row, 'scale', e)}
-                />
-              </label>
-              <div class="command-more" on:click|stopPropagation>
-                <button
-                  class="file-in-btn command-more-btn"
-                  type="button"
-                  aria-label="More actions"
-                  title="More"
-                  on:click|stopPropagation={() => toggleMenu(i)}
-                >
-                  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-                    <circle cx="3" cy="8" r="1.5" fill="currentColor" />
-                    <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-                    <circle cx="13" cy="8" r="1.5" fill="currentColor" />
-                  </svg>
-                </button>
-                {#if menu === i}
-                  <div class="command-menu">
-                    {#if confirmDelete === i}
-                      <p class="menu-note">Delete {row.name.trim() ? `“${row.name.trim()}”` : 'this command'}?</p>
-                      <button type="button" on:click={() => { confirmDelete = -1 }}>Cancel</button>
-                      <button class="menu-danger" type="button" on:click={() => confirmRemove(i)}>Delete</button>
-                    {:else}
-                      <button
-                        disabled={!canPreview || !row.file.trim()}
-                        type="button"
-                        title={previewTitle || 'Play this command on the OBS overlay'}
-                        on:click={() => { closeMenu(); void testCommand(i) }}
-                      >Play</button>
-                      <button class="menu-danger" type="button" on:click={() => requestDelete(i)}>Delete</button>
-                    {/if}
-                  </div>
-                {/if}
-              </div>
-            </div>
+      <section class="card">
+        <header class="card-head">
+          <h2>Commands</h2>
+          <div class="status-cluster">
+            <span class="badge">{rows.length}</span>
           </div>
-        {/each}
-      </div>
-      {/if}
+        </header>
+        <p class="path">File <code>{path}</code></p>
+        {#if loading}
+          <p class="hint">Loading…</p>
+        {:else if rows.length === 0}
+          <p class="hint">No commands yet. Add one, then save.</p>
+        {:else}
+          <div class="sort-row">
+            <span>Sort by</span>
+            <button class="btn btn-small" disabled={loading || saving} type="button" on:click={() => sortBy('name')}>Command</button>
+            <button class="btn btn-small" disabled={loading || saving} type="button" on:click={() => sortBy('file')}>Filename</button>
+            <CommandSearch bind:value={query} onChange={onSearch} onClear={clearSearch} />
+          </div>
+          {#if visibleRows.length === 0}
+            <p class="hint">No commands match.</p>
+          {:else}
+            <div class="command-list">
+              {#each visibleRows as { row, i } (i)}
+                <CommandRow
+                  {row}
+                  duplicate={duplicateNames.has(nameKey(row.name))}
+                  {hasMedia}
+                  menuOpen={menu === i}
+                  confirmDelete={confirmDelete === i}
+                  {canPreview}
+                  {previewTitle}
+                  onName={() => namesTick += 1}
+                  onPick={() => pickFile(i)}
+                  onToggleMenu={() => toggleMenu(i)}
+                  onPlay={() => { closeMenu(); void testCommand(i) }}
+                  onRequestDelete={() => requestDelete(i)}
+                  onCancelDelete={() => { confirmDelete = -1 }}
+                  onConfirmDelete={() => confirmRemove(i)}
+                />
+              {/each}
+            </div>
+          {/if}
+        {/if}
+      </section>
     {/if}
-  </section>
-{/if}
-</div>
-<div class="pane-footer">
+  </div>
+  <div class="pane-footer">
     <div class="actions command-footer">
-      <button class="btn btn-icon" disabled={loading || !path} type="button" aria-label="Add command" title="Add command" on:click={addAndFocus}>
-        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M8 3.25v9.5M3.25 8h9.5" />
-        </svg>
-      </button>
-      <button class="btn btn-icon" disabled={loading || saving || exporting || importing || !path} type="button" aria-label="Reload" title="Reload" on:click={() => void load()}>
-        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M3.1 6.15A4.6 4.6 0 0 1 12.4 5.2" />
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12.9 9.85A4.6 4.6 0 0 1 3.6 10.8" />
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M11.15 2.7v2.85h2.7" />
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M4.85 13.3v-2.85H2.15" />
-        </svg>
-      </button>
-      <button
-        class="btn btn-icon btn-primary"
-        disabled={loading || saving || exporting || importing || hasDuplicateNames || !path}
-        aria-label={saving ? 'Saving…' : 'Save YAML'}
-        title={hasDuplicateNames ? 'Fix duplicate command names before saving' : saving ? 'Saving…' : 'Save YAML'}
-        type="button"
+      <IconButton name="plus" label="Add command" disabled={loading || !path} on:click={addAndFocus} />
+      <IconButton name="reload" label="Reload" disabled={busy || !path} on:click={() => void load()} />
+      <IconButton
+        name="save"
+        primary
+        label={saving ? 'Saving…' : 'Save YAML'}
+        title={saveTitle}
+        disabled={busy || hasDuplicateNames || !path}
         on:click={save}
-      >
-        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M3 2.75h7.15L13.25 5.85V13.25H3V2.75z" />
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M5.25 2.75V6h4.6" />
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M5.25 13.25v-3.2h5.5v3.2" />
-        </svg>
-      </button>
-      <button
-        class="btn btn-icon"
-        disabled={loading || saving || exporting || importing || !path}
-        aria-label={exporting ? 'Exporting…' : 'Export'}
+      />
+      <IconButton
+        name="export"
+        label={exporting ? 'Exporting…' : 'Export'}
         title={exporting ? 'Exporting…' : 'Export the saved commands and the media files they use'}
-        type="button"
+        disabled={busy || !path}
         on:click={() => void exportCommands()}
-      >
-        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M3 6.4V12.75h10V6.4" />
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M8 8.6V2.6" />
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5.4 4.9 8 2.6l2.6 2.3" />
-        </svg>
-      </button>
-      <button
-        class="btn btn-icon"
-        disabled={loading || saving || exporting || importing}
-        aria-label={importing ? 'Importing…' : 'Import'}
+      />
+      <IconButton
+        name="import"
+        label={importing ? 'Importing…' : 'Import'}
         title={importing ? 'Importing…' : 'Import a zip of commands and the media files they use'}
-        type="button"
+        disabled={busy}
         on:click={() => void importCommands()}
-      >
-        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M3 6.4V12.75h10V6.4" />
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M8 2.6v6" />
-          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5.4 6.3 8 8.6l2.6-2.3" />
-        </svg>
-      </button>
+      />
       <div class="command-footer-end">
-        <button
-          class="btn btn-icon"
-          disabled={loading || !canPlayRandom}
-          aria-label="Play random"
+        <IconButton
+          name="dice"
+          label="Play random"
           title={previewTitle || (playable.length ? 'Play a random command on the OBS overlay' : 'Add a command with a file')}
-          type="button"
+          disabled={loading || !canPlayRandom}
           on:click={playRandom}
-        >
-          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-            <rect x="2.75" y="2.75" width="10.5" height="10.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" />
-            <circle cx="5.75" cy="5.75" r="0.9" fill="currentColor" />
-            <circle cx="8" cy="8" r="0.9" fill="currentColor" />
-            <circle cx="10.25" cy="10.25" r="0.9" fill="currentColor" />
-          </svg>
-        </button>
-        <button
-          class="btn btn-icon"
-          disabled={loading || copyLines.length === 0}
-          aria-label="Copy commands"
+        />
+        <IconButton
+          name="copy"
+          label="Copy commands"
           title={copyLines.length ? 'Copy each command with the token, one per line' : 'Add a command name first'}
-          type="button"
+          disabled={loading || copyLines.length === 0}
           on:click={() => void copyCommands()}
-        >
-          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-            <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M5.6 4.15h-1.1A1.25 1.25 0 0 0 3.25 5.4v7.1c0 .69.56 1.25 1.25 1.25h7c.69 0 1.25-.56 1.25-1.25V5.4c0-.69-.56-1.25-1.25-1.25H10.4" />
-            <rect x="5.85" y="2.2" width="4.3" height="2.7" rx="0.55" fill="none" stroke="currentColor" stroke-width="1.5" />
-          </svg>
-        </button>
+        />
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  .sort-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 16px 0 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .command-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 0 0 16px;
+    min-width: 0;
+    width: 100%;
+    container-type: inline-size;
+    container-name: commands;
+  }
+
+  .command-footer {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .command-footer-end {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+  }
+</style>

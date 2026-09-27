@@ -493,6 +493,7 @@ Official Wails layout:
 │   │   ├── App.svelte        # pane shell (home / config / commands / test / update)
 │   │   ├── style.css
 │   │   ├── lib/              # HomePane, ConfigPane, CommandsPane, TestPane, UpdatePane
+│   │   │   └── commands/     # Commands row, search, decimal field, icons
 │   │   └── assets/
 │   ├── wailsjs/              # generated bindings — do not edit
 │   │   ├── go/               # sidebar, home, configuration, commands, test, update
