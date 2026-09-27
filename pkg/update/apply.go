@@ -32,7 +32,7 @@ func (c *Client) Apply() error {
 		start = startDetached
 	}
 	if runtime.GOOS == "windows" {
-		return start("powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-NoExit", "-File", script)
+		return start("powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", script)
 	}
 	return start("/bin/sh", script)
 }
@@ -100,7 +100,7 @@ func windowsHelper(dest, payload, old string) []byte {
 		"  try { Remove-Item -LiteralPath $old -Recurse -Force -ErrorAction Stop; Write-Host 'removed old' }",
 		"  catch { Write-Host (\"left old file: \" + $_.Exception.Message) }",
 		"}",
-		"Write-Host 'Done. You can close this window.'",
+		"Write-Host 'done'",
 		"",
 	}, "\r\n")
 	out := make([]byte, 0, 3+len(body))
