@@ -30,6 +30,7 @@ Copy [\_TEMPLATE.md](_TEMPLATE.md) when a module exists here.
 | UC-20 | Overlay speech badge | `http.go` | Implemented | [badge/uc-20-overlay-speech-badge.md](badge/uc-20-overlay-speech-badge.md) |
 | UC-21 | OBS Browser Sources badge | `http.go` | Implemented | [badge/uc-21-obs-browser-sources-badge.md](badge/uc-21-obs-browser-sources-badge.md) |
 | UC-22 | Test payload badge | `http.go` | Implemented | [badge/uc-22-test-payload-badge.md](badge/uc-22-test-payload-badge.md) |
+| UC-23 | Export and import a command collection | `pkg/archive` | Implemented | [archive/uc-23-export-import-commands.md](archive/uc-23-export-import-commands.md) |
 
 ## Layout
 
@@ -63,9 +64,11 @@ docs/use-cases/
 │   └── uc-17-os-keychain-api-key.md
 ├── update/
 │   └── uc-18-github-self-update.md
-└── badge/
-    ├── uc-19-youtube-live-chat-badge.md
-    ├── uc-20-overlay-speech-badge.md
-    ├── uc-21-obs-browser-sources-badge.md
-    └── uc-22-test-payload-badge.md
+├── badge/
+│   ├── uc-19-youtube-live-chat-badge.md
+│   ├── uc-20-overlay-speech-badge.md
+│   ├── uc-21-obs-browser-sources-badge.md
+│   └── uc-22-test-payload-badge.md
+└── archive/
+    └── uc-23-export-import-commands.md
 ```

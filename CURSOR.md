@@ -118,8 +118,10 @@ This is a new desktop app.
 | GET | `/obs/chat/ws` | Chat WebSocket |
 | GET | `/obs/overlay` | Alert + TTS overlay HTML (OBS Browser Source) |
 | GET | `/obs/overlay/ws` | Overlay WebSocket |
+| GET | `/obs/script.js` | Shared socket script for chat and overlay |
 | GET | `/obs/media/` | Alert media files (when alerts enabled) |
 | GET | `/` | Human index: lists the two OBS URLs (not for OBS) |
+| GET | `/favicon.ico` | Site icon |
 | POST | `/api/webhook` | Inject a fake chat message (when webhooks enabled) |
 | POST | `/api/interrupt` | Interrupt current TTS |
 
@@ -176,8 +178,6 @@ Chat query `?transparent=1`:
 20. Overlay placement follows `resize` ([021](docs/architecture/021-obs-html-resize-placement.md)).
 21. Overlay audio alerts drop after `max(duration, 5s)` ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 22. Overlay TTS is an HTML audio sticker ([024](docs/architecture/024-obs-html-audio-sticker.md)).
-20. Overlay placement follows `resize` ([021](docs/architecture/021-obs-html-resize-placement.md)).
-21. Overlay audio alerts drop after `max(duration, 5s)` ([018](docs/architecture/018-obs-html-min-sticker-time.md)).
 
 Do not invent a parallel Wails Events protocol for OBS.
 
@@ -279,7 +279,7 @@ Idiomatic pattern:
    5. Alerts on/off + command token + media/commands paths.
    6. Webhook on/off.
    7. Interrupt hotkey on/off + chord (default `Ctrl+Shift+I`, OS-global).
-   8. Optional window size.
+   8. Window size is not stored ([003](docs/architecture/003-json-user-config-dir.md)).
    9. The window is setup only (not on stream).
    10. First launch: alerts and TTS off, API key empty.
    11. **Home**: YouTube status, Start/Stop, spent Data API quota when a key is set, interrupt overlay audio, Find latest, OBS URLs.
@@ -414,7 +414,7 @@ Raw equivalents:
 6. Frontend-only (from `frontend/`): `npm install`, then `npm run dev` / `npm run build`.
 7. Wails generates bindings under `frontend/wailsjs/`. Do not edit those files by hand.
 8. `go test -race -tags=nomain ./pkg/...`
-8. After changing exported pane binding methods: `make generate`.
+9. After changing exported pane binding methods: `make generate`.
 
 OBS after start:
 

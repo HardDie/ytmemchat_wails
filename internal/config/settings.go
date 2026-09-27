@@ -35,8 +35,6 @@ type Settings struct {
 	// Debug writes step logs for chat, commands, and TTS when true.
 	// OBS pages receive the same flag on each WebSocket event.
 	Debug bool `json:"debug"`
-	// Window is optional saved Wails window bounds.
-	Window *Window `json:"window,omitempty"`
 	// APIKeyInKeychain is true when the OS vault is in use.
 	// It is filled by [Store.Load] and is not written to JSON.
 	APIKeyInKeychain bool `json:"-"`
@@ -128,18 +126,6 @@ func (h InterruptHotkey) IsEnabled() bool {
 func optBool(v bool) *bool {
 	b := v
 	return &b
-}
-
-// Window is saved desktop window geometry.
-type Window struct {
-	// Width is the window width in pixels.
-	Width int `json:"width"`
-	// Height is the window height in pixels.
-	Height int `json:"height"`
-	// X is the window origin X in pixels.
-	X int `json:"x"`
-	// Y is the window origin Y in pixels.
-	Y int `json:"y"`
 }
 
 // Defaults returns first-launch settings (empty stream ID and API key).

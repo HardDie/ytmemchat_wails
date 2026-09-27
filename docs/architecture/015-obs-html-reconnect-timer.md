@@ -31,7 +31,7 @@ Use option 2.
 5. Delay stays `RETRY_INTERVAL` (500ms).
 6. `onerror` still only `close()`s.
 7. Retry stays in `onclose`.
-8. Same logic in `overlay.html` and `chat.html`.
+8. The loop lives in `script.js` ([025](025-obs-html-shared-script.md)).
 9. First connect is still a direct `connectWebSocket` ([014](014-obs-html-one-websocket.md)).
 10. `CONNECTING_TIMEOUT_MS` is 2500.
 11. A watchdog `close()`s a socket still in `CONNECTING`.

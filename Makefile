@@ -94,7 +94,7 @@ docs-site:
 frontend-install: require-wails
 	npm install --prefix frontend
 
-## screenshots: Refresh README window.gif (Home → Config → Commands → Test)
+## screenshots: Refresh README window.gif (Home → Config → Commands → Test → Update)
 screenshots:
 	cd scripts/screenshots && npm install && npx playwright install chromium && node capture.mjs
 

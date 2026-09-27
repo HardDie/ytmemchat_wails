@@ -133,6 +133,16 @@ The **Test** pane Send button is the same path. The author is `test`. Send does 
 
 ---
 
+## Debug
+
+Off on first launch.
+
+When it is on, the app log records each chat line, command match, and speech step.
+
+OBS events include `"debug": true`. The chat and overlay browser consoles print those steps.
+
+---
+
 ## Settings file
 
 The pane footer shows the JSON path.
