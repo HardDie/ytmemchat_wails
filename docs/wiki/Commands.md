@@ -35,11 +35,19 @@ commands:
 
 The footer buttons are icons. Hover one to see its name.
 
-**Add command**, **Reload**, and **Save YAML** sit on the left. **Play random** and **Copy commands** sit on the right.
+**Add command**, **Reload**, **Save YAML**, and **Export** sit on the left. **Play random** and **Copy commands** sit on the right.
 
 **Add command** appends a row. **Save YAML** writes the file. **Reload** discards unsaved edits. Sort by Command or Filename only changes the on-screen order until you save.
 
 **Copy commands** copies the names on screen. Each line starts with the token from Configuration. A blank name is skipped.
+
+**Export** packs the saved YAML and the media files those commands use.
+
+`commands.yaml` is at the root of the zip. A custom path still uses that name.
+
+Each used file keeps its path relative to the media folder. Files no command uses stay out.
+
+Save YAML first. Export reads the file on disk. A missing file cancels the export.
 
 **Play random** sends one command that has a file, chosen at random, using the volume and scale in the editor. Commands with a blank file are skipped. The per-row **Play** sends that one command. Both need Alerts on and the overlay listening.
 

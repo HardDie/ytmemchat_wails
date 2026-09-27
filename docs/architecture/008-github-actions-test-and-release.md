@@ -31,6 +31,7 @@ Use option 3.
    2. Run on every push: `go test -race -tags=nomain .`
    3. Then `go test -race -tags=nomain ./bindings/...`
    4. Then `go test -race -tags=nomain ./internal/...`
+   5. Then `go test -race -tags=nomain ./pkg/...`
 2. **Integration tests**
    1. Use `//go:build integration` and files named `*_integration_test.go`.
    2. OS-specific cases add the GOOS (`integration && darwin`, `linux`, `windows`).

@@ -261,6 +261,11 @@ Idiomatic pattern:
    30. A missing default `commands.yaml` skips the matcher. A missing custom file fails Start.
    31. Commands pane blocks Save YAML when two names match ignoring case ([028](docs/architecture/028-commands-pane-unique-names.md)).
    32. Debug on/off (default off). When on, log chat, command parse, and TTS. OBS events include `"debug": true`.
+   33. **Export** writes a zip of the saved collection ([029](docs/architecture/029-export-commands-zip.md)).
+       1. `commands.yaml` is at the zip root, even for a custom path.
+       2. Each used media file keeps its path relative to the media folder.
+       3. Unused media files are omitted.
+       4. `pkg/archive` writes the zip. Commands passes the YAML name and the used files.
 7. **What belongs here**
    1. Stream ID (required to Start).
    2. Optional YouTube API key.
@@ -283,6 +288,7 @@ Idiomatic pattern:
    19. Alerts YAML defaults to `<media folder>/commands.yaml`. Custom path is optional ([027](docs/architecture/027-default-commands-yaml-in-media-folder.md)).
    20. Duplicate command names are flagged on the Name field. Save stays off until they differ ([028](docs/architecture/028-commands-pane-unique-names.md)).
    21. Debug on/off (default off).
+   22. **Export** packs saved commands and used media into a zip ([029](docs/architecture/029-export-commands-zip.md)).
 8. **API key**
    1. Optional.
    2. Empty means use `youtube/nokey`.
@@ -397,6 +403,7 @@ Raw equivalents:
 5. `go test -race -tags=nomain ./internal/...`
 6. Frontend-only (from `frontend/`): `npm install`, then `npm run dev` / `npm run build`.
 7. Wails generates bindings under `frontend/wailsjs/`. Do not edit those files by hand.
+8. `go test -race -tags=nomain ./pkg/...`
 8. After changing exported pane binding methods: `make generate`.
 
 OBS after start:
@@ -494,7 +501,8 @@ Official Wails layout:
 │   ├── tts/
 │   ├── secret/               # OS keychain for the YouTube API key
 │   └── update/               # GitHub release check + verified install
-├── pkg/                      # only if something is useful outside this module (prefer not)
+├── pkg/
+│   └── archive/              # zip of one named document plus selected files
 └── build/
 ```
 
@@ -528,6 +536,7 @@ Official Wails layout:
 26. Chat avatar fallback: [023](docs/architecture/023-obs-html-chat-avatar-fallback.md).
 27. Overlay audio sticker: [024](docs/architecture/024-obs-html-audio-sticker.md).
 28. Shared OBS page script: [025](docs/architecture/025-obs-html-shared-script.md).
+29. `pkg/archive` writes a zip of one named document plus selected files under a directory.
 
 ### Go package documentation (godoc)
 
@@ -570,7 +579,7 @@ Every ported Go package **must** have unit tests.
 
 | Kind | Files | Build tag | Local command |
 |---|---|---|---|
-| Unit | `foo_test.go` next to the code | `nomain` for `.`, bindings, and `internal/` | `make test` |
+| Unit | `foo_test.go` next to the code | `nomain` for `.`, bindings, `internal/`, and `pkg/` | `make test` |
 | Integration (all OS) | `foo_integration_test.go` | `//go:build integration` | `make test-integration` |
 | Integration (one OS) | `foo_integration_darwin_test.go` (or `_linux_`, `_windows_`) | `//go:build integration && darwin` (or `linux` / `windows`) | same; other GOOS never compile those files |
 
@@ -602,6 +611,7 @@ CI (every push and pull request):
 5. See [ADR 008](docs/architecture/008-github-actions-test-and-release.md).
 6. The `nomain` tag skips `main.go` (Wails CGO) so App/pipeline tests run on Ubuntu.
 7. It also skips OS hotkey CGO in `internal/hotkey`.
+8. `go test -race -tags=nomain ./pkg/...`
 
 ### Releases
 

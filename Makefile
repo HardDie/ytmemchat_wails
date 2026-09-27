@@ -44,11 +44,12 @@ build: require-wails version
 generate: require-wails
 	$(WAILS) generate module
 
-## test: Unit tests for package main, bindings, and internal packages (same as CI, with race)
+## test: Unit tests for package main, bindings, internal, and pkg (same as CI, with race)
 test:
 	$(GO) test -race -count=1 -tags=$(TEST_MAIN_TAGS) .
 	$(GO) test -race -count=1 -tags=$(TEST_MAIN_TAGS) ./bindings/...
 	$(GO) test -race -count=1 -tags=$(TEST_MAIN_TAGS) $(INTERNAL)
+	$(GO) test -race -count=1 -tags=$(TEST_MAIN_TAGS) ./pkg/...
 
 ## test-integration: Integration tests (OS TTS, later HTTP); skips if tools missing
 test-integration:
@@ -60,11 +61,12 @@ test-all: test test-integration
 ## ci: What GitHub Actions test.yml runs
 ci: test-all
 
-## vet: Go vet on package main (no Wails CGO) and internal packages
+## vet: Go vet on package main (no Wails CGO), internal, and pkg
 vet:
 	$(GO) vet -tags=$(TEST_MAIN_TAGS) .
 	$(GO) vet -tags=$(TEST_MAIN_TAGS) ./bindings/...
 	$(GO) vet -tags=$(TEST_MAIN_TAGS) $(INTERNAL)
+	$(GO) vet -tags=$(TEST_MAIN_TAGS) ./pkg/...
 
 ## fmt: Format Go files; fail if any file needed formatting
 fmt:

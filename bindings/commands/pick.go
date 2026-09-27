@@ -4,9 +4,11 @@ package commands
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/HardDie/ytmemchat_wails/pkg/archive"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -42,4 +44,43 @@ func (c *Commands) PickAlertMediaFile(mediaDir string) (string, error) {
 		return "", nil
 	}
 	return mediaRelativePath(abs, chosen)
+}
+
+// ExportAlertCommands saves a zip of the saved commands.yaml and every media
+// file a command uses. The YAML entry is always named commands.yaml.
+// An empty string means the operator cancelled the dialog.
+func (c *Commands) ExportAlertCommands() (string, error) {
+	ctx := c.app.DialogContext()
+	if ctx == nil {
+		return "", fmt.Errorf("app not started")
+	}
+	spec, cmds, err := exportSpec(c.app.CommandsPath(), c.app.MediaPath())
+	if err != nil {
+		return "", err
+	}
+	opts := runtime.SaveDialogOptions{
+		Title:                "Export alert commands",
+		DefaultFilename:      "commands.zip",
+		CanCreateDirectories: true,
+		Filters: []runtime.FileFilter{
+			{DisplayName: "Zip archive", Pattern: "*.zip"},
+		},
+	}
+	if abs, err := filepath.Abs(strings.TrimSpace(c.app.MediaPath())); err == nil {
+		if st, err := os.Stat(abs); err == nil && st.IsDir() {
+			opts.DefaultDirectory = abs
+		}
+	}
+	chosen, err := runtime.SaveFileDialog(ctx, opts)
+	if err != nil {
+		return "", err
+	}
+	if strings.TrimSpace(chosen) == "" {
+		return "", nil
+	}
+	spec.Dest = chosen
+	if err := archive.Write(spec); err != nil {
+		return "", mapExportError(cmds, err)
+	}
+	return chosen, nil
 }

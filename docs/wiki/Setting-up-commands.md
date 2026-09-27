@@ -40,6 +40,12 @@ Open **Commands**. Each row is one trigger.
 
 **Copy commands** copies every name with the token, one per line. Paste that text where viewers can read it.
 
+**Export** writes a zip of the saved collection. Save YAML first if you have unsaved edits.
+
+`commands.yaml` is at the root of the zip. A custom path still uses that name.
+
+Each file a command uses is stored at that relative path. Files no command uses are left out. A missing file cancels the export.
+
 The folder icon rejects files outside the media folder. Put clips in that folder. Subfolders are fine. If Name is empty, the filename without its extension becomes the Name.
 
 Typical files:

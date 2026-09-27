@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from 'svelte'
   import {
+    ExportAlertCommands,
     GetAlertCommands,
     PickAlertMediaFile,
     PreviewAlert,
@@ -22,6 +23,7 @@
   let path = ''
   let rows: CommandRow[] = []
   let saving = false
+  let exporting = false
   let loading = false
   let alive = true
 
@@ -184,6 +186,23 @@
   }
 
   $: copyLines = prefixedLines(rows, token, namesTick)
+
+  async function exportCommands(): Promise<void> {
+    exporting = true
+    try {
+      const saved = await ExportAlertCommands()
+      if (!alive || !saved) {
+        return
+      }
+      notify('Commands exported')
+    } catch (e) {
+      notify(String(e), 'err')
+    } finally {
+      if (alive) {
+        exporting = false
+      }
+    }
+  }
 
   async function copyCommands(): Promise<void> {
     if (copyLines.length === 0) {
@@ -517,7 +536,7 @@
           <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M8 3.25v9.5M3.25 8h9.5" />
         </svg>
       </button>
-      <button class="btn btn-icon" disabled={loading || saving} type="button" aria-label="Reload" title="Reload" on:click={() => void load()}>
+      <button class="btn btn-icon" disabled={loading || saving || exporting} type="button" aria-label="Reload" title="Reload" on:click={() => void load()}>
         <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
           <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M3.1 6.15A4.6 4.6 0 0 1 12.4 5.2" />
           <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12.9 9.85A4.6 4.6 0 0 1 3.6 10.8" />
@@ -527,7 +546,7 @@
       </button>
       <button
         class="btn btn-icon btn-primary"
-        disabled={loading || saving || hasDuplicateNames}
+        disabled={loading || saving || exporting || hasDuplicateNames}
         aria-label={saving ? 'Saving…' : 'Save YAML'}
         title={hasDuplicateNames ? 'Fix duplicate command names before saving' : saving ? 'Saving…' : 'Save YAML'}
         type="button"
@@ -537,6 +556,20 @@
           <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M3 2.75h7.15L13.25 5.85V13.25H3V2.75z" />
           <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M5.25 2.75V6h4.6" />
           <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M5.25 13.25v-3.2h5.5v3.2" />
+        </svg>
+      </button>
+      <button
+        class="btn btn-icon"
+        disabled={loading || saving || exporting || !path}
+        aria-label={exporting ? 'Exporting…' : 'Export'}
+        title={exporting ? 'Exporting…' : 'Export the saved commands and the media files they use'}
+        type="button"
+        on:click={() => void exportCommands()}
+      >
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M3 6.4V12.75h10V6.4" />
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M8 8.6V2.6" />
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5.4 4.9 8 2.6l2.6 2.3" />
         </svg>
       </button>
       <div class="command-footer-end">

@@ -78,6 +78,7 @@ const commands: Record<string, Fn> = {
       { name: 'clap', file: 'clap.mp4', volume: 0.8, scale: 1.2 },
     ],
   }),
+  ExportAlertCommands: ok(''),
   PickAlertMediaFile: ok(''),
   PreviewAlert: ok(undefined),
   SaveAlertCommands: ok(undefined),
