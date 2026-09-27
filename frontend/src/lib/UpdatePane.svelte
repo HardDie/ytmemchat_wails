@@ -25,11 +25,11 @@
   {#if status}
     <p class="hint">Latest release: <strong>{latest}</strong></p>
     {#if status.same}
-      <p class="ok">This binary matches the latest GitHub tag.</p>
+      <p class="ok">This build matches the latest release.</p>
     {:else if status.newer}
-      <p class="hint">A newer tag is available.</p>
+      <p class="hint">A newer release is available.</p>
     {:else}
-      <p class="hint">This build is not a release tag (dev or a commit). You can still download the latest archive.</p>
+      <p class="hint">This is a development build, so it has no release version. You can still download the latest archive.</p>
     {/if}
     {#if status.asset}
       <p class="hint">Archive: {status.asset}</p>

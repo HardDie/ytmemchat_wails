@@ -29,7 +29,7 @@
       Message
       <input autocomplete="off" bind:value={testMessage} placeholder="@jump or hello" spellcheck="false" type="text" />
     </label>
-    <p class="hint">Token plus a YAML command name tests an alert. Any other text tests TTS. Press Enter to send. Flush chat clears OBS chat lines only.</p>
+    <p class="hint">Your command token plus a name plays an alert. Any other text is spoken. Enter sends. Flush chat clears on-screen chat lines only.</p>
     <div class="actions">
       <button class="btn btn-primary" disabled={!canSend} type="submit">
         Send

@@ -170,9 +170,9 @@
     </span>
   </label>
   <p class="hint">
-    Paste any recent video from the channel once. Find latest loads the current live stream, or the next upcoming one if nothing is live. VODs are skipped. Save to persist.
+    Paste one recent video from the channel. Find latest replaces it with the live stream, or the next upcoming one, and skips finished videos. Save to keep the new ID.
     {#if !hasApiKey}
-      A YouTube API key is required for Find latest.
+      Find latest needs a YouTube API key.
     {/if}
   </p>
 
@@ -180,11 +180,11 @@
     YouTube API key
     <input autocomplete="off" bind:value={apiKey} spellcheck="false" type="password" />
   </label>
-  <p class="hint">Optional. Empty uses the no-key client. An invalid key does not fall back.
+  <p class="hint">Optional. Leave empty to read public chat with no quota. A bad key stays an error until you clear or fix it.
     {#if apiKeyInKeychain}
-      API key stored in the OS keychain.
+      Stored in the OS keychain.
     {:else}
-      API key stored in the settings file (keychain unavailable).
+      Stored in the settings file. The keychain is unavailable.
     {/if}
   </p>
 
@@ -216,7 +216,7 @@
         <button class="btn btn-small" type="button" on:click={onPickMedia}>Browse</button>
       </span>
     </label>
-    <p class="hint">Files are served at <code>/obs/media/</code>. <code>commands.yaml</code> in this folder is created when you save the first command.</p>
+    <p class="hint">The overlay loads these files from <code>/obs/media/</code>. Saving the first command creates <code>commands.yaml</code> here.</p>
     <label class="toggle">
       Use custom commands.yaml path
       <input bind:checked={alertsCommandsFileCustom} type="checkbox" />
@@ -229,7 +229,7 @@
           <button class="btn btn-small" type="button" on:click={onPickYaml}>Browse</button>
         </span>
       </label>
-      <p class="hint">Edit names, files, volume, and scale in the Commands pane after this path is saved. A missing custom file fails Start.</p>
+      <p class="hint">After you save this path, edit the commands in the Commands pane. Start fails if the file is missing.</p>
     {/if}
   {/if}
 </section>
@@ -302,7 +302,7 @@
       </span>
     </label>
     <p class="hint">
-      Works while OBS is fullscreen and this window is in the background. Needs at least one modifier (Ctrl, Cmd, Alt, or Shift). Escape cancels recording. Save to apply. Linux needs X11 (not pure Wayland).
+      Works in fullscreen OBS and in the background. Use Ctrl, Cmd, Alt, or Shift. Escape cancels. Save to apply. Linux needs X11, not Wayland alone.
     </p>
     {#if interruptHotkeyError}
       <p class="err">Could not register shortcut: {interruptHotkeyError}</p>
@@ -329,7 +329,7 @@
       <input bind:checked={debug} type="checkbox" />
     </label>
   </header>
-  <p class="hint">Off by default. When on, the app log and the OBS browser console record each chat line, command match, and text-to-speech step.</p>
+  <p class="hint">When on, the app log and the OBS browser console record each chat line, command match, and speech step.</p>
 </section>
 
 {#if configPath}

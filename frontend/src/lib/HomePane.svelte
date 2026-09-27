@@ -20,8 +20,8 @@
   $: hasApiKey = apiKey.trim() !== ''
   $: lookupDisabled = lookingUp || !hasApiKey
   $: lookupHint = hasApiKey
-    ? 'Finds the current live stream, or the next upcoming one. Skips VODs.'
-    : 'Find latest requires a YouTube API key (set it in Configuration).'
+    ? 'Finds the current live stream, or the next upcoming one. Skips finished videos.'
+    : 'Find latest needs a YouTube API key. Set it in Configuration.'
 
   $: youtubeLabel = !run
     ? 'Unknown'
@@ -68,7 +68,7 @@
     <p class="hint quota {quotaClass}">
       Spent today: {fmtQuota(quotaUnits)} / {fmtQuota(quotaUnitsLimit)} units{#if quotaSearch > 0} · search {fmtQuota(quotaSearch)} / {fmtQuota(quotaSearchLimit)}{/if}
     </p>
-    <p class="hint">This app’s Data API calls today. liveChatMessages.list costs 5 units. Resets at midnight Pacific Time. Other tools on the same Google Cloud project are not included.</p>
+    <p class="hint">Counts only this app. Each chat poll costs 5 units. The total resets at midnight Pacific Time. Other tools on the same Google project are not included.</p>
   {/if}
   {#if run && run.error}
     <p class="err">{run.error}</p>
@@ -98,7 +98,7 @@
     <h2>Overlay speech</h2>
     <span class="badge {obs && obs.listening ? 'badge-ok' : 'badge-danger'}">{obs && obs.listening ? 'OBS ready' : 'OBS offline'}</span>
   </header>
-  <p class="hint">Stops current and queued TTS in the OBS overlay. Does not stop meme alerts.</p>
+  <p class="hint">Stops the line that is playing. Lines already waiting still play. Meme alerts keep going.</p>
   <div class="actions">
     <button class="btn" disabled={!obs || !obs.listening} type="button" on:click={onInterrupt}>
       Interrupt speech
