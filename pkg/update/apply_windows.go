@@ -7,14 +7,23 @@ import (
 	"syscall"
 )
 
+const (
+	createNewConsole       = 0x00000010
+	createNewProcessGroup  = 0x00000200
+	createBreakawayFromJob = 0x01000000
+)
+
 func startDetached(name string, args ...string) error {
-	cmd := exec.Command(name, args...)
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		HideWindow:    true,
-		CreationFlags: 0x00000008, // DETACHED_PROCESS
+	// A new console stays on screen. Breakaway keeps it alive after this process quits.
+	err := startConsole(name, args, createNewConsole|createNewProcessGroup|createBreakawayFromJob)
+	if err != nil {
+		return startConsole(name, args, createNewConsole|createNewProcessGroup)
 	}
-	cmd.Stdin = nil
-	cmd.Stdout = nil
-	cmd.Stderr = nil
+	return nil
+}
+
+func startConsole(name string, args []string, flags uint32) error {
+	cmd := exec.Command(name, args...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: flags}
 	return cmd.Start()
 }
