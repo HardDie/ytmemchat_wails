@@ -205,6 +205,22 @@ func TestDownload_wrongBinaryName(t *testing.T) {
 	}
 }
 
+func TestWindowsHelper_keepsCyrillicPath(t *testing.T) {
+	dest := `C:\Users\Олег\ytmemchat.exe`
+	payload := `C:\Users\Олег\AppData\Local\Temp\ytmemchat-update\payload\ytmemchat.exe`
+	got := string(windowsHelper(dest, payload, dest+`.ytmemchat-old`))
+	if !strings.HasPrefix(got, "\uFEFF") {
+		t.Fatal("missing UTF-8 BOM")
+	}
+	if !strings.Contains(got, dest) || !strings.Contains(got, payload) {
+		t.Fatalf("path missing:\n%s", got)
+	}
+	quoted := windowsHelper(`C:\O'Neil\app.exe`, `C:\new\app.exe`, `C:\O'Neil\app.exe.demo-old`)
+	if !strings.Contains(string(quoted), `'C:\O''Neil\app.exe'`) {
+		t.Fatalf("quote escape:\n%s", quoted)
+	}
+}
+
 func TestUntarFind(t *testing.T) {
 	dir := t.TempDir()
 	archive := filepath.Join(dir, "a.tar.gz")
