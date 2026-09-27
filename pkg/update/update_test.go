@@ -215,8 +215,11 @@ func TestWindowsHelper_keepsCyrillicPath(t *testing.T) {
 	if !strings.Contains(got, dest) || !strings.Contains(got, payload) {
 		t.Fatalf("path missing:\n%s", got)
 	}
-	if !strings.Contains(got, "could not replace") {
-		t.Fatal("missing failure line")
+	if strings.Contains(got, "Write-Host") {
+		t.Fatal("debug output left in helper")
+	}
+	if !strings.Contains(got, "Start-Process") {
+		t.Fatal("missing start")
 	}
 	quoted := windowsHelper(`C:\O'Neil\app.exe`, `C:\new\app.exe`, `C:\O'Neil\app.exe.demo-old`)
 	if !strings.Contains(string(quoted), `'C:\O''Neil\app.exe'`) {
