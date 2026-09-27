@@ -6,7 +6,9 @@ Copy the **Chat** URL from Home into an OBS **Browser Source**. With the default
 http://127.0.0.1:8080/obs/chat
 ```
 
-Do not use a trailing slash (`/obs/chat/` is a 404). Do not use the index URL (`http://127.0.0.1:8080/`) as an OBS source. Size the source to the chat area, such as a sidebar `400×800` or full canvas `1920×1080`.
+Do not use a trailing slash (`/obs/chat/` is a 404). Size the source to the chat area, such as a sidebar `400×800` or full canvas `1920×1080`.
+
+The index URL (`http://127.0.0.1:8080/`) lists the chat and overlay pages. Do not use it as an OBS source.
 
 Add query parameters after `?`, joined with `&`. Restart or refresh the Browser Source after you change the URL.
 

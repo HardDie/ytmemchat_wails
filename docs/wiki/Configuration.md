@@ -16,7 +16,7 @@ Each new chat line is handled in this order:
 
 A viewer who types `@jump` sees the message in chat and gets the jump clip. The message is **not** read aloud. A line with no matching command can be spoken. Step-by-step: [Setting up commands](Setting-up-commands) and [Text to speech](Text-to-speech).
 
-Alerts and TTS both play on the overlay page, not in the operator window. Add an OBS **Browser Source** for:
+Alerts and TTS both play on the overlay page, not in the ytmemchat window. Add an OBS **Browser Source** for:
 
 ```text
 http://127.0.0.1:8080/obs/overlay
@@ -117,7 +117,7 @@ Home also has **Interrupt speech** for the same action. `POST /api/interrupt` do
 
 ## HTTP API
 
-Off on first launch. When on, the local server exposes operator endpoints. Those endpoints are not for OBS.
+Off on first launch. When on, scripts on this computer can call the local server. OBS does not use these endpoints.
 
 ```bash
 curl -X POST http://127.0.0.1:8080/api/webhook \
@@ -155,4 +155,4 @@ Typical locations:
 | Windows | `%AppData%\ytmemchat\config.json` |
 | Linux | `~/.config/ytmemchat/config.json` |
 
-Do not put secrets in the git repo. The file mode is `0600` because it can hold the API key.
+The file mode is `0600`. Only your user can read it. The API key is in this file when the OS keychain is not used.

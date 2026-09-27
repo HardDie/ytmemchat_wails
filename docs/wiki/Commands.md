@@ -8,7 +8,7 @@ Set the file path and media folder on [Configuration](Configuration) first (Aler
 
 A chat line matches when it contains the command token from Configuration (default `@`) plus a **Name** from this list. Matching is case-insensitive (`@Jump` is `jump`). A match plays the media on the overlay and **skips TTS**. See [Configuration](Configuration#alerts-run-before-tts).
 
-If the YAML path is empty, matching is skipped and Start still works. A missing, unreadable, or invalid file **fails Start**. Saving here reloads the matcher. YouTube Start is not required.
+If the YAML path is empty, matching is skipped and Start still works. A missing default `commands.yaml` also skips matching. A missing custom file fails Start. A file that cannot be read or parsed fails Start too. Saving here applies the file. YouTube Start is not required.
 
 ## Each command
 

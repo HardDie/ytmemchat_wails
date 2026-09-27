@@ -36,21 +36,11 @@ Open **Commands**. Each row is one trigger.
 | **Volume** | Playback gain. Blank means `1`. When set: `0` or more, at most two decimal digits. |
 | **Scale** | Picture size. Same rules as volume. Blank means `1`. Audio-only files ignore scale. |
 
-**Add command**, then **Save YAML**. Saving reloads the matcher. You do not need YouTube **Start**. **Reload** throws away unsaved edits.
+**Add command**, then **Save YAML**. Saving applies the file. You do not need YouTube **Start**. **Reload** throws away unsaved edits.
 
 **Copy commands** copies every name with the token, one per line. Paste that text where viewers can read it.
 
-**Export** writes a zip of the saved collection. Save YAML first if you have unsaved edits.
-
-`commands.yaml` is at the root of the zip. A custom path still uses that name.
-
-Each file a command uses is stored at that relative path. Files no command uses are left out. A missing file cancels the export.
-
-**Import** asks for that zip, then for a folder to unpack into.
-
-`commands.yaml` must be at the root of the zip. The other files keep their paths inside the folder you pick.
-
-Configuration then uses that folder as the media folder. A custom commands path is turned off.
+Export and import are on [Commands](Commands).
 
 The folder icon rejects files outside the media folder. Put clips in that folder. Subfolders are fine. If Name is empty, the filename without its extension becomes the Name.
 
@@ -90,12 +80,11 @@ If the port on Configuration is not `8080`, save first, then copy the Overlay UR
 
 ## How a match works
 
-Each new chat line is handled in this order:
+Alerts run before speech. The full order is on [Configuration](Configuration#alerts-run-before-tts).
 
-1. The line is always sent to the chat page.
-2. If **Alerts** is on, ytmemchat looks for the token. The word right after the **first** token is the command name. `please @jump now` is `jump`. Matching ignores case (`@Jump` is `jump`).
-3. A name that is in `commands.yaml` plays that file on the overlay. **Text to speech is skipped** for that line.
-4. A token with an unknown name is not an alert. TTS may still read the whole line. See [Text to speech](Text-to-speech).
+If **Alerts** is on, ytmemchat looks for the token. The word right after the **first** token is the command name. `please @jump now` is `jump`. Matching ignores case (`@Jump` is `jump`).
+
+A name in `commands.yaml` plays that file on the overlay. That line is not spoken. A token with an unknown name is not an alert. Speech may still read the whole line. See [Text to speech](Text-to-speech).
 
 Several commands can be on screen at once. Their audio can overlap. **Interrupt speech** does not stop a command clip.
 

@@ -34,7 +34,7 @@ The app adds `v` so OBS loads this build’s page. Do not type `v` yourself.
 
 **Refresh browser when scene becomes active** reloads the page and cuts the line that is playing.
 
-If Home says **WEB SOCKET DISCONNECTED** on a preview, ytmemchat is not running, or the URL / port does not match Configuration. The overlay status banner can say the same thing.
+If the chat or overlay page says **WEB SOCKET DISCONNECTED**, ytmemchat is not running, or the URL / port does not match Configuration.
 
 One overlay source covers both TTS and command clips. Chat stays a second source: [Chat URL](Chat-URL).
 
@@ -59,11 +59,9 @@ There is no TTS volume field. Playback gain is `1`. Use the OBS mixer on this Br
 
 ## What gets spoken
 
-For each new chat line:
+A matching command is not spoken. The order is on [Configuration](Configuration#alerts-run-before-tts).
 
-1. The text is always sent to the chat page.
-2. If **Alerts** is on and the line matches a command, the overlay plays that clip and does **not** speak. See [Setting up commands](Setting-up-commands#how-a-match-works).
-3. Otherwise, if TTS is on, the **message text** is spoken. The author name is not added.
+If text to speech is on, the **message text** is spoken. The author name is not added.
 
 Emoji is removed first. A line that is only emoji is not spoken. Extra spaces are collapsed.
 
