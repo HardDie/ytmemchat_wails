@@ -293,6 +293,10 @@ Idiomatic pattern:
    21. Debug on/off (default off).
    22. **Export** packs saved commands and used media into a zip ([029](docs/architecture/029-export-commands-zip.md)).
    23. **Import** unpacks that zip into a chosen folder and saves it as the media path.
+   24. Path fields are Browse only.
+       1. Media folder.
+       2. Custom commands.yaml.
+       3. Each command File.
 8. **API key**
    1. Optional.
    2. Empty means use `youtube/nokey`.

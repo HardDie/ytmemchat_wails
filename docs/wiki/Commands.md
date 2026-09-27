@@ -15,7 +15,7 @@ If the YAML path is empty, matching is skipped and Start still works. A missing,
 | Field | Meaning |
 |---|---|
 | **Name** | Trigger after the token (`jump` for `@jump`). Must be unique ignoring case. |
-| **File** | Media file relative to the media folder (`jump.webm`, or `clips/jump.mp4`). The folder icon picks a file inside that folder and stores the path without the folder prefix. |
+| **File** | Media file relative to the media folder (`jump.webm`, or `clips/jump.mp4`). The folder icon is the only way to set it. The stored path has the folder prefix removed. |
 | **Volume** | Overlay playback gain. Leave blank to omit it; playback uses `1`. When set: non-negative, at most two decimal digits. |
 | **Scale** | Visual size multiplier. Same rules as volume; omitted means `1`. |
 

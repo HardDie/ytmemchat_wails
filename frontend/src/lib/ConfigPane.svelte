@@ -212,7 +212,7 @@
     <label class="field">
       Media folder
       <span class="path-row">
-        <input autocomplete="off" bind:value={alertsMediaPath} spellcheck="false" type="text" />
+        <input readonly autocomplete="off" bind:value={alertsMediaPath} spellcheck="false" title="Choose a folder with Browse" type="text" />
         <button class="btn btn-small" type="button" on:click={onPickMedia}>Browse</button>
       </span>
     </label>
@@ -225,7 +225,7 @@
       <label class="field">
         commands.yaml
         <span class="path-row">
-          <input autocomplete="off" bind:value={alertsCommandsFilePath} spellcheck="false" type="text" />
+          <input readonly autocomplete="off" bind:value={alertsCommandsFilePath} spellcheck="false" title="Choose a file with Browse" type="text" />
           <button class="btn btn-small" type="button" on:click={onPickYaml}>Browse</button>
         </span>
       </label>

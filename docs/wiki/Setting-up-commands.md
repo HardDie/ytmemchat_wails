@@ -15,8 +15,8 @@ Alerts are off on first launch. Finish [Getting Started](Getting-Started) first 
 1. Open **Configuration**.
 2. Turn **Alerts** on.
 3. Leave **Command token** at `@` unless you want a different single character.
-4. Set **Media folder** to the directory that holds the clips. **Browse** picks a folder. `commands.yaml` is created there when you save the first command.
-5. Leave **Use custom commands.yaml path** off unless the YAML file lives somewhere else. **Browse** picks an existing `.yaml` or `.yml`.
+4. Set **Media folder** with **Browse**. The path cannot be typed. `commands.yaml` is created there when you save the first command.
+5. Leave **Use custom commands.yaml path** off unless the YAML file lives somewhere else. **Browse** is the only way to set that path. It picks an existing `.yaml` or `.yml`.
 6. Click **Save changes**.
 
 ![Configuration pane with Alerts on](https://raw.githubusercontent.com/HardDie/ytmemchat_wails/main/docs/screenshots/config.png)
@@ -32,7 +32,7 @@ Open **Commands**. Each row is one trigger.
 | Field | Meaning |
 |---|---|
 | **Name** | Word after the token. `jump` matches `@jump`. Unique ignoring case. |
-| **File** | Path inside the media folder (`jump.webm` or `clips/jump.mp4`). The folder icon stores that relative path. |
+| **File** | Path inside the media folder (`jump.webm` or `clips/jump.mp4`). The folder icon is the only way to set it. |
 | **Volume** | Playback gain. Blank means `1`. When set: `0` or more, at most two decimal digits. |
 | **Scale** | Picture size. Same rules as volume. Blank means `1`. Audio-only files ignore scale. |
 

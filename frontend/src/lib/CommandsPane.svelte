@@ -467,7 +467,15 @@
               <label class="field">
                 File
                 <span class="file-in">
-                  <input autocomplete="off" bind:value={row.file} placeholder="jump.mp3" spellcheck="false" type="text" />
+                  <input
+                    readonly
+                    autocomplete="off"
+                    bind:value={row.file}
+                    placeholder="Choose a file"
+                    spellcheck="false"
+                    title={hasMedia ? 'Choose a file with the folder button' : 'Set a media folder in Configuration'}
+                    type="text"
+                  />
                   <button
                     class="file-in-btn"
                     disabled={!hasMedia}
