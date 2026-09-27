@@ -15,4 +15,5 @@ export type IconName =
   | 'copy'
   | 'close'
   | 'folder'
-  | 'more'
+  | 'play'
+  | 'trash'

@@ -6,13 +6,11 @@
   export let row: CommandFields
   export let duplicate = false
   export let hasMedia = false
-  export let menuOpen = false
   export let confirmDelete = false
   export let canPreview = false
   export let previewTitle = ''
   export let onName: () => void = () => {}
   export let onPick: () => void = () => {}
-  export let onToggleMenu: () => void = () => {}
   export let onPlay: () => void = () => {}
   export let onRequestDelete: () => void = () => {}
   export let onCancelDelete: () => void = () => {}
@@ -26,6 +24,8 @@
   $: fileTitle = hasMedia ? 'Choose a file with the folder button' : 'Set a media folder in Configuration'
   $: pickTitle = hasMedia ? 'Choose a file inside the media folder' : 'Set a media folder in Configuration'
   $: deleteLabel = row.name.trim() ? `“${row.name.trim()}”` : 'this command'
+  $: canPlay = canPreview && row.file.trim() !== ''
+  $: playTitle = previewTitle || (row.file.trim() ? 'Play this command on the OBS overlay' : 'Choose a file first')
 </script>
 
 <div class="command-row">
@@ -74,31 +74,33 @@
   <div class="command-meta">
     <DecimalField label="Volume" bind:value={row.volume} />
     <DecimalField label="Scale" bind:value={row.scale} />
-    <div class="command-more" on:click|stopPropagation>
+    <div class="command-actions">
       <button
-        class="file-in-btn command-more-btn"
+        class="row-icon"
+        disabled={!canPlay}
         type="button"
-        aria-label="More actions"
-        title="More"
-        on:click|stopPropagation={onToggleMenu}
+        aria-label="Play"
+        title={playTitle}
+        on:click={onPlay}
       >
-        <Icon name="more" size={14} />
+        <Icon name="play" size={13} />
       </button>
-      {#if menuOpen}
-        <div class="command-menu">
-          {#if confirmDelete}
-            <p class="menu-note">Delete {deleteLabel}?</p>
-            <button type="button" on:click={onCancelDelete}>Cancel</button>
-            <button class="menu-danger" type="button" on:click={onConfirmDelete}>Delete</button>
-          {:else}
-            <button
-              disabled={!canPreview || !row.file.trim()}
-              type="button"
-              title={previewTitle || 'Play this command on the OBS overlay'}
-              on:click={onPlay}
-            >Play</button>
-            <button class="menu-danger" type="button" on:click={onRequestDelete}>Delete</button>
-          {/if}
+      <button
+        class="row-icon trash"
+        class:open={confirmDelete}
+        type="button"
+        aria-label={confirmDelete ? 'Cancel delete' : 'Delete'}
+        aria-expanded={confirmDelete}
+        title={confirmDelete ? 'Cancel delete' : 'Delete'}
+        on:click={onRequestDelete}
+      >
+        <Icon name="trash" size={14} />
+      </button>
+      {#if confirmDelete}
+        <div class="command-confirm" role="dialog" aria-label="Delete command">
+          <p>Delete {deleteLabel}?</p>
+          <button type="button" on:click={onCancelDelete}>Cancel</button>
+          <button class="confirm-danger" type="button" on:click={onConfirmDelete}>Delete</button>
         </div>
       {/if}
     </div>
@@ -204,20 +206,47 @@
     line-height: 1.3;
   }
 
-  .command-more {
+  .command-actions {
     position: relative;
     flex: 0 0 auto;
     align-self: flex-end;
+    display: flex;
+    gap: 4px;
   }
 
-  .command-more-btn {
-    position: static;
+  .row-icon {
     width: 32px;
     height: 32px;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--border-strong);
     border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
   }
 
-  .command-menu {
+  .row-icon:hover:not(:disabled) {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .row-icon.trash:hover,
+  .row-icon.trash.open {
+    color: var(--danger);
+    border-color: rgba(248, 113, 113, 0.45);
+    background: rgba(248, 113, 113, 0.1);
+  }
+
+  .row-icon:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .command-confirm {
     position: absolute;
     right: 0;
     bottom: calc(100% + 4px);
@@ -233,7 +262,15 @@
     gap: 2px;
   }
 
-  .command-menu button {
+  .command-confirm p {
+    margin: 0;
+    padding: 6px 10px 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .command-confirm button {
     margin: 0;
     border: none;
     border-radius: 4px;
@@ -247,24 +284,11 @@
     cursor: pointer;
   }
 
-  .command-menu button:hover:not(:disabled) {
+  .command-confirm button:hover {
     background: rgba(255, 255, 255, 0.06);
   }
 
-  .command-menu button:disabled {
-    opacity: 0.4;
-    cursor: default;
-  }
-
-  .command-menu .menu-note {
-    margin: 0;
-    padding: 6px 10px 4px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-  }
-
-  .command-menu .menu-danger {
+  .command-confirm .confirm-danger {
     color: var(--danger);
   }
 

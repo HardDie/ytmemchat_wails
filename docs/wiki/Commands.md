@@ -59,6 +59,8 @@ The media folder in Configuration becomes that folder. A custom commands path is
 
 Cancel either dialog and the config stays as it was.
 
-**Play random** sends one command that has a file, chosen at random, using the volume and scale in the editor. Commands with a blank file are skipped. The per-row **Play** sends that one command. Both need Alerts on and the overlay listening.
+**Play random** sends one command that has a file, chosen at random, using the volume and scale in the editor. Commands with a blank file are skipped. The play icon on a row sends that one command. Both need Alerts on and the overlay listening.
+
+The trash icon asks before that row is removed. **Save YAML** writes the change.
 
 The folder icon on File needs a media folder on Configuration. Paths outside that folder are rejected. If Name is empty, the filename without its extension becomes the Name. A Name already typed stays as it is.

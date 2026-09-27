@@ -35,7 +35,6 @@
 
   $: hasMedia = mediaPath.trim() !== ''
 
-  let menu = -1
   let confirmDelete = -1
   let namesTick = 0
   let paneScroll: HTMLElement
@@ -112,39 +111,44 @@
     name?.focus({ preventScroll: true })
   }
 
-  function closeMenu(): void {
-    menu = -1
-    confirmDelete = -1
-  }
-
-  function toggleMenu(i: number): void {
-    if (menu === i) {
-      closeMenu()
-      return
-    }
-    menu = i
+  function closeConfirm(): void {
     confirmDelete = -1
   }
 
   function requestDelete(i: number): void {
-    confirmDelete = i
+    confirmDelete = confirmDelete === i ? -1 : i
   }
 
   function confirmRemove(i: number): void {
-    closeMenu()
+    closeConfirm()
     rows = rows.filter((_, index) => index !== i)
   }
 
   onMount(() => {
-    const onDoc = (): void => closeMenu()
+    const onDoc = (ev: MouseEvent): void => {
+      const target = ev.target
+      if (target instanceof Element && target.closest('.command-actions')) {
+        return
+      }
+      closeConfirm()
+    }
+    const onKey = (ev: KeyboardEvent): void => {
+      if (ev.key === 'Escape') {
+        closeConfirm()
+      }
+    }
     document.addEventListener('click', onDoc)
+    document.addEventListener('keydown', onKey)
     void load()
-    return () => document.removeEventListener('click', onDoc)
+    return () => {
+      document.removeEventListener('click', onDoc)
+      document.removeEventListener('keydown', onKey)
+    }
   })
 
   onDestroy(() => {
     alive = false
-    closeMenu()
+    closeConfirm()
   })
 
   function cmp(a: string, b: string): number {
@@ -152,6 +156,7 @@
   }
 
   function sortBy(field: 'name' | 'file'): void {
+    closeConfirm()
     rows = [...rows].sort((a, b) => cmp(a[field], b[field]))
   }
 
@@ -164,14 +169,14 @@
   }
 
   function onSearch(next: string): void {
-    if (menu >= 0 && rows[menu] && !rowMatches(rows[menu], next)) {
-      closeMenu()
+    if (confirmDelete >= 0 && rows[confirmDelete] && !rowMatches(rows[confirmDelete], next)) {
+      closeConfirm()
     }
   }
 
   function clearSearch(): void {
     query = ''
-    closeMenu()
+    closeConfirm()
   }
 
   $: visibleRows = rows
@@ -284,6 +289,7 @@
   }
 
   async function load(): Promise<void> {
+    closeConfirm()
     if (!commandsFilePath.trim()) {
       path = ''
       rows = []
@@ -405,14 +411,12 @@
                   {row}
                   duplicate={duplicateNames.has(nameKey(row.name))}
                   {hasMedia}
-                  menuOpen={menu === i}
                   confirmDelete={confirmDelete === i}
                   {canPreview}
                   {previewTitle}
                   onName={() => namesTick += 1}
                   onPick={() => pickFile(i)}
-                  onToggleMenu={() => toggleMenu(i)}
-                  onPlay={() => { closeMenu(); void testCommand(i) }}
+                  onPlay={() => { closeConfirm(); void testCommand(i) }}
                   onRequestDelete={() => requestDelete(i)}
                   onCancelDelete={() => { confirmDelete = -1 }}
                   onConfirmDelete={() => confirmRemove(i)}

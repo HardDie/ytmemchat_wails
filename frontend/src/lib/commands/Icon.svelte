@@ -37,9 +37,12 @@
     <path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" d="M4.5 4.5l7 7M11.5 4.5l-7 7" />
   {:else if name === 'folder'}
     <path fill="currentColor" d="M1.5 3.5A1.5 1.5 0 0 1 3 2h3.2c.3 0 .6.1.8.4L8 3.5h5A1.5 1.5 0 0 1 14.5 5v7A1.5 1.5 0 0 1 13 13.5H3A1.5 1.5 0 0 1 1.5 12Z" />
-  {:else if name === 'more'}
-    <circle cx="3" cy="8" r="1.5" fill="currentColor" />
-    <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-    <circle cx="13" cy="8" r="1.5" fill="currentColor" />
+  {:else if name === 'play'}
+    <path fill="currentColor" d="M5.1 3.05 12.55 8 5.1 12.95Z" />
+  {:else if name === 'trash'}
+    <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M3.15 4.35h9.7" />
+    <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M6.35 4.35V2.9h3.3v1.45" />
+    <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M4.35 4.35 5.05 13.1h5.9l.7-8.75" />
+    <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M6.7 6.7v3.7M9.3 6.7v3.7" />
   {/if}
 </svg>
