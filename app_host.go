@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/HardDie/ytmemchat_wails/internal/config"
@@ -76,6 +78,23 @@ func (a *App) MediaPath() string {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	return a.settings.Alerts.MediaPath
+}
+
+// SetAlertsMediaPath saves dir as the alerts media folder.
+// The commands file path is cleared so commands.yaml in that folder is used.
+func (a *App) SetAlertsMediaPath(dir string) error {
+	dir = strings.TrimSpace(dir)
+	if dir == "" {
+		return fmt.Errorf("empty media folder")
+	}
+	abs, err := filepath.Abs(dir)
+	if err != nil {
+		return fmt.Errorf("media folder: %w", err)
+	}
+	cur, _ := a.SettingsSnapshot()
+	cur.Alerts.MediaPath = abs
+	cur.Alerts.CommandsFilePath = ""
+	return a.PersistSettings(cur)
 }
 
 // SkipHTTP is true in tests that do not start the OBS listener.

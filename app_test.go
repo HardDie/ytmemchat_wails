@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -168,5 +169,39 @@ func TestSetupQuota_restoresFile(t *testing.T) {
 	}
 	if saved.Units != 127 {
 		t.Fatalf("persisted %+v", saved)
+	}
+}
+
+func TestSetAlertsMediaPath_clearsCustomCommandsFile(t *testing.T) {
+	dir := t.TempDir()
+	st := config.NewStore(filepath.Join(dir, "config.json"))
+	a := newAppWithStore(st)
+	a.mu.Lock()
+	a.settings.Alerts.MediaPath = "/old/media"
+	a.settings.Alerts.CommandsFilePath = "/custom/mine.yml"
+	a.mu.Unlock()
+	media := filepath.Join(dir, "imported")
+	if err := os.Mkdir(media, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := a.SetAlertsMediaPath(media); err != nil {
+		t.Fatal(err)
+	}
+	abs, err := filepath.Abs(media)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if filepath.Clean(a.MediaPath()) != filepath.Clean(abs) {
+		t.Fatalf("media = %q", a.MediaPath())
+	}
+	if a.CommandsPath() != filepath.Join(abs, "commands.yaml") {
+		t.Fatalf("commands = %q", a.CommandsPath())
+	}
+	loaded, err := st.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if loaded.Alerts.CommandsFilePath != "" {
+		t.Fatalf("stored commands path = %q", loaded.Alerts.CommandsFilePath)
 	}
 }

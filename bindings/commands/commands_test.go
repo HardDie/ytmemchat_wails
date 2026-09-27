@@ -31,6 +31,11 @@ func (s *cmdStub) OverlayServer() *obs.Server { return s.overlay }
 
 func (s *cmdStub) DialogContext() context.Context { return nil }
 
+func (s *cmdStub) SetAlertsMediaPath(dir string) error {
+	s.media = dir
+	return nil
+}
+
 func TestGetSaveAlertCommands(t *testing.T) {
 	c := New(&cmdStub{})
 	if _, err := c.GetAlertCommands(); err == nil || !strings.Contains(err.Error(), "commands.yaml") {

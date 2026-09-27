@@ -3,6 +3,7 @@
   import {
     ExportAlertCommands,
     GetAlertCommands,
+    ImportAlertCommands,
     PickAlertMediaFile,
     PreviewAlert,
     SaveAlertCommands,
@@ -19,11 +20,13 @@
   export let canTest: boolean
   export let alertsEnabled: boolean
   export let notify: (text: string, kind?: NoticeKind) => void
+  export let onImported: () => Promise<void> = async () => {}
 
   let path = ''
   let rows: CommandRow[] = []
   let saving = false
   let exporting = false
+  let importing = false
   let loading = false
   let alive = true
 
@@ -200,6 +203,26 @@
     } finally {
       if (alive) {
         exporting = false
+      }
+    }
+  }
+
+  async function importCommands(): Promise<void> {
+    importing = true
+    try {
+      const dest = await ImportAlertCommands()
+      if (!alive || !dest) {
+        return
+      }
+      await onImported()
+      await tick()
+      await load()
+      notify('Commands imported')
+    } catch (e) {
+      notify(String(e), 'err')
+    } finally {
+      if (alive) {
+        importing = false
       }
     }
   }
@@ -400,6 +423,7 @@
       <span class="badge badge-warn">Not set</span>
     </header>
     <p class="hint">Set a media folder in Configuration, or turn on a custom commands.yaml path, then return here.</p>
+    <p class="hint">Import unpacks a shared zip into a folder you choose.</p>
   </section>
 {:else}
   <section class="card">
@@ -528,15 +552,14 @@
   </section>
 {/if}
 </div>
-{#if path}
-  <div class="pane-footer">
+<div class="pane-footer">
     <div class="actions command-footer">
       <button class="btn btn-icon" disabled={loading || !path} type="button" aria-label="Add command" title="Add command" on:click={addAndFocus}>
         <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
           <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M8 3.25v9.5M3.25 8h9.5" />
         </svg>
       </button>
-      <button class="btn btn-icon" disabled={loading || saving || exporting} type="button" aria-label="Reload" title="Reload" on:click={() => void load()}>
+      <button class="btn btn-icon" disabled={loading || saving || exporting || importing || !path} type="button" aria-label="Reload" title="Reload" on:click={() => void load()}>
         <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
           <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M3.1 6.15A4.6 4.6 0 0 1 12.4 5.2" />
           <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12.9 9.85A4.6 4.6 0 0 1 3.6 10.8" />
@@ -546,7 +569,7 @@
       </button>
       <button
         class="btn btn-icon btn-primary"
-        disabled={loading || saving || exporting || hasDuplicateNames}
+        disabled={loading || saving || exporting || importing || hasDuplicateNames || !path}
         aria-label={saving ? 'Saving…' : 'Save YAML'}
         title={hasDuplicateNames ? 'Fix duplicate command names before saving' : saving ? 'Saving…' : 'Save YAML'}
         type="button"
@@ -560,7 +583,7 @@
       </button>
       <button
         class="btn btn-icon"
-        disabled={loading || saving || exporting || !path}
+        disabled={loading || saving || exporting || importing || !path}
         aria-label={exporting ? 'Exporting…' : 'Export'}
         title={exporting ? 'Exporting…' : 'Export the saved commands and the media files they use'}
         type="button"
@@ -570,6 +593,20 @@
           <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M3 6.4V12.75h10V6.4" />
           <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M8 8.6V2.6" />
           <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5.4 4.9 8 2.6l2.6 2.3" />
+        </svg>
+      </button>
+      <button
+        class="btn btn-icon"
+        disabled={loading || saving || exporting || importing}
+        aria-label={importing ? 'Importing…' : 'Import'}
+        title={importing ? 'Importing…' : 'Import a zip of commands and the media files they use'}
+        type="button"
+        on:click={() => void importCommands()}
+      >
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M3 6.4V12.75h10V6.4" />
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M8 2.6v6" />
+          <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5.4 6.3 8 8.6l2.6-2.3" />
         </svg>
       </button>
       <div class="command-footer-end">
@@ -604,5 +641,4 @@
       </div>
     </div>
   </div>
-{/if}
 </div>

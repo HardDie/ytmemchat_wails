@@ -31,6 +31,7 @@ type api interface {
 	ReloadOverlay()
 	OverlayServer() *obs.Server
 	DialogContext() context.Context
+	SetAlertsMediaPath(dir string) error
 }
 
 // New wraps the application core for the Commands pane.

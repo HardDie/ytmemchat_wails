@@ -6,6 +6,8 @@ export function ExportAlertCommands():Promise<string>;
 
 export function GetAlertCommands():Promise<commands.AlertCommandsFile>;
 
+export function ImportAlertCommands():Promise<string>;
+
 export function PickAlertMediaFile(arg1:string):Promise<string>;
 
 export function PreviewAlert(arg1:string,arg2:number,arg3:number):Promise<void>;

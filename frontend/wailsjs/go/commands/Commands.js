@@ -10,6 +10,10 @@ export function GetAlertCommands() {
   return window['go']['commands']['Commands']['GetAlertCommands']();
 }
 
+export function ImportAlertCommands() {
+  return window['go']['commands']['Commands']['ImportAlertCommands']();
+}
+
 export function PickAlertMediaFile(arg1) {
   return window['go']['commands']['Commands']['PickAlertMediaFile'](arg1);
 }

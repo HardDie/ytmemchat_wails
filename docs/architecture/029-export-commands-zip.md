@@ -11,7 +11,7 @@
 1. Operators want to share a command collection.
 2. The YAML path may be custom.
 3. The media folder holds used and unused files.
-4. Import is a later step.
+4. Import reads that same zip into a chosen folder.
 
 ## Considered options
 
@@ -40,6 +40,11 @@ Use option 2.
 10. `pkg/archive` writes the zip.
     1. It does not know commands or the media folder.
     2. Commands passes the saved YAML, the name `commands.yaml`, and the used files.
+11. **Import** checks for `commands.yaml` at the zip root, then asks for a folder.
+    1. Files unpack into that folder at their archive paths.
+    2. The saved media folder becomes that path.
+    3. A custom commands path is cleared.
+    4. Cancel leaves the config unchanged.
 
 ## Consequences
 
@@ -55,4 +60,4 @@ Use option 2.
 
 ### Neutral
 
-* Import is a later step.
+* Import uses the same zip layout.

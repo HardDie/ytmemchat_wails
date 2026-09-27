@@ -46,6 +46,12 @@ Open **Commands**. Each row is one trigger.
 
 Each file a command uses is stored at that relative path. Files no command uses are left out. A missing file cancels the export.
 
+**Import** asks for that zip, then for a folder to unpack into.
+
+`commands.yaml` must be at the root of the zip. The other files keep their paths inside the folder you pick.
+
+Configuration then uses that folder as the media folder. A custom commands path is turned off.
+
 The folder icon rejects files outside the media folder. Put clips in that folder. Subfolders are fine. If Name is empty, the filename without its extension becomes the Name.
 
 Typical files:

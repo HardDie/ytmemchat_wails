@@ -149,6 +149,14 @@
     }
   })
 
+  async function refreshImported(): Promise<void> {
+    const s = await GetSettings()
+    alertsMediaPath = s.alertsMediaPath ?? ''
+    alertsCommandsFilePath = s.alertsCommandsFilePath ?? ''
+    alertsCommandsFileCustom = !!s.alertsCommandsFileCustom
+    await refreshOBS()
+  }
+
   async function save(silent = false): Promise<boolean> {
     saving = true
     try {
@@ -382,6 +390,7 @@
           canTest={!!(obs && obs.listening)}
           {alertsEnabled}
           {notify}
+          onImported={refreshImported}
         />
       {:else if page === 'test'}
         <TestPane bind:testMessage {obs} onSend={sendTest} onFlush={flushChat} />

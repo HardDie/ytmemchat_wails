@@ -84,3 +84,46 @@ func (c *Commands) ExportAlertCommands() (string, error) {
 	}
 	return chosen, nil
 }
+
+// ImportAlertCommands unpacks a zip that has commands.yaml at its root.
+// The operator picks the zip, then the folder that receives every file.
+// An empty string means the operator cancelled a dialog.
+// On success the saved media folder becomes that folder and a custom commands path is cleared.
+func (c *Commands) ImportAlertCommands() (string, error) {
+	ctx := c.app.DialogContext()
+	if ctx == nil {
+		return "", fmt.Errorf("app not started")
+	}
+	zipPath, err := runtime.OpenFileDialog(ctx, runtime.OpenDialogOptions{
+		Title: "Choose an alert commands archive",
+		Filters: []runtime.FileFilter{
+			{DisplayName: "Zip archive", Pattern: "*.zip"},
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+	if strings.TrimSpace(zipPath) == "" {
+		return "", nil
+	}
+	if err := validateImportArchive(zipPath); err != nil {
+		return "", err
+	}
+	dest, err := runtime.OpenDirectoryDialog(ctx, runtime.OpenDialogOptions{
+		Title:                "Choose where to keep the imported files",
+		CanCreateDirectories: true,
+	})
+	if err != nil {
+		return "", err
+	}
+	if strings.TrimSpace(dest) == "" {
+		return "", nil
+	}
+	if err := extractImportArchive(zipPath, dest); err != nil {
+		return "", err
+	}
+	if err := c.app.SetAlertsMediaPath(dest); err != nil {
+		return "", err
+	}
+	return dest, nil
+}

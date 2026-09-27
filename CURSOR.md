@@ -266,6 +266,9 @@ Idiomatic pattern:
        2. Each used media file keeps its path relative to the media folder.
        3. Unused media files are omitted.
        4. `pkg/archive` writes the zip. Commands passes the YAML name and the used files.
+   34. **Import** unpacks a zip into a chosen folder and saves that folder as the media path ([029](docs/architecture/029-export-commands-zip.md)).
+       1. `commands.yaml` must be at the archive root.
+       2. A custom commands path is cleared.
 7. **What belongs here**
    1. Stream ID (required to Start).
    2. Optional YouTube API key.
@@ -289,6 +292,7 @@ Idiomatic pattern:
    20. Duplicate command names are flagged on the Name field. Save stays off until they differ ([028](docs/architecture/028-commands-pane-unique-names.md)).
    21. Debug on/off (default off).
    22. **Export** packs saved commands and used media into a zip ([029](docs/architecture/029-export-commands-zip.md)).
+   23. **Import** unpacks that zip into a chosen folder and saves it as the media path.
 8. **API key**
    1. Optional.
    2. Empty means use `youtube/nokey`.

@@ -23,6 +23,8 @@ var (
 	ErrNotFile = errors.New("not a regular file")
 	// ErrDocumentMissing is returned when Document does not exist.
 	ErrDocumentMissing = errors.New("document is missing")
+	// ErrRootDocument is returned when DocumentName is not a file at the archive root.
+	ErrRootDocument = errors.New("document is not at the archive root")
 )
 
 // PathError is a failure for one path in [Spec.Files].
