@@ -39,6 +39,8 @@ The footer buttons are icons. Hover one to see its name.
 
 **Add command** appends a row. **Save YAML** writes the file. **Reload** discards unsaved edits. Sort by Command or Filename only changes the on-screen order until you save.
 
+**Search** sits next to those buttons. It hides rows whose Name or File does not contain the typed text. Matching ignores case. The cross inside the field clears it. Hidden rows stay in the file.
+
 **Copy commands** copies the names on screen. Each line starts with the token from Configuration. A blank name is skipped.
 
 **Export** packs the saved YAML and the media files those commands use.

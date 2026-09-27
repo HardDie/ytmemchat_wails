@@ -534,6 +534,44 @@ code {
     color: var(--muted);
 }
 
+.command-search {
+    position: relative;
+    flex: 1 1 11rem;
+    min-width: 9rem;
+    max-width: 16rem;
+}
+
+.command-search input {
+    height: 28px;
+    padding-right: 26px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.command-search-clear {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.command-search-clear:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.08);
+}
+
 .path-row {
     display: grid;
     grid-template-columns: 1fr auto;

@@ -36,6 +36,8 @@
   let confirmDelete = -1
   let namesTick = 0
   let paneScroll: HTMLElement
+  let query = ''
+  let searchInput: HTMLInputElement
 
   function nameKey(name: string): string {
     return name.trim().toLowerCase()
@@ -104,6 +106,7 @@
   }
 
   async function addAndFocus(): Promise<void> {
+    query = ''
     rows = [...rows, emptyRow()]
     await tick()
     const row = paneScroll?.querySelector<HTMLElement>('.command-row:last-child')
@@ -154,6 +157,31 @@
   function sortBy(field: 'name' | 'file'): void {
     rows = [...rows].sort((a, b) => cmp(a[field], b[field]))
   }
+
+  function rowMatches(row: CommandRow, raw: string): boolean {
+    const q = raw.trim().toLowerCase()
+    if (q === '') {
+      return true
+    }
+    return row.name.toLowerCase().includes(q) || row.file.toLowerCase().includes(q)
+  }
+
+  function onSearch(ev: Event): void {
+    query = (ev.currentTarget as HTMLInputElement).value
+    if (menu >= 0 && rows[menu] && !rowMatches(rows[menu], query)) {
+      closeMenu()
+    }
+  }
+
+  function clearSearch(): void {
+    query = ''
+    closeMenu()
+    searchInput?.focus()
+  }
+
+  $: visibleRows = rows
+    .map((row, i) => ({ row, i }))
+    .filter(({ row }) => rowMatches(row, query))
 
   function playableIndexes(list: CommandRow[]): number[] {
     const out: number[] = []
@@ -443,9 +471,31 @@
         <span>Sort by</span>
         <button class="btn btn-small" disabled={loading || saving} type="button" on:click={() => sortBy('name')}>Command</button>
         <button class="btn btn-small" disabled={loading || saving} type="button" on:click={() => sortBy('file')}>Filename</button>
+        <span class="command-search">
+          <input
+            bind:this={searchInput}
+            autocomplete="off"
+            aria-label="Search commands"
+            placeholder="Search"
+            spellcheck="false"
+            type="text"
+            value={query}
+            on:input={onSearch}
+          />
+          {#if query}
+            <button class="command-search-clear" type="button" aria-label="Clear search" title="Clear" on:click={clearSearch}>
+              <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                <path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" d="M4.5 4.5l7 7M11.5 4.5l-7 7" />
+              </svg>
+            </button>
+          {/if}
+        </span>
       </div>
+      {#if visibleRows.length === 0}
+        <p class="hint">No commands match.</p>
+      {:else}
       <div class="command-list">
-        {#each rows as row, i}
+        {#each visibleRows as { row, i } (i)}
           <div class="command-row">
             <div class="command-main">
               <label class="field">
@@ -556,6 +606,7 @@
           </div>
         {/each}
       </div>
+      {/if}
     {/if}
   </section>
 {/if}
