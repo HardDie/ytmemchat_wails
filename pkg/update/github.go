@@ -24,6 +24,9 @@ type ghAsset struct {
 
 // Check fetches GitHub’s latest release for this OS.
 func (c *Client) Check() (Status, error) {
+	if err := c.identity(); err != nil {
+		return Status{}, err
+	}
 	c.assetURL = ""
 	c.sumsURL = ""
 	rel, err := c.fetchLatest()
@@ -39,7 +42,7 @@ func (c *Client) Check() (Status, error) {
 		Same:    SameTag(rel.TagName, c.Current),
 	}
 	if st.URL == "" {
-		st.URL = ReleasesPage
+		st.URL = c.releasesPage()
 	}
 	asset, err := pickAsset(rel.Assets, c.GOOS, c.GOARCH)
 	if err != nil {
@@ -52,7 +55,7 @@ func (c *Client) Check() (Status, error) {
 		if sums, serr := pickSums(rel.Assets); serr == nil {
 			c.sumsURL = sums.URL
 			dest, _, derr := installDest(c.executable())
-			st.CanInstall = derr == nil && dirWritable(parentOf(dest))
+			st.CanInstall = derr == nil && dirWritable(parentOf(dest), c.Name)
 		}
 	}
 	c.last = st
@@ -68,7 +71,7 @@ func (c *Client) fetchLatest() (ghRelease, error) {
 		return ghRelease{}, err
 	}
 	req.Header.Set("Accept", "application/vnd.github+json")
-	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("User-Agent", c.userAgent())
 	res, err := c.http().Do(req)
 	if err != nil {
 		return ghRelease{}, fmt.Errorf("update: github: %w", err)

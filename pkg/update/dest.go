@@ -31,16 +31,16 @@ func parentOf(path string) string {
 	return filepath.Dir(path)
 }
 
-func dirWritable(dir string) bool {
+func dirWritable(dir, name string) bool {
 	if dir == "" || dir == "." {
 		return false
 	}
-	f, err := os.CreateTemp(dir, ".ytmemchat-write-*")
+	f, err := os.CreateTemp(dir, "."+name+"-write-*")
 	if err != nil {
 		return false
 	}
-	name := f.Name()
+	probe := f.Name()
 	_ = f.Close()
-	_ = os.Remove(name)
+	_ = os.Remove(probe)
 	return true
 }

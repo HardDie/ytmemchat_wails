@@ -33,3 +33,4 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [027](027-default-commands-yaml-in-media-folder.md) | Default commands.yaml lives in the media folder | Accepted |
 | [028](028-commands-pane-unique-names.md) | Commands pane blocks duplicate names before save | Accepted |
 | [029](029-export-commands-zip.md) | Export commands as a zip | Accepted |
+| [030](030-github-self-update-pkg.md) | GitHub self-update is a shared package | Accepted |

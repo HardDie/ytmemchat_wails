@@ -39,6 +39,6 @@ Each Go package needs a package comment and comments on all exports. Check from 
 | `internal/tts` | Ported | `go doc -all ./internal/tts` |
 | `internal/hotkey` | Implemented | `go doc -all ./internal/hotkey` |
 | `internal/secret` | Implemented | `go doc -all ./internal/secret` |
-| `internal/update` | Implemented | `go doc -all ./internal/update` |
 | `pkg/archive` | Implemented | `go doc -all ./pkg/archive` |
+| `pkg/update` | Implemented | `go doc -all ./pkg/update` |
 | `package main` (App core) | Implemented | `go doc -all .` |

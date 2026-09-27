@@ -269,6 +269,8 @@ Idiomatic pattern:
    34. **Import** unpacks a zip into a chosen folder and saves that folder as the media path ([029](docs/architecture/029-export-commands-zip.md)).
        1. `commands.yaml` must be at the archive root.
        2. A custom commands path is cleared.
+   35. GitHub self-update lives in `pkg/update` ([030](docs/architecture/030-github-self-update-pkg.md)).
+       1. The binding passes owner, repo, and binary name.
 7. **What belongs here**
    1. Stream ID (required to Start).
    2. Optional YouTube API key.
@@ -445,6 +447,7 @@ This file stays lean.
 | No-key live chat client | `internal/youtube/nokey` (console: `internal/clients/youtubev1`) |
 | Alert token matching + `commands.yaml` | `internal/alerts` |
 | TTS drivers | `internal/tts` |
+| GitHub self-update | `pkg/update` (caller passes owner, repo, and binary name) |
 | Wails project layout / bindings | [Wails first project](https://wails.io/docs/gettingstarted/firstproject/) |
 
 ### Intended tree (after scaffold + port)
@@ -457,6 +460,7 @@ Official Wails layout:
 4. Do **not** switch to SvelteKit unless we need file-based routing. The config window does not.
 5. Overlay HTML stays in Go embeds, not in `frontend/`.
 6. OBS loads the HTTP server, not the Wails webview.
+7. Reusable code with no app identity lives in `pkg/`.
 
 ```text
 .
@@ -508,10 +512,10 @@ Official Wails layout:
 │   ├── hotkey/               # chord parse + OS bind (`!nomain`)
 │   ├── alerts/               # command match + media file server
 │   ├── tts/
-│   ├── secret/               # OS keychain for the YouTube API key
-│   └── update/               # GitHub release check + verified install
+│   └── secret/               # OS keychain for the YouTube API key
 ├── pkg/
-│   └── archive/              # zip of one named document plus selected files
+│   ├── archive/              # zip of one named document plus selected files
+│   └── update/               # GitHub release check + verified install
 └── build/
 ```
 
@@ -531,7 +535,7 @@ Official Wails layout:
 12. OBS pages (`overlay.html`, `chat.html`) live in `internal/obs` next to the handlers (`//go:embed`).
 13. Tests sit beside the Go package they cover (`internal/alerts/find_token_test.go` style).
 14. `internal/secret` holds the YouTube API key vault. `config.Store` calls it.
-15. `internal/update` checks GitHub Releases and stages a verified install.
+15. `pkg/update` checks GitHub Releases and stages a verified install.
 16. OBS chat/overlay sockets: [014](docs/architecture/014-obs-html-one-websocket.md).
 17. OBS chat/overlay reconnect: [015](docs/architecture/015-obs-html-reconnect-timer.md).
 18. Overlay `app_closed` teardown: [016](docs/architecture/016-obs-html-app-closed-teardown.md).
@@ -546,6 +550,8 @@ Official Wails layout:
 27. Overlay audio sticker: [024](docs/architecture/024-obs-html-audio-sticker.md).
 28. Shared OBS page script: [025](docs/architecture/025-obs-html-shared-script.md).
 29. `pkg/archive` writes a zip of one named document plus selected files under a directory.
+30. `pkg/update` takes GitHub owner, repo, and binary name ([030](docs/architecture/030-github-self-update-pkg.md)).
+    1. The Update binding passes ytmemchat’s.
 
 ### Go package documentation (godoc)
 
@@ -667,7 +673,7 @@ The console tree splits more packages than behaviors.
 11. `obs` must not import `alerts` or `youtube` (register handlers from `app.go`).
 12. **Keep `alerts` and `tts` as their own packages.** They have real logic (YAML commands, OS voices). Do not dump them into `obs`.
 13. `config` may use `internal/secret` for the YouTube API key.
-14. `app.go` does not import `internal/update`; the Update pane binding does.
+14. `app.go` does not import `pkg/update`; the Update pane binding does.
 
 ---
 

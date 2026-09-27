@@ -9,6 +9,9 @@ import (
 
 // Apply stages a helper that replaces this install after the process exits.
 func (c *Client) Apply() error {
+	if err := c.identity(); err != nil {
+		return err
+	}
 	if c.payload == "" {
 		return ErrNoDownload
 	}
@@ -16,10 +19,10 @@ func (c *Client) Apply() error {
 	if err != nil {
 		return err
 	}
-	if !dirWritable(parentOf(dest)) {
+	if !dirWritable(parentOf(dest), c.Name) {
 		return fmt.Errorf("update: cannot write %s", parentOf(dest))
 	}
-	script, err := writeHelper(c.tempDir(), dest, c.payload)
+	script, err := writeHelper(c.tempDir(), dest, c.payload, c.Name)
 	if err != nil {
 		return err
 	}
@@ -33,19 +36,20 @@ func (c *Client) Apply() error {
 	return start("/bin/sh", script)
 }
 
-func writeHelper(dir, dest, payload string) (string, error) {
+func writeHelper(dir, dest, payload, name string) (string, error) {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", err
 	}
+	old := dest + "." + name + "-old"
 	if runtime.GOOS == "windows" {
 		path := filepath.Join(dir, "apply.bat")
 		body := "@echo off\r\n" +
 			"timeout /t 2 /nobreak >nul\r\n" +
-			"if exist \"" + dest + ".ytmemchat-old\" rmdir /s /q \"" + dest + ".ytmemchat-old\"\r\n" +
-			"if exist \"" + dest + "\" move /y \"" + dest + "\" \"" + dest + ".ytmemchat-old\"\r\n" +
+			"if exist \"" + old + "\" rmdir /s /q \"" + old + "\"\r\n" +
+			"if exist \"" + dest + "\" move /y \"" + dest + "\" \"" + old + "\"\r\n" +
 			"move /y \"" + payload + "\" \"" + dest + "\"\r\n" +
 			"start \"\" \"" + dest + "\"\r\n" +
-			"rmdir /s /q \"" + dest + ".ytmemchat-old\"\r\n"
+			"rmdir /s /q \"" + old + "\"\r\n"
 		if err := os.WriteFile(path, []byte(body), 0o700); err != nil {
 			return "", err
 		}
@@ -56,7 +60,7 @@ func writeHelper(dir, dest, payload string) (string, error) {
 		"sleep 2\n" +
 		"DEST=\"" + dest + "\"\n" +
 		"NEW=\"" + payload + "\"\n" +
-		"OLD=\"${DEST}.ytmemchat-old\"\n" +
+		"OLD=\"" + old + "\"\n" +
 		"rm -rf \"$OLD\"\n" +
 		"if [ -e \"$DEST\" ]; then mv \"$DEST\" \"$OLD\"; fi\n" +
 		"mv \"$NEW\" \"$DEST\"\n" +

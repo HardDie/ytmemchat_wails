@@ -39,7 +39,7 @@ Use option 2.
 3. Overlay payload types live in `obs`.
 4. `youtube` owns `ChatMessage` and `Client`.
 5. `config` uses `secret` for the API key ([012](012-os-keychain-api-key.md)).
-6. `internal/update` is used from `bindings/update`, not from `app.go`.
+6. `pkg/update` is used from `bindings/update`, not from `app.go`.
 
 ## Consequences
 

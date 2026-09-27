@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func unpack(archive, dest string) (string, error) {
+func unpack(archive, dest, name string) (string, error) {
 	_ = os.RemoveAll(dest)
 	if err := os.MkdirAll(dest, 0o700); err != nil {
 		return "", err
@@ -28,30 +28,32 @@ func unpack(archive, dest string) (string, error) {
 	default:
 		return "", fmt.Errorf("update: unknown archive %s", filepath.Base(archive))
 	}
-	return findPayload(dest)
+	return findPayload(dest, name)
 }
 
-func findPayload(root string) (string, error) {
+func findPayload(root, name string) (string, error) {
+	appName := name + ".app"
+	exeName := name + ".exe"
 	var app, bin, win string
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		name := info.Name()
-		if info.IsDir() && strings.HasSuffix(name, ".app") {
+		base := info.Name()
+		if info.IsDir() && base == appName {
 			app = path
 			return filepath.SkipDir
 		}
 		if info.IsDir() {
 			return nil
 		}
-		if name == "ytmemchat.exe" {
+		if base == exeName {
 			win = path
 		}
-		if name == "ytmemchat" && info.Mode()&0o111 != 0 {
+		if base == name && info.Mode()&0o111 != 0 {
 			bin = path
 		}
-		if name == "ytmemchat" && bin == "" {
+		if base == name && bin == "" {
 			bin = path
 		}
 		return nil
@@ -68,7 +70,7 @@ func findPayload(root string) (string, error) {
 	if bin != "" {
 		return bin, nil
 	}
-	return "", fmt.Errorf("update: archive has no ytmemchat binary")
+	return "", fmt.Errorf("update: archive has no %s binary", name)
 }
 
 func unzip(src, dest string) error {

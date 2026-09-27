@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	intupdate "github.com/HardDie/ytmemchat_wails/internal/update"
+	ghupdate "github.com/HardDie/ytmemchat_wails/pkg/update"
 )
 
 type stub struct{}
@@ -26,14 +26,14 @@ func TestCheck_needsHTTP(t *testing.T) {
 
 func TestDownload_beforeCheck(t *testing.T) {
 	u := New(stub{})
-	if err := u.Download(); !errors.Is(err, intupdate.ErrNotReady) {
+	if err := u.Download(); !errors.Is(err, ghupdate.ErrNotReady) {
 		t.Fatalf("err = %v", err)
 	}
 }
 
 func TestApply_beforeDownload(t *testing.T) {
 	u := New(stub{})
-	if err := u.ApplyAndQuit(); !errors.Is(err, intupdate.ErrNoDownload) {
+	if err := u.ApplyAndQuit(); !errors.Is(err, ghupdate.ErrNoDownload) {
 		t.Fatalf("err = %v", err)
 	}
 }

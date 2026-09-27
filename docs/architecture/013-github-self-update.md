@@ -22,7 +22,7 @@
 
 Use option 3.
 
-1. Package `internal/update`. Binding `bindings/update`.
+1. Package `pkg/update` ([030](030-github-self-update-pkg.md)). Binding `bindings/update`.
 2. Operator **Check**, **Download**, **Quit and install**.
 3. No check on startup.
 4. Compare the latest tag to `AppVersion`.

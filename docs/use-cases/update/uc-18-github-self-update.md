@@ -1,6 +1,6 @@
 # UC-18: Check GitHub for a newer app build
 
-**Module:** `internal/update`  
+**Module:** `pkg/update`  
 **Status:** Implemented  
 **Actors:** Operator (Update pane)  
 **Goal:** See if a newer GitHub Release exists, verify its archive, then quit and replace this install  

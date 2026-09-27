@@ -5,13 +5,19 @@ import (
 	"context"
 
 	"github.com/HardDie/ytmemchat_wails/bindings/sidebar"
-	intupdate "github.com/HardDie/ytmemchat_wails/internal/update"
+	ghupdate "github.com/HardDie/ytmemchat_wails/pkg/update"
+)
+
+const (
+	githubOwner = "HardDie"
+	githubRepo  = "ytmemchat_wails"
+	binaryName  = "ytmemchat"
 )
 
 // Update exposes GitHub release check, download, and quit-and-install.
 type Update struct {
 	app api
-	c   *intupdate.Client
+	c   *ghupdate.Client
 }
 
 type api interface {
@@ -20,11 +26,16 @@ type api interface {
 
 // New wraps the application core for the Update pane.
 func New(app api) *Update {
-	return &Update{app: app, c: intupdate.New(sidebar.New().AppVersion())}
+	return &Update{app: app, c: ghupdate.New(ghupdate.Config{
+		Owner:   githubOwner,
+		Repo:    githubRepo,
+		Name:    binaryName,
+		Current: sidebar.New().AppVersion(),
+	})}
 }
 
 // Check returns the latest GitHub release compared to this binary.
-func (u *Update) Check() (intupdate.Status, error) {
+func (u *Update) Check() (ghupdate.Status, error) {
 	return u.c.Check()
 }
 

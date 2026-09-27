@@ -17,6 +17,15 @@ import (
 	"testing"
 )
 
+func testClient(current string) *Client {
+	return New(Config{
+		Owner:   "acme",
+		Repo:    "demo",
+		Name:    "demo",
+		Current: current,
+	})
+}
+
 func TestNewer(t *testing.T) {
 	if !Newer("v0.2.0", "v0.1.0") {
 		t.Fatal("0.2 > 0.1")
@@ -43,23 +52,23 @@ func TestAssetHint(t *testing.T) {
 }
 
 func TestChecksumFor(t *testing.T) {
-	sums := "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  ytmemchat-v1.0.0-ytmemchat-linux-amd64.tar.gz\n"
-	got, err := checksumFor(sums, "ytmemchat-v1.0.0-ytmemchat-linux-amd64.tar.gz")
+	sums := "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  demo-v1.0.0-linux-amd64.tar.gz\n"
+	got, err := checksumFor(sums, "demo-v1.0.0-linux-amd64.tar.gz")
 	if err != nil || got != strings.Repeat("a", 64) {
 		t.Fatalf("%q %v", got, err)
 	}
 }
 
 func TestCheckDownload_ok(t *testing.T) {
-	zipBytes := zipWithFile(t, "ytmemchat", []byte("bin"))
+	zipBytes := zipWithFile(t, "demo", []byte("bin"))
 	sum := sha256.Sum256(zipBytes)
-	asset := "ytmemchat-v1.2.0-foo-darwin-universal.zip"
+	asset := "demo-v1.2.0-darwin-universal.zip"
 	sumsBody := hex.EncodeToString(sum[:]) + "  " + asset + "\n"
 
 	var ts *httptest.Server
 	ts = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case "/repos/HardDie/ytmemchat_wails/releases/latest":
+		case "/repos/acme/demo/releases/latest":
 			_, _ = io.WriteString(w, `{
 				"tag_name": "v1.2.0",
 				"html_url": "http://example/rel",
@@ -79,12 +88,12 @@ func TestCheckDownload_ok(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	c := New("v1.0.0")
+	c := testClient("v1.0.0")
 	c.API = ts.URL
 	c.GOOS = "darwin"
 	c.GOARCH = "arm64"
 	c.TempDir = t.TempDir()
-	c.Executable = filepath.Join(t.TempDir(), "ytmemchat")
+	c.Executable = filepath.Join(t.TempDir(), "demo")
 	if err := os.WriteFile(c.Executable, []byte("old"), 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -114,13 +123,13 @@ func TestCheckDownload_ok(t *testing.T) {
 }
 
 func TestDownload_badChecksum(t *testing.T) {
-	zipBytes := zipWithFile(t, "ytmemchat", []byte("bin"))
-	asset := "ytmemchat-v1.2.0-foo-linux-amd64.tar.gz"
+	zipBytes := zipWithFile(t, "demo", []byte("bin"))
+	asset := "demo-v1.2.0-linux-amd64.tar.gz"
 	sumsBody := strings.Repeat("b", 64) + "  " + asset + "\n"
 	var ts *httptest.Server
 	ts = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case "/repos/HardDie/ytmemchat_wails/releases/latest":
+		case "/repos/acme/demo/releases/latest":
 			_, _ = io.WriteString(w, `{
 				"tag_name": "v1.2.0",
 				"html_url": "http://example/rel",
@@ -139,12 +148,12 @@ func TestDownload_badChecksum(t *testing.T) {
 		}
 	}))
 	defer ts.Close()
-	c := New("v1.0.0")
+	c := testClient("v1.0.0")
 	c.API = ts.URL
 	c.GOOS = "linux"
 	c.GOARCH = "amd64"
 	c.TempDir = t.TempDir()
-	c.Executable = filepath.Join(t.TempDir(), "ytmemchat")
+	c.Executable = filepath.Join(t.TempDir(), "demo")
 	_ = os.WriteFile(c.Executable, []byte("old"), 0o755)
 	if _, err := c.Check(); err != nil {
 		t.Fatal(err)
@@ -154,17 +163,74 @@ func TestDownload_badChecksum(t *testing.T) {
 	}
 }
 
+func TestDownload_wrongBinaryName(t *testing.T) {
+	zipBytes := zipWithFile(t, "other", []byte("bin"))
+	sum := sha256.Sum256(zipBytes)
+	asset := "demo-v1.2.0-darwin-universal.zip"
+	sumsBody := hex.EncodeToString(sum[:]) + "  " + asset + "\n"
+	var ts *httptest.Server
+	ts = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/repos/acme/demo/releases/latest":
+			_, _ = io.WriteString(w, `{
+				"tag_name": "v1.2.0",
+				"html_url": "http://example/rel",
+				"body": "",
+				"assets": [
+					{"name": "`+asset+`", "browser_download_url": "`+ts.URL+`/file.bin"},
+					{"name": "SHA256SUMS.txt", "browser_download_url": "`+ts.URL+`/SHA256SUMS.txt"}
+				]
+			}`)
+		case "/file.bin":
+			_, _ = w.Write(zipBytes)
+		case "/SHA256SUMS.txt":
+			_, _ = w.Write([]byte(sumsBody))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer ts.Close()
+	c := testClient("v1.0.0")
+	c.API = ts.URL
+	c.GOOS = "darwin"
+	c.GOARCH = "arm64"
+	c.TempDir = t.TempDir()
+	c.Executable = filepath.Join(t.TempDir(), "demo")
+	_ = os.WriteFile(c.Executable, []byte("old"), 0o755)
+	if _, err := c.Check(); err != nil {
+		t.Fatal(err)
+	}
+	if err := c.Download(); err == nil || !strings.Contains(err.Error(), "demo") {
+		t.Fatalf("err = %v", err)
+	}
+}
+
 func TestUntarFind(t *testing.T) {
 	dir := t.TempDir()
 	archive := filepath.Join(dir, "a.tar.gz")
-	if err := writeTarGz(archive, "ytmemchat", []byte("elf")); err != nil {
+	if err := writeTarGz(archive, "demo", []byte("elf")); err != nil {
 		t.Fatal(err)
 	}
-	got, err := unpack(archive, filepath.Join(dir, "out"))
+	got, err := unpack(archive, filepath.Join(dir, "out"), "demo")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if filepath.Base(got) != "ytmemchat" {
+	if filepath.Base(got) != "demo" {
+		t.Fatalf("payload %s", got)
+	}
+}
+
+func TestUnpackApp(t *testing.T) {
+	dir := t.TempDir()
+	archive := filepath.Join(dir, "a.zip")
+	if err := writeZipDir(archive, "demo.app/Contents/MacOS/demo", []byte("mach")); err != nil {
+		t.Fatal(err)
+	}
+	got, err := unpack(archive, filepath.Join(dir, "out"), "demo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if filepath.Base(got) != "demo.app" {
 		t.Fatalf("payload %s", got)
 	}
 }
@@ -205,4 +271,21 @@ func writeTarGz(path, name string, body []byte) error {
 		return err
 	}
 	return gz.Close()
+}
+
+func writeZipDir(path, name string, body []byte) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	zw := zip.NewWriter(f)
+	w, err := zw.Create(name)
+	if err != nil {
+		return err
+	}
+	if _, err := w.Write(body); err != nil {
+		return err
+	}
+	return zw.Close()
 }

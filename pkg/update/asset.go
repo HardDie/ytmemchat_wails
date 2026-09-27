@@ -5,7 +5,8 @@ import (
 	"strings"
 )
 
-// AssetHint is the substring that identifies this OS archive in a release name.
+// AssetHint is the release-name suffix for this OS and architecture.
+// Tag builds use darwin-universal.zip, windows-amd64.zip, and linux-<arch>.tar.gz.
 func AssetHint(goos, goarch string) (string, error) {
 	switch goos {
 	case "darwin":

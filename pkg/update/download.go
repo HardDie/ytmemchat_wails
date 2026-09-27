@@ -12,6 +12,9 @@ import (
 
 // Download fetches the archive from the last Check and verifies SHA-256.
 func (c *Client) Download() error {
+	if err := c.identity(); err != nil {
+		return err
+	}
 	if c.assetURL == "" || c.sumsURL == "" || c.last.Asset == "" {
 		return ErrNotReady
 	}
@@ -39,7 +42,7 @@ func (c *Client) Download() error {
 		_ = os.Remove(path)
 		return fmt.Errorf("%w: got %s want %s", ErrChecksum, got, want)
 	}
-	payload, err := unpack(path, filepath.Join(dir, "payload"))
+	payload, err := unpack(path, filepath.Join(dir, "payload"), c.Name)
 	if err != nil {
 		return err
 	}
@@ -53,7 +56,7 @@ func (c *Client) getBytes(url string, limit int64) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("User-Agent", c.userAgent())
 	res, err := c.http().Do(req)
 	if err != nil {
 		return nil, err
@@ -70,7 +73,7 @@ func (c *Client) getFile(url, dest string) error {
 	if err != nil {
 		return err
 	}
-	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("User-Agent", c.userAgent())
 	res, err := c.http().Do(req)
 	if err != nil {
 		return err
@@ -115,7 +118,7 @@ func (c *Client) tempDir() string {
 	if c.TempDir != "" {
 		return c.TempDir
 	}
-	return filepath.Join(os.TempDir(), "ytmemchat-update")
+	return filepath.Join(os.TempDir(), c.Name+"-update")
 }
 
 func (c *Client) executable() string {
