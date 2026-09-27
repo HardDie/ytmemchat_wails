@@ -3,7 +3,6 @@
 package tts
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -30,9 +29,9 @@ func speak(text, voiceName string) error {
 	powershellScript := fmt.Sprintf(`
 		Add-Type -AssemblyName System.Speech;
 		$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer;
-		$synth.SelectVoice('%s');
+		%s
 		$synth.Speak('%s');
-	`, voiceName, text)
+	`, voiceSelectLine(voiceName), text)
 	cmd := hiddenCommand("powershell", "-NoProfile", "-Command", powershellScript)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -55,11 +54,11 @@ func synthesize(text, voiceName string) ([]byte, string, error) {
 	powershellScript := fmt.Sprintf(`
 		Add-Type -AssemblyName System.Speech;
 		$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer;
-		$synth.SelectVoice('%s');
+		%s
 		$synth.SetOutputToWaveFile('%s');
 		$synth.Speak('%s');
 		$synth.Dispose();
-	`, safeVoice, tempFilePath, safeText)
+	`, voiceSelectLine(safeVoice), tempFilePath, safeText)
 	cmd := hiddenCommand("powershell", "-NoProfile", "-Command", powershellScript)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return nil, "", fmt.Errorf("powershell audio write failed: %w: %s", err, string(out))
@@ -74,21 +73,31 @@ func synthesize(text, voiceName string) ([]byte, string, error) {
 	return audioData, "wav", nil
 }
 
-type psVoiceInfo struct {
-	Name        string
-	Culture     string
-	Gender      string
-	Description string
+func voiceSelectLine(voiceName string) string {
+	if strings.TrimSpace(voiceName) == "" {
+		return ""
+	}
+	return fmt.Sprintf("$synth.SelectVoice('%s');", voiceName)
 }
 
 func getAvailableVoices() ([]VoiceInfo, error) {
+	// Culture is a CultureInfo object and Gender is an enum.
+	// Select-Object would emit those as JSON objects and numbers, which do not parse.
 	powershellCommand := `
-		Add-Type -AssemblyName System.Speech;
-		$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer;
-		$synth.GetInstalledVoices() |
-		Select-Object -ExpandProperty VoiceInfo |
-		Select-Object Name, Culture, Gender, Description |
-		ConvertTo-Json -Compress
+		Add-Type -AssemblyName System.Speech
+		$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer
+		$voices = @(
+			$synth.GetInstalledVoices() | ForEach-Object {
+				$info = $_.VoiceInfo
+				[PSCustomObject]@{
+					Name = [string]$info.Name
+					Culture = [string]$info.Culture.Name
+					Gender = [string]$info.Gender
+					Description = [string]$info.Description
+				}
+			}
+		)
+		if ($voices.Count -eq 0) { '[]' } else { $voices | ConvertTo-Json -Compress }
 	`
 	cmd := hiddenCommand("powershell", "-NoProfile", "-Command", powershellCommand)
 	output, err := cmd.Output()
@@ -96,25 +105,4 @@ func getAvailableVoices() ([]VoiceInfo, error) {
 		return nil, fmt.Errorf("failed to execute PowerShell for voice list: %w", err)
 	}
 	return parseWindowsVoiceJSON(output)
-}
-
-func parseWindowsVoiceJSON(output []byte) ([]VoiceInfo, error) {
-	var psVoices []psVoiceInfo
-	if err := json.Unmarshal(output, &psVoices); err != nil {
-		var one psVoiceInfo
-		if errOne := json.Unmarshal(output, &one); errOne != nil {
-			return nil, fmt.Errorf("failed to parse JSON output from PowerShell: %w. raw: %s", err, string(output))
-		}
-		psVoices = []psVoiceInfo{one}
-	}
-	voices := make([]VoiceInfo, 0, len(psVoices))
-	for _, pv := range psVoices {
-		voices = append(voices, VoiceInfo{
-			Name:     pv.Name,
-			Language: pv.Culture,
-			Gender:   normalizeGender(pv.Gender),
-			Details:  pv.Description,
-		})
-	}
-	return voices, nil
 }
