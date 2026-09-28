@@ -641,6 +641,12 @@ Push a tag `vMAJOR.MINOR.PATCH` (for example `v0.1.0`). GitHub Actions builds an
 
 Plus `SHA256SUMS.txt`. Code signing is not part of the first slice.
 
+Linux archives also include `install.sh`, `ytmemchat.desktop`, and `ytmemchat.png`.
+
+`install.sh` copies the app into the current user's XDG directories.
+
+Operator steps are on [Installing on Linux](docs/wiki/Installing-on-Linux.md).
+
 ### Internal packages (optimized vs console)
 
 The console tree splits more packages than behaviors.

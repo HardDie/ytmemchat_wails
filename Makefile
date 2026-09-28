@@ -39,6 +39,11 @@ dev: require-wails version
 ## build: Production binary for this machine (build/bin)
 build: require-wails version
 	$(WAILS) build $(WAILS_TAGS) -clean -trimpath -ldflags "$(VERSION_LDFLAGS)"
+	@if [ "$$(uname)" = "Linux" ]; then \
+		cp build/linux/install.sh build/linux/ytmemchat.desktop build/bin/ && \
+		cp build/appicon.png build/bin/ytmemchat.png && \
+		chmod +x build/bin/install.sh; \
+	fi
 
 ## generate: Regenerate frontend/wailsjs bindings from Go
 generate: require-wails

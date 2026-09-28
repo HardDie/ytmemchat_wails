@@ -118,6 +118,11 @@ jobs:
         run: |
           mkdir -p dist
           ARTIFACT="ytmemchat-${{ github.ref_name }}-${{ matrix.artifact }}"
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            cp build/linux/install.sh build/linux/ytmemchat.desktop build/bin/
+            cp build/appicon.png build/bin/ytmemchat.png
+            chmod +x build/bin/install.sh
+          fi
           cd build/bin
           if [ "${{ runner.os }}" = "macOS" ]; then
             zip -r "../../dist/${ARTIFACT}" .

@@ -7,6 +7,7 @@ The structure is:
 * bin - Output directory
 * darwin - macOS specific files
 * windows - Windows specific files
+* linux - user install script and launcher template
 
 ## Mac
 
@@ -33,3 +34,13 @@ build with `wails build`.
 - `info.json` - Application details used for Windows builds. The data here will be used by the Windows installer,
   as well as the application itself (right click the exe -> properties -> details)
 - `wails.exe.manifest` - The main application manifest file.
+
+## Linux
+
+Wails does not install a Linux launcher. The release archive adds these files next to the binary:
+
+- `install.sh` — copies the app into the current user's XDG directories
+- `ytmemchat.desktop` — launcher template (`Exec` and `Icon` are filled in by the script)
+- `ytmemchat.png` — copy of `build/appicon.png`
+
+`make build` on Linux copies them into `build/bin` after `wails build`. The tag workflow does the same before it creates the `.tar.gz`.

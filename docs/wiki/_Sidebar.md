@@ -2,6 +2,7 @@
 * Start
   * [Getting Started](Getting-Started)
   * [Running on macOS](Running-on-macOS)
+  * [Installing on Linux](Installing-on-Linux)
 * OBS
   * [Chat URL](Chat-URL)
 * Setup

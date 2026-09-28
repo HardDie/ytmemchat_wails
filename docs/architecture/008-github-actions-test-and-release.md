@@ -63,6 +63,8 @@ Use option 3.
    17. That fills macOS `CFBundleVersion` and `CFBundleShortVersionString`.
    18. `scripts/sync-product-version.sh` writes the tag into `wails.json` and leaves it.
    19. Windows `build/windows/info.json` uses that value for file and product version.
+   20. Linux `.tar.gz` also contains `install.sh`, `ytmemchat.desktop`, and `ytmemchat.png`.
+   21. `install.sh` copies the app into the user XDG dirs.
 5. Until `go.mod` exists, the test workflow skips instead of failing.
 6. A tag without `wails.json` fails the release job.
 7. Code signing is out of scope for the first slice.

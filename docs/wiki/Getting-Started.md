@@ -16,6 +16,8 @@ The **Chat** page lists messages. Use that page for this guide. The **Overlay** 
 
 On macOS the release is unsigned. See [Running on macOS](Running-on-macOS).
 
+On Linux, run the binary or install it for your user. See [Installing on Linux](Installing-on-Linux).
+
 ## 1. Open the app
 
 Unpack the release and start ytmemchat. The window opens on **Home**. The local chat server starts with the app, even before you click Start.

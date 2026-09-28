@@ -36,7 +36,7 @@ Download a tagged archive from [GitHub Releases](https://github.com/HardDie/ytme
 
 Files are named `ytmemchat-<tag>-<os>-<arch>`. For example, `ytmemchat-v0.1.0-darwin-universal.zip`.
 
-Binaries are not code-signed yet. On macOS, [open the unsigned app](https://github.com/HardDie/ytmemchat_wails/wiki/Running-on-macOS). The window sidebar shows the release tag, or the short commit the binary was built from.
+Binaries are not code-signed yet. On macOS, [open the unsigned app](https://github.com/HardDie/ytmemchat_wails/wiki/Running-on-macOS). On Linux, [run the binary or install it for your user](https://github.com/HardDie/ytmemchat_wails/wiki/Installing-on-Linux). The window sidebar shows the release tag, or the short commit the binary was built from.
 
 ### From source
 

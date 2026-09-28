@@ -6,6 +6,7 @@ ytmemchat reads YouTube live chat and drives an OBS overlay: on-stream messages,
 
 * [Getting Started](Getting-Started) — paste a stream ID and watch chat (no API key)
 * [Running on macOS](Running-on-macOS) — open the unsigned `.app` (Gatekeeper)
+* [Installing on Linux](Installing-on-Linux) — run the binary, or install it for your user
 
 ## OBS
 
