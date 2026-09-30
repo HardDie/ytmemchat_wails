@@ -93,7 +93,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          VERSION="$(git describe --tags --exact-match 2>/dev/null || git rev-parse --short=12 HEAD)"
+          VERSION="$(go run ./pkg/version/cmd/version)"
           PRODUCT_VERSION="$(git describe --tags --abbrev=0 2>/dev/null || true)"
           PRODUCT_VERSION="${PRODUCT_VERSION#v}"
           export PRODUCT_VERSION
@@ -101,7 +101,7 @@ jobs:
           # -skipbindings: committed frontend/wailsjs. Wails generate walks test
           # imports (gax-go.test → huge genproto zip) and also executes package
           # main (Linux hotkey init panics without DISPLAY).
-          cmd=(wails build -skipbindings -clean -trimpath -platform "${{ matrix.wails_platform }}" -ldflags "-X github.com/HardDie/ytmemchat_wails/bindings/sidebar.buildVersion=${VERSION}")
+          cmd=(wails build -skipbindings -clean -trimpath -platform "${{ matrix.wails_platform }}" -ldflags "-X github.com/HardDie/ytmemchat_wails/pkg/version.Build=${VERSION}")
           # Ubuntu 24.04 has webkit2gtk-4.1 only; Wails 2.11 still defaults to 4.0.
           if [ -n "${{ matrix.wails_tags }}" ]; then
             cmd+=(-tags "${{ matrix.wails_tags }}")

@@ -239,7 +239,7 @@ Idiomatic pattern:
    8. Sidebar: `AppVersion`.
    9. `PickAlertMediaFile` returns a path relative to the Config media folder.
    10. Files outside that tree are rejected.
-   11. `AppVersion` is stamped at link time (`-X github.com/HardDie/ytmemchat_wails/bindings/sidebar.buildVersion`).
+   11. `AppVersion` is stamped at link time (`-X github.com/HardDie/ytmemchat_wails/pkg/version.Build`).
    12. Unset `AppVersion` is `dev`.
    13. Start uses last saved settings (window saves the form first).
    14. Empty API key → `nokey`. Non-empty → v3 only.
@@ -448,6 +448,7 @@ This file stays lean.
 | Alert token matching + `commands.yaml` | `internal/alerts` |
 | TTS drivers | `internal/tts` |
 | GitHub self-update | `pkg/update` (caller passes owner, repo, and binary name) |
+| Build version (git tag or commit) | `pkg/version` |
 | Wails project layout / bindings | [Wails first project](https://wails.io/docs/gettingstarted/firstproject/) |
 
 ### Intended tree (after scaffold + port)
@@ -515,7 +516,8 @@ Official Wails layout:
 │   └── secret/               # OS keychain for the YouTube API key
 ├── pkg/
 │   ├── archive/              # zip of one named document plus selected files
-│   └── update/               # GitHub release check + verified install
+│   ├── update/               # GitHub release check + verified install
+│   └── version/              # git tag, or short commit hash
 └── build/
 ```
 
@@ -552,6 +554,8 @@ Official Wails layout:
 29. `pkg/archive` writes a zip of one named document plus selected files under a directory.
 30. `pkg/update` takes GitHub owner, repo, and binary name ([030](docs/architecture/030-github-self-update-pkg.md)).
     1. The Update binding passes ytmemchat’s.
+31. `pkg/version` is the git tag or short commit ([031](docs/architecture/031-build-version-pkg.md)).
+    1. `AppVersion` reads that stamp.
 
 ### Go package documentation (godoc)
 

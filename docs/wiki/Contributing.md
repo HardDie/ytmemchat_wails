@@ -41,4 +41,5 @@ Each Go package needs a package comment and comments on all exports. Check from 
 | `internal/secret` | Implemented | `go doc -all ./internal/secret` |
 | `pkg/archive` | Implemented | `go doc -all ./pkg/archive` |
 | `pkg/update` | Implemented | `go doc -all ./pkg/update` |
+| `pkg/version` | Implemented | `go doc -all ./pkg/version` |
 | `package main` (App core) | Implemented | `go doc -all .` |

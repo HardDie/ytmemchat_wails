@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/HardDie/ytmemchat_wails/bindings/sidebar"
 	"github.com/HardDie/ytmemchat_wails/internal/config"
 	"github.com/HardDie/ytmemchat_wails/internal/obs"
+	"github.com/HardDie/ytmemchat_wails/pkg/version"
 )
 
 const httpShutdownTimeout = 5 * time.Second
@@ -48,7 +48,7 @@ func (a *App) startHTTPLocked() error {
 		Addr:      addr,
 		MediaPath: mediaPathFor(a.settings),
 		Webhooks:  a.settings.Webhook.Enabled,
-		Version:   sidebar.New().AppVersion(),
+		Version:   version.String(),
 	})
 	a.httpSrv = srv
 	a.httpAddr = ln.Addr().String()

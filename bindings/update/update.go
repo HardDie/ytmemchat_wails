@@ -4,8 +4,8 @@ package update
 import (
 	"context"
 
-	"github.com/HardDie/ytmemchat_wails/bindings/sidebar"
 	ghupdate "github.com/HardDie/ytmemchat_wails/pkg/update"
+	"github.com/HardDie/ytmemchat_wails/pkg/version"
 )
 
 const (
@@ -30,7 +30,7 @@ func New(app api) *Update {
 		Owner:   githubOwner,
 		Repo:    githubRepo,
 		Name:    binaryName,
-		Current: sidebar.New().AppVersion(),
+		Current: version.String(),
 	})}
 }
 

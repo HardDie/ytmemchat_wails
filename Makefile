@@ -8,9 +8,12 @@ GO           := go
 WAILS        := wails
 PKG          ?= ./internal/tts
 PKGSITE_ADDR ?= localhost:8081
-# Exact git tag when HEAD is tagged, otherwise the short commit. Override with BUILD_VERSION=…
-BUILD_VERSION ?= $(shell git describe --tags --exact-match 2>/dev/null || git rev-parse --short=12 HEAD 2>/dev/null || echo dev)
-VERSION_LDFLAGS := -X github.com/HardDie/ytmemchat_wails/bindings/sidebar.buildVersion=$(BUILD_VERSION)
+# Exact git tag when HEAD is tagged, otherwise the short commit (pkg/version).
+# Override with BUILD_VERSION=… on the make command line or in the environment.
+ifndef BUILD_VERSION
+BUILD_VERSION = $(shell $(GO) run ./pkg/version/cmd/version 2>/dev/null || echo dev)
+endif
+VERSION_LDFLAGS = -X github.com/HardDie/ytmemchat_wails/pkg/version.Build=$(BUILD_VERSION)
 # Last git tag without a leading v (macOS CFBundle / Windows ProductVersion). Override with PRODUCT_VERSION=…
 PRODUCT_VERSION ?= $(patsubst v%,%,$(shell git describe --tags --abbrev=0 2>/dev/null))
 # Ubuntu 24.04+ ships webkit2gtk-4.1; Wails needs this tag instead of 4.0.
