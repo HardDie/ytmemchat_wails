@@ -10,18 +10,23 @@ import (
 	"testing"
 )
 
-func skipIfMissing(t *testing.T, bin string) {
+// requireTool fails the test when the OS TTS engine is missing.
+// These tests must not skip: CI should go red if synthesis cannot run.
+func requireTool(t *testing.T, bin string) {
 	t.Helper()
 	if _, err := exec.LookPath(bin); err != nil {
-		t.Skipf("%s not found", bin)
+		t.Fatalf("%s not found: %v", bin, err)
 	}
 }
 
 func integrationVoice(t *testing.T) string {
 	t.Helper()
 	voices, err := GetAvailableVoices()
-	if err != nil || len(voices) == 0 {
-		t.Skip("no voices listed")
+	if err != nil {
+		t.Fatalf("list voices: %v", err)
+	}
+	if len(voices) == 0 {
+		t.Fatal("no voices listed")
 	}
 	return voices[0].Name
 }
