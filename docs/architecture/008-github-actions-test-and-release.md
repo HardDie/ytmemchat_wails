@@ -42,6 +42,7 @@ Use option 3.
    7. A separate `integration` job runs them on `ubuntu-latest`, `macos-latest`, and `windows-latest`.
    8. `fail-fast: false`, so one OS failing does not hide the others.
    9. Linux installs `espeak` first; macOS `say` and Windows PowerShell are preinstalled.
+   10. CI adds `-v` so each test logs `PASS` or `SKIP`.
 3. **`internal/` stays CGO-free in tests**
    1. `-tags=nomain` skips Wails in package main.
    2. It also skips OS hotkey bind files.
