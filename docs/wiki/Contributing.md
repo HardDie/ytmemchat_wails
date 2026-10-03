@@ -20,7 +20,7 @@ make doc PKG=./internal/tts
 make doc-all PKG=./internal/tts
 ```
 
-GitHub Actions (`.github/workflows/test.yml`) runs the same `go test` commands as `make test`, then `make test-integration`, on every push and pull request. It does not invoke `make`.
+GitHub Actions (`.github/workflows/test.yml`) runs the same `go test` commands as `make test` on Linux. A second job runs the `make test-integration` command on Linux, macOS, and Windows. Both run on every push and pull request. They do not invoke `make`.
 
 Push a `vMAJOR.MINOR.PATCH` tag to publish archives such as `ytmemchat-v0.1.0-linux-amd64.tar.gz` (`.github/workflows/release.yml`).
 

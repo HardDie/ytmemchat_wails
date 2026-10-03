@@ -3,7 +3,10 @@
 package tts
 
 import (
+	"errors"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"testing"
 )
 
@@ -65,5 +68,23 @@ func testSynthesizeAudio(t *testing.T) {
 	}
 	if got.Volume != 1 {
 		t.Fatalf("volume = %v, want 1", got.Volume)
+	}
+}
+
+// testSynthesizeHostile speaks a chat line built to create pwn through the engine.
+// The line must be spoken as plain text, and pwn must not exist afterwards.
+func testSynthesizeHostile(t *testing.T, line func(pwn string) string) {
+	t.Helper()
+	voice := integrationVoice(t)
+	pwn := filepath.Join(t.TempDir(), "pwn")
+	data, _, err := SynthesizeToBuffer(line(pwn), voice)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(data) < 44 {
+		t.Fatalf("WAV too small: %d bytes", len(data))
+	}
+	if _, err := os.Stat(pwn); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("chat text created %s (stat err %v)", pwn, err)
 	}
 }

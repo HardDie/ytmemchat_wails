@@ -18,3 +18,9 @@ func TestSynthesizeAudio_sendsSpeech(t *testing.T) {
 	skipIfMissing(t, "say")
 	testSynthesizeAudio(t)
 }
+
+// A line starting with -o was read by say as its output file option.
+func TestSynthesizeToBuffer_dashTextIsNotAnOption(t *testing.T) {
+	skipIfMissing(t, "say")
+	testSynthesizeHostile(t, func(pwn string) string { return "-o" + pwn })
+}

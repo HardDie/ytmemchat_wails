@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 )
 
 func synthesize(text, voiceName string) ([]byte, string, error) {
@@ -18,20 +19,10 @@ func synthesize(text, voiceName string) ([]byte, string, error) {
 	_ = tempFile.Close()
 	defer os.Remove(tempFilePath)
 
-	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "darwin":
-		cmd = exec.Command("say",
-			"-v", voiceName,
-			"-o", tempFilePath,
-			"--data-format=LEF32@32000",
-			text)
-	case "linux":
-		cmd = exec.Command("espeak", "-v", voiceName, "-w", tempFilePath, text)
-	default:
-		return nil, "", fmt.Errorf("unsupported OS for native TTS synthesis: %s", runtime.GOOS)
+	cmd, err := synthCommand(runtime.GOOS, text, voiceName, tempFilePath)
+	if err != nil {
+		return nil, "", err
 	}
-
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return nil, "", fmt.Errorf("TTS command failed on %s (tool %s): %w: %s", runtime.GOOS, cmd.Path, err, string(out))
 	}
@@ -44,6 +35,27 @@ func synthesize(text, voiceName string) ([]byte, string, error) {
 		return nil, "", fmt.Errorf("synthesized audio file is empty")
 	}
 	return audioData, "wav", nil
+}
+
+// synthCommand builds the engine command that writes text to outPath.
+// Text goes on stdin, never in argv.
+// A chat line such as "-o/path" would otherwise be read as an option.
+func synthCommand(goos, text, voiceName, outPath string) (*exec.Cmd, error) {
+	var cmd *exec.Cmd
+	switch goos {
+	case "darwin":
+		cmd = exec.Command("say",
+			"-v", voiceName,
+			"-o", outPath,
+			"--data-format=LEF32@32000",
+			"-f", "-")
+	case "linux":
+		cmd = exec.Command("espeak", "-v", voiceName, "-w", outPath, "--stdin")
+	default:
+		return nil, fmt.Errorf("unsupported OS for native TTS synthesis: %s", goos)
+	}
+	cmd.Stdin = strings.NewReader(text)
+	return cmd, nil
 }
 
 func getAvailableVoices() ([]VoiceInfo, error) {
