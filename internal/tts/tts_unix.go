@@ -9,22 +9,6 @@ import (
 	"runtime"
 )
 
-func speak(text, voiceName string) error {
-	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "darwin":
-		cmd = exec.Command("say", "-v", voiceName, text)
-	case "linux":
-		cmd = exec.Command("espeak", "-v", voiceName, text)
-	default:
-		return fmt.Errorf("unsupported operating system for native TTS: %s", runtime.GOOS)
-	}
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("TTS command failed on %s: %w", runtime.GOOS, err)
-	}
-	return nil
-}
-
 func synthesize(text, voiceName string) ([]byte, string, error) {
 	tempFile, err := os.CreateTemp("", "tts_audio_*.wav")
 	if err != nil {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 	"syscall"
 )
 
@@ -23,23 +22,6 @@ func hiddenCommand(name string, args ...string) *exec.Cmd {
 	return cmd
 }
 
-func speak(text, voiceName string) error {
-	text = strings.ReplaceAll(text, "'", "''")
-	voiceName = strings.ReplaceAll(voiceName, "'", "''")
-	powershellScript := fmt.Sprintf(`
-		Add-Type -AssemblyName System.Speech;
-		$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer;
-		%s
-		$synth.Speak('%s');
-	`, voiceSelectLine(voiceName), text)
-	cmd := hiddenCommand("powershell", "-NoProfile", "-Command", powershellScript)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("PowerShell execution failed (voice %s): %w. output: %s", voiceName, err, string(output))
-	}
-	return nil
-}
-
 func synthesize(text, voiceName string) ([]byte, string, error) {
 	tempFile, err := os.CreateTemp("", "tts_audio_*.wav")
 	if err != nil {
@@ -49,17 +31,8 @@ func synthesize(text, voiceName string) ([]byte, string, error) {
 	_ = tempFile.Close()
 	defer os.Remove(tempFilePath)
 
-	safeText := strings.ReplaceAll(text, "'", "''")
-	safeVoice := strings.ReplaceAll(voiceName, "'", "''")
-	powershellScript := fmt.Sprintf(`
-		Add-Type -AssemblyName System.Speech;
-		$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer;
-		%s
-		$synth.SetOutputToWaveFile('%s');
-		$synth.Speak('%s');
-		$synth.Dispose();
-	`, voiceSelectLine(safeVoice), tempFilePath, safeText)
-	cmd := hiddenCommand("powershell", "-NoProfile", "-Command", powershellScript)
+	cmd := hiddenCommand("powershell", "-NoProfile", "-NonInteractive", "-Command", psSynthScript)
+	cmd.Env = append(os.Environ(), psSynthEnv(text, voiceName, tempFilePath)...)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return nil, "", fmt.Errorf("powershell audio write failed: %w: %s", err, string(out))
 	}
@@ -71,13 +44,6 @@ func synthesize(text, voiceName string) ([]byte, string, error) {
 		return nil, "", fmt.Errorf("synthesized audio file is empty")
 	}
 	return audioData, "wav", nil
-}
-
-func voiceSelectLine(voiceName string) string {
-	if strings.TrimSpace(voiceName) == "" {
-		return ""
-	}
-	return fmt.Sprintf("$synth.SelectVoice('%s');", voiceName)
 }
 
 func getAvailableVoices() ([]VoiceInfo, error) {

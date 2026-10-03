@@ -11,7 +11,7 @@ import (
 
 // VoiceInfo is metadata for one installed OS voice.
 type VoiceInfo struct {
-	// Name is the identifier passed to Speak and synthesis (for example "Alex").
+	// Name is the identifier passed to synthesis (for example "Alex").
 	Name string
 	// Language is one or more locale codes, comma-separated (for example "en_US" or "en-gb, en-uk, en").
 	Language string

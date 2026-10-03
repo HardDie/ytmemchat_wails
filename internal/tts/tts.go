@@ -42,11 +42,6 @@ func New(cfg Config) *TTS {
 	}
 }
 
-// Speak plays text on the local default output (not the OBS overlay).
-func Speak(text, voiceName string) error {
-	return speak(text, voiceName)
-}
-
 // SynthesizeToBuffer renders text with voiceName and returns WAV bytes and the
 // format name (always "wav" for current drivers).
 func SynthesizeToBuffer(text, voiceName string) ([]byte, string, error) {
