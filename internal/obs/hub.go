@@ -8,9 +8,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(*http.Request) bool { return true },
-}
+// upgrader keeps gorilla's default origin check.
+// A socket opened by a page on another site is refused.
+// OBS passes: its page is served by this server, so Origin matches Host.
+var upgrader = websocket.Upgrader{}
 
 type hub[T any] struct {
 	mu      sync.Mutex

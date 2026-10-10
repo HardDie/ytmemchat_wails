@@ -59,9 +59,18 @@ func TestValidateAndParsePort(t *testing.T) {
 		t.Fatal(err)
 	}
 	s.Server.Port = ":9090"
-	if s.Server.ListenAddr() != ":9090" {
+	if s.Server.ListenAddr() != "127.0.0.1:9090" {
 		t.Fatalf("ListenAddr = %q", s.Server.ListenAddr())
 	}
+	s.Server.LAN = true
+	if s.Server.ListenAddr() != ":9090" {
+		t.Fatalf("LAN ListenAddr = %q", s.Server.ListenAddr())
+	}
+	s.Server.Port = "9090"
+	if s.Server.ListenAddr() != ":9090" {
+		t.Fatalf("LAN ListenAddr without colon = %q", s.Server.ListenAddr())
+	}
+	s.Server.LAN = false
 	n, err := ParsePort(":9090")
 	if err != nil || n != 9090 {
 		t.Fatalf("ParsePort = %d %v", n, err)

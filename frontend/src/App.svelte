@@ -42,6 +42,7 @@
   let streamId = ''
   let apiKey = ''
   let port = '8080'
+  let listenLan = false
   let ttsEnabled = false
   let ttsVoiceName = ''
   let alertsEnabled = false
@@ -79,6 +80,7 @@
     streamId = s.streamId ?? ''
     apiKey = s.apiKey ?? ''
     port = s.port || '8080'
+    listenLan = !!s.listenLan
     ttsEnabled = !!s.ttsEnabled
     ttsVoiceName = s.ttsVoiceName ?? ''
     alertsEnabled = !!s.alertsEnabled
@@ -99,6 +101,7 @@
       streamId,
       apiKey,
       port,
+      listenLan,
       ttsEnabled,
       ttsVoiceName,
       alertsEnabled,
@@ -359,6 +362,7 @@
           bind:streamId
           bind:apiKey
           bind:port
+          bind:listenLan
           bind:ttsEnabled
           bind:ttsVoiceName
           bind:alertsEnabled

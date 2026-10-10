@@ -13,7 +13,7 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 	st := config.NewStore(filepath.Join(t.TempDir(), "config.json"))
 	c := New(&configStub{settings: config.Defaults(), store: st})
 	got := c.GetSettings()
-	if got.Port != "8080" || got.StreamID != "" || got.APIKey != "" {
+	if got.Port != "8080" || got.ListenLAN || got.StreamID != "" || got.APIKey != "" {
 		t.Fatalf("%+v", got)
 	}
 	if got.TTSEnabled || got.AlertsEnabled || got.AlertsToken != "@" || got.WebhookEnabled || got.Debug {
@@ -29,6 +29,7 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 		f.StreamID = "  liveid  "
 		f.APIKey = " secret "
 		f.Port = ":9090"
+		f.ListenLAN = true
 		f.TTSEnabled = false
 		f.TTSVoiceName = " Milena "
 		f.AlertsEnabled = true
@@ -53,6 +54,9 @@ func TestGetSaveSettings_roundTrip(t *testing.T) {
 	}
 	if !got.WebhookEnabled {
 		t.Fatal("webhook")
+	}
+	if !got.ListenLAN {
+		t.Fatal("listen lan")
 	}
 	if !got.InterruptHotkeyEnabled || got.InterruptHotkeyChord != "Ctrl+Alt+F8" {
 		t.Fatalf("hotkey after save %+v", got)

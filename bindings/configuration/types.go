@@ -8,6 +8,8 @@ type SettingsForm struct {
 	APIKey string `json:"apiKey"`
 	// Port is the OBS HTTP listen port ("8080" or ":8080").
 	Port string `json:"port"`
+	// ListenLAN lets other PCs open the OBS pages. Off listens on 127.0.0.1 only.
+	ListenLAN bool `json:"listenLan"`
 	// TTSEnabled sends non-alert chat to TTS when true.
 	TTSEnabled bool `json:"ttsEnabled"`
 	// TTSVoiceName is the OS voice identifier (empty uses the system default).

@@ -52,6 +52,9 @@ type Youtube struct {
 type Server struct {
 	// Port is a TCP port ("8080") or address (":8080").
 	Port string `json:"port"`
+	// LAN listens on every interface so another PC can open the OBS pages.
+	// Off (the default) listens on 127.0.0.1 only.
+	LAN bool `json:"lan"`
 }
 
 // TTS is text-to-speech settings.

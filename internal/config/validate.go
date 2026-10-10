@@ -61,11 +61,12 @@ func ParsePort(port string) (int, error) {
 	return n, nil
 }
 
-// ListenAddr returns an address suitable for net.Listen ("host:port" form with empty host).
+// ListenAddr returns an address for net.Listen.
+// It is "127.0.0.1:<port>", or ":<port>" (every interface) when LAN is on.
 func (s Server) ListenAddr() string {
-	p := strings.TrimSpace(s.Port)
-	if strings.HasPrefix(p, ":") {
-		return p
+	p := strings.TrimPrefix(strings.TrimSpace(s.Port), ":")
+	if s.LAN {
+		return ":" + p
 	}
-	return ":" + p
+	return "127.0.0.1:" + p
 }

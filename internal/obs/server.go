@@ -38,16 +38,16 @@ func New(cfg Config) *Server {
 	}
 	s.http = &http.Server{
 		Addr:              cfg.Addr,
-		Handler:           s.mux,
+		Handler:           guard(s.mux),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 	s.routes()
 	return s
 }
 
-// Handler is the HTTP mux (for tests and custom listeners).
+// Handler is the HTTP mux behind the Host and Origin guard (for tests and custom listeners).
 func (s *Server) Handler() http.Handler {
-	return s.mux
+	return s.http.Handler
 }
 
 // ListenAndServe binds cfg.Addr and serves until [Server.Shutdown] or an error.

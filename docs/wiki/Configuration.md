@@ -44,6 +44,14 @@ With a key, **Home** shows spent units today. That is this app’s count. `liveC
 
 Local listen port for OBS pages. Default `8080`. You can enter `8080` or `:8080`. Saving a different port restarts the listener. Copy the new URLs from Home.
 
+### Listen on the local network
+
+Off by default. Then only this computer can open the OBS pages.
+
+Turn it on to open the overlay on another computer. For example, you stream on one PC and play on another with headphones. On the second PC, open `http://<this PC's IP>:8080/obs/overlay` in a browser. Use the IP address, not the computer name. Saving restarts the listener.
+
+When it is on, devices on your network can reach the pages, the media folder, and the HTTP API. Leave it off on public or shared networks.
+
 ---
 
 ## Alerts
@@ -117,7 +125,7 @@ Home also has **Interrupt speech** for the same action. `POST /api/interrupt` do
 
 ## HTTP API
 
-Off on first launch. When on, scripts on this computer can call the local server. OBS does not use these endpoints.
+Off on first launch. When on, scripts on this computer can call the local server. OBS does not use these endpoints. Web pages in a browser cannot call them: requests from another site are refused.
 
 ```bash
 curl -X POST http://127.0.0.1:8080/api/webhook \

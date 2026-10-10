@@ -111,6 +111,10 @@ This is a new desktop app.
 20. Overlay TTS/command audio uses a fading HTML sticker ([024](docs/architecture/024-obs-html-audio-sticker.md)).
 21. OBS HTML and sockets carry `?v=` ([026](docs/architecture/026-obs-html-version-query.md)).
 22. A stale `v` redirects the page to the running app version.
+23. Listen on `127.0.0.1:<port>`; the LAN toggle uses `:<port>` ([032](docs/architecture/032-obs-http-loopback-and-guard.md)).
+24. Every route rejects a `Host` that is not an IP or `localhost`.
+25. Non-GET requests reject a foreign `Origin`. No `Origin` passes (curl).
+26. WebSockets use the same-origin check.
 
 | Method | Route | Role |
 |---|---|---|
@@ -299,6 +303,7 @@ Idiomatic pattern:
        1. Media folder.
        2. Custom commands.yaml.
        3. Each command File.
+   25. Listen on the local network on/off (default off) ([032](docs/architecture/032-obs-http-loopback-and-guard.md)).
 8. **API key**
    1. Optional.
    2. Empty means use `youtube/nokey`.

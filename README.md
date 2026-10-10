@@ -65,6 +65,8 @@ Set a live **stream/video ID** on Configuration, copy the **Chat** URL from Home
 
 The overlay URL is for clips and speech. The index URL (`http://127.0.0.1:8080/`) lists these two pages. Do not use it as an OBS source.
 
+Only this computer can open these pages. To open the overlay on another PC, turn on **Listen on the local network** in Configuration.
+
 Chat query parameters are on [Chat URL](https://github.com/HardDie/ytmemchat_wails/wiki/Chat-URL).
 
 Meme alerts are [Setting up commands](https://github.com/HardDie/ytmemchat_wails/wiki/Setting-up-commands). Speech is [Text to speech](https://github.com/HardDie/ytmemchat_wails/wiki/Text-to-speech).

@@ -39,7 +39,7 @@ func (c *Configuration) GetSettings() SettingsForm {
 }
 
 // SaveSettings writes the settings form. Empty stream ID is allowed.
-// Changing listen port, media path, or the webhook flag restarts OBS HTTP.
+// Changing listen port, LAN mode, media path, or the webhook flag restarts OBS HTTP.
 // Errors never include the API key.
 func (c *Configuration) SaveSettings(in SettingsForm) error {
 	cur, _ := c.app.SettingsSnapshot()
@@ -53,6 +53,7 @@ func formFrom(s config.Settings, hotkeyErr string) SettingsForm {
 		StreamID:                 s.Youtube.StreamID,
 		APIKey:                   s.Youtube.APIKey,
 		Port:                     s.Server.Port,
+		ListenLAN:                s.Server.LAN,
 		TTSEnabled:               s.TTS.Enabled,
 		TTSVoiceName:             s.TTS.VoiceName,
 		AlertsEnabled:            s.Alerts.Enabled,
@@ -73,6 +74,7 @@ func applyForm(dst *config.Settings, in SettingsForm) {
 	dst.Youtube.StreamID = in.StreamID
 	dst.Youtube.APIKey = in.APIKey
 	dst.Server.Port = in.Port
+	dst.Server.LAN = in.ListenLAN
 	dst.TTS.Enabled = in.TTSEnabled
 	dst.TTS.VoiceName = in.TTSVoiceName
 	dst.Alerts.Enabled = in.AlertsEnabled

@@ -6,6 +6,7 @@
   export let streamId: string
   export let apiKey: string
   export let port: string
+  export let listenLan: boolean
   export let ttsEnabled: boolean
   export let ttsVoiceName: string
   export let alertsEnabled: boolean
@@ -193,6 +194,13 @@
     <input autocomplete="off" bind:value={port} spellcheck="false" type="text" />
   </label>
   <p class="hint">Saving a new port restarts the local OBS listener.</p>
+  <label class="toggle">
+    Listen on the local network
+    <input bind:checked={listenLan} type="checkbox" />
+  </label>
+  <p class="hint">
+    Off: only this PC can open the OBS pages. On: another PC can open them at http://&lt;this PC's IP&gt;:{port.replace(/^:/, '')}/obs/overlay.
+  </p>
 </section>
 
 <section class="card" class:card-compact={!alertsEnabled}>

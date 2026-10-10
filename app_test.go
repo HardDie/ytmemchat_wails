@@ -205,3 +205,16 @@ func TestSetAlertsMediaPath_clearsCustomCommandsFile(t *testing.T) {
 		t.Fatalf("stored commands path = %q", loaded.Alerts.CommandsFilePath)
 	}
 }
+
+// Toggling LAN changes the bind address, so a save must restart OBS HTTP.
+func TestSameOBSListen_LANRestarts(t *testing.T) {
+	old := config.Defaults()
+	next := old
+	next.Server.LAN = true
+	if sameOBSListen(old, next) {
+		t.Fatal("LAN toggle must restart the listener")
+	}
+	if !sameOBSListen(old, old) {
+		t.Fatal("same settings must not restart")
+	}
+}

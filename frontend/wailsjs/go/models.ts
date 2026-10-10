@@ -59,6 +59,7 @@ export namespace configuration {
 	    streamId: string;
 	    apiKey: string;
 	    port: string;
+	    listenLan: boolean;
 	    ttsEnabled: boolean;
 	    ttsVoiceName: string;
 	    alertsEnabled: boolean;
@@ -82,6 +83,7 @@ export namespace configuration {
 	        this.streamId = source["streamId"];
 	        this.apiKey = source["apiKey"];
 	        this.port = source["port"];
+	        this.listenLan = source["listenLan"];
 	        this.ttsEnabled = source["ttsEnabled"];
 	        this.ttsVoiceName = source["ttsVoiceName"];
 	        this.alertsEnabled = source["alertsEnabled"];

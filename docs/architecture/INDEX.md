@@ -35,3 +35,4 @@ ADRs live in this folder. Number them in order (`001`, `002`, …). Status is on
 | [029](029-export-commands-zip.md) | Export commands as a zip | Accepted |
 | [030](030-github-self-update-pkg.md) | GitHub self-update is a shared package | Accepted |
 | [031](031-build-version-pkg.md) | Build version is a shared package | Accepted |
+| [032](032-obs-http-loopback-and-guard.md) | OBS HTTP listens on loopback; LAN is opt-in; requests are guarded | Accepted |
