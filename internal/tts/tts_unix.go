@@ -54,8 +54,23 @@ func synthCommand(goos, text, voiceName, outPath string) (*exec.Cmd, error) {
 	default:
 		return nil, fmt.Errorf("unsupported OS for native TTS synthesis: %s", goos)
 	}
+	if goos == "darwin" {
+		text = stripSayCommands(text)
+	}
 	cmd.Stdin = strings.NewReader(text)
 	return cmd, nil
+}
+
+// sayBrackets turns square brackets into spaces.
+var sayBrackets = strings.NewReplacer("[", " ", "]", " ")
+
+// stripSayCommands removes the "[[" that opens a say embedded command.
+// A chat line such as "[[slnc 999999999]]" would otherwise render hours of
+// silence: a WAV of many gigabytes in the temp dir, then read into memory.
+// "[[rate 1]]" stretches normal text the same way.
+// Brackets are not spoken, so turning each one into a space loses nothing.
+func stripSayCommands(text string) string {
+	return sayBrackets.Replace(text)
 }
 
 func getAvailableVoices() ([]VoiceInfo, error) {

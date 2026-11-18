@@ -173,3 +173,17 @@ How to use this list:
   1. `ErrOBSNotListening` is declared in three binding packages.
   2. v3 and nokey repeat the same poll loop shape.
   3. `config.Store.hydrate`: the `writeFile` error branch is a no-op.
+18. macOS TTS: `say` embedded commands from chat — `done`
+  1. File: `internal/tts/tts_unix.go` (`synthCommand`).
+  2. `say` runs `[[…]]` commands found in its input text.
+  3. Verified: `[[slnc 20000]] hi` gave a 2.6 MB WAV; `hi` gave 58 KB.
+  4. `[[slnc 999999999]]` asks for ~128 GB in the temp dir.
+  5. The app then reads that file into memory.
+  6. `[[rate 1]]` stretches normal text the same way.
+  7. Any viewer can fill the disk or crash the app.
+  8. Not code execution; no shell or script is involved.
+  9. Fix: on darwin `stripSayCommands` turns `[` and `]` into spaces.
+  10. Verified: the same payload now gives a 250 KB WAV.
+  11. `espeak` parses markup only with `-m`; not passed.
+  12. Windows `Speak(string)` is plain text, not SSML.
+  13. Unit tests in `tts_unix_test.go`.
