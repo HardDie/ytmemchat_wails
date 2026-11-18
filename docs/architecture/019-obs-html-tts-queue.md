@@ -40,6 +40,8 @@ Use option 2.
 14. Stale `ttsGeneration` skips `play()` and queue finish.
 15. TTS now plays through `startAudibleSticker` ([024](024-obs-html-audio-sticker.md)).
 16. WAV is a blob URL on `<audio>`, not `decodeAudioData`.
+17. The min-time audio timer is a backstop; it also calls `onMediaFinished`.
+18. Without it, a TTS clip ≥ 5s stalled the queue until interrupt ([018](018-obs-html-min-sticker-time.md) items 23–26).
 
 ## Consequences
 

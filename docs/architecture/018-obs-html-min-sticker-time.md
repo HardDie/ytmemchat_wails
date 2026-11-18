@@ -49,6 +49,10 @@ Use option 2.
 20. That `max(duration, 5s)` timer starts when `play()` starts, after fade-in.
 21. That play-start timer is TTS and command audio only.
 22. Video still fades 500ms early from layout (`scheduleVideoTeardown`).
+23. The audio timer adds `AUDIO_TEARDOWN_GRACE_MS` (1s).
+24. So a slightly late `ended` wins and the tail is not cut.
+25. The audio timer also finishes the TTS queue, unless the generation is stale.
+26. `drop()` silences `error` / `abort`, so without this the queue stuck on clips ≥ 5s.
 
 ## Consequences
 

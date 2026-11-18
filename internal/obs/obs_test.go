@@ -179,6 +179,18 @@ func TestIndexAndOBSPages(t *testing.T) {
 	if !strings.Contains(htmlOv, "scheduleAudioTeardown") {
 		t.Fatal("overlay audio alerts must drop after max(duration, min sticker time)")
 	}
+	if strings.Contains(htmlOv, "scheduleAudioTeardown(audioElement, drop)") {
+		t.Fatal("audio teardown must not only drop: drop() silences error/abort and the TTS queue sticks")
+	}
+	playFn := overlayJSFunc(htmlOv, "startAudibleSticker")
+	teardown, _, _ := strings.Cut(playFn, "const playAttempt")
+	if i := strings.Index(teardown, "scheduleAudioTeardown(audioElement, function"); i < 0 ||
+		!strings.Contains(teardown[i:], "finishQueue()") {
+		t.Fatal("audio teardown must finish the TTS queue so clips >= min sticker time do not stall it")
+	}
+	if !strings.Contains(overlayJSFunc(htmlOv, "scheduleAudioTeardown"), "AUDIO_TEARDOWN_GRACE_MS") {
+		t.Fatal("audio teardown must wait a grace period so a late ended event wins")
+	}
 	if strings.Contains(htmlOv, "start-btn") {
 		t.Fatal("overlay html must not require an audio unlock button")
 	}

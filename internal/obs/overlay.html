@@ -122,6 +122,7 @@
 	});
 	const MIN_STICKER_PLAYING_SEC = 5;
 	const MEDIA_FADE_MS = 500;
+	const AUDIO_TEARDOWN_GRACE_MS = 1000;
 	const debugParam = new URLSearchParams(window.location.search).get('debugAudio');
 	if (debugParam === '1' || debugParam === 'true') {
 		document.body.classList.add('debug-audio');
@@ -294,7 +295,14 @@
 			debugStep('tryPlay: play');
 			if (opts.holdMin) {
 				debugStep('tryPlay: scheduleAudioTeardown');
-				scheduleAudioTeardown(audioElement, drop);
+				scheduleAudioTeardown(audioElement, function() {
+					debugStep('audio: teardown');
+					drop();
+					/* drop() silences error/abort, so the queue must advance here. */
+					if (!stale()) {
+						finishQueue();
+					}
+				});
 			}
 			const playAttempt = audioElement.play();
 			if (playAttempt && playAttempt.catch) {
@@ -482,10 +490,11 @@
 		return sec;
 	}
 
-	function scheduleAudioTeardown(audioElement, drop) {
+	function scheduleAudioTeardown(audioElement, done) {
 		/* TTS and command audio only. Full duration from play(); no early fade. */
+		/* Grace lets a late 'ended' win, so long clips are not cut at the tail. */
 		debugStep('scheduleAudioTeardown');
-		setTimeout(drop, stickerHoldSec(audioElement) * 1000);
+		setTimeout(done, stickerHoldSec(audioElement) * 1000 + AUDIO_TEARDOWN_GRACE_MS);
 	}
 
 	function scheduleVideoTeardown(mediaElement, container) {
